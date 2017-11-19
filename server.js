@@ -104,7 +104,7 @@ const staticFileList = [
   },
   {
     httpPath: '/favicon.ico',
-    filePath: 'rsapberrypi-favicon.ico',
+    filePath: 'raspberrypi-favicon.ico',
     contentType: 'image/x-icon'
   }
 ]
