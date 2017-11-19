@@ -38,7 +38,7 @@ const commandList = [
   },
   {
     httpPath: '/iwconfig',
-    command: 'iwconfig',
+    command: '/sbin/iwconfig',
     description: 'iwconfig'
   },
   {
