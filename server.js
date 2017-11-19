@@ -17,9 +17,6 @@ const logger = new winston.Logger({
         return new Date().toISOString()
       },
       formatter: function(options) {
-        // - Return string will be passed to logger.
-        // - Optionally, use options.colorize(options.level, <string>) to
-        //   colorize output based on the log level.
         return options.timestamp() + ' ' +
           options.level.toUpperCase() + ' ' +
           (options.message ? options.message : '') +
