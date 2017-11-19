@@ -58,7 +58,7 @@ const commandList = [
   },
   {
     httpPath: '/pitemp',
-    command: '/home/pi/bin/pitemp.sh,
+    command: '/home/pi/bin/pitemp.sh',
     description: 'pitemp'
   },
   {
@@ -105,7 +105,7 @@ const staticFileList = [
   },
   {
     httpPath: '/favicon.ico',
-    filePath: 'rsapberrypi-favicon.ico'
+    filePath: 'rsapberrypi-favicon.ico',
     contentType: 'image/x-icon'
   }
 ]
@@ -125,7 +125,7 @@ const indexHtml = `<!DOCTYPE html>
   <h2>Aaron\'s Raspberry Pi</h2>
   <h3>Commands:</h3>
   <ul>
-    ${commandList.map(command => `<li><a href="${command.httpPath}">${command.description}</a></li>`)}
+    ${commandList.map(command => `<li><a href="${command.httpPath}">${command.description}</a></li>`).join('')}
   </ul>
 </body>
 </html>
@@ -139,7 +139,7 @@ async function serveCommand(command, response) {
     preString += `$ ${command.command}\n\n`
     preString += escapeHtml(stderr + stdout)
   } catch (err) {
-    preString = 'error running command: ' + err
+    preString = err
   }
 
   const commandHtml = `<!DOCTYPE html>
