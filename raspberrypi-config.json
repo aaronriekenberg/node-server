@@ -1,0 +1,83 @@
+{
+  "port": "8081",
+  "mainPageTitle": "Aaron's Raspberry Pi",
+  "commandList": [
+  {
+    "httpPath": "/ifconfig",
+    "command": "/sbin/ifconfig",
+    "description": "ifconfig"
+  },
+  {
+    "httpPath": "/iwconfig",
+    "command": "/sbin/iwconfig",
+    "description": "iwconfig"
+  },
+  {
+    "httpPath": "/ncal",
+    "command": "ncal -h -y",
+    "description": "ncal"
+  },
+  {
+    "httpPath": "/netstat",
+    "command": "netstat -an",
+    "description": "netstat"
+  },
+  {
+    "httpPath": "/ntpq",
+    "command": "ntpq -p",
+    "description": "ntpq"
+  },
+  {
+    "httpPath": "/pitemp",
+    "command": "/home/pi/bin/pitemp.sh",
+    "description": "pitemp"
+  },
+  {
+    "httpPath": "/tail_log",
+    "command": "tail -n20 /home/pi/node-server/output",
+    "description": "tail log"
+  },
+  {
+    "httpPath": "/top",
+    "command": "top -b -n1",
+    "description": "top"
+  },
+  {
+    "httpPath": "/unbound_infra",
+    "command": "sudo unbound-control dump_infra",
+    "description": "unbound infra"
+  },
+  {
+    "httpPath": "/unbound_stats",
+    "command": "sudo unbound-control stats_noreset",
+    "description": "unbound stats"
+  },
+  {
+    "httpPath": "/uptime",
+    "command": "uptime",
+    "description": "uptime"
+  },
+  {
+    "httpPath": "/vmstat",
+    "command": "vmstat",
+    "description": "vmstat"
+  },
+  {
+    "httpPath": "/w",
+    "command": "w",
+    "description": "w"
+  }
+  ],
+  "staticFileList": [
+  {
+    "httpPath": "/style.css",
+    "filePath": "style.css",
+    "contentType": "text/css"
+  },
+  {
+    "httpPath": "/favicon.ico",
+    "filePath": "raspberrypi-favicon.ico",
+    "contentType": "image/x-icon"
+  }
+  ]
+}
