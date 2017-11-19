@@ -95,7 +95,6 @@ const commandList = [
 
 const commandMap = new Map()
 commandList.forEach(command => commandMap.set(command.httpPath, command))
-logger.info("commandMap", commandMap)
 
 const staticFileList = [
   {
@@ -112,7 +111,6 @@ const staticFileList = [
 
 const staticFileMap = new Map()
 staticFileList.forEach(staticFile => staticFileMap.set(staticFile.httpPath, staticFile))
-logger.info("staticFileMap", staticFileMap)
 
 const indexHtml = `<!DOCTYPE html>
 <html>
@@ -174,7 +172,7 @@ async function serveFile(staticFile, response) {
 
 async function requestHandler(request, response) {
   response.on('finish', function() {
-    logger.info(`${request.method} ${request.url} ${response.statusCode}`)
+    logger.info(`${request.socket.remoteAddress}:${request.socket.remotePort} ${request.method} ${request.url} ${response.statusCode}`)
   })
 
   if (request.url == '/') {
