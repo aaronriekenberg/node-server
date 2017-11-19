@@ -72,12 +72,14 @@
   {
     "httpPath": "/style.css",
     "filePath": "style.css",
-    "contentType": "text/css"
+    "contentType": "text/css",
+    "cacheMaxAgeSeconds": 3600
   },
   {
     "httpPath": "/favicon.ico",
     "filePath": "raspberrypi-favicon.ico",
-    "contentType": "image/x-icon"
+    "contentType": "image/x-icon",
+    "cacheMaxAgeSeconds": 3600
   }
   ]
 }

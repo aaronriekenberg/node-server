@@ -97,7 +97,10 @@ async function serveCommand(command, response) {
 async function serveFile(staticFile, response) {
   try {
     const data = await asyncReadFile(staticFile.filePath)
-    response.writeHead(200, {'Content-Type': staticFile.contentType})
+    response.writeHead(200, {
+      'Content-Type': staticFile.contentType,
+      'Cache-Control': 'max-age=' + staticFile.cacheMaxAgeSeconds
+    })
     response.end(data)
   } catch (err) {
     logger.error('serveFile err = ' + err)
