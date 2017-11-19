@@ -32,7 +32,7 @@ if (process.argv.length != 3) {
 }
 
 const configuration = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'))
-logger.info("configuration = " + JSON.stringify(configuration))
+logger.info("configuration = " + JSON.stringify(configuration, null, 2))
 
 const commandMap = new Map()
 configuration.commandList.forEach(command => commandMap.set(command.httpPath, command))
