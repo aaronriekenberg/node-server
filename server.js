@@ -22,7 +22,7 @@ const logger = new winston.Logger({
         // - Optionally, use options.colorize(options.level, <string>) to
         //   colorize output based on the log level.
         return options.timestamp() + ' ' +
-          winston.config.colorize(options.level, options.level.toUpperCase()) + ' ' +
+          options.level.toUpperCase() + ' ' +
           (options.message ? options.message : '') +
           (options.meta && Object.keys(options.meta).length ? '\n\t'+ JSON.stringify(options.meta) : '')
       }
@@ -60,6 +60,11 @@ const commandList = [
     httpPath: '/pitemp',
     command: '/home/pi/bin/pitemp.sh',
     description: 'pitemp'
+  },
+  {
+    httpPath: '/tail_log',
+    command: 'tail -n20 /home/pi/node-server/output',
+    description: 'tail log'
   },
   {
     httpPath: '/top',
