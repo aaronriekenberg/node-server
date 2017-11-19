@@ -106,6 +106,11 @@ async function serveFile(staticFile, response) {
   }
 }
 
+function serveNotFound(response) {
+  response.writeHead(404, {'Content-Type': 'text/plain'})
+  response.end('Unknown path')
+}
+
 async function requestHandler(request, response) {
   response.on('finish', function() {
     logger.info(`${request.socket.remoteAddress}:${request.socket.remotePort} ${request.method} ${request.url} ${response.statusCode}`)
@@ -120,8 +125,7 @@ async function requestHandler(request, response) {
     const staticFile = staticFileMap.get(request.url)
     await serveFile(staticFile, response)
   } else {
-    response.writeHead(404, {'Content-Type': 'text/plain'})
-    response.end('Unknown path')
+    serveNotFound(response)
   }
 }
 
