@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+'use strict'
+
 const child_process = require('child_process')
 const escapeHtml = require('escape-html')
 const fs = require('fs')
