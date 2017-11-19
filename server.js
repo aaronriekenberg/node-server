@@ -129,6 +129,11 @@ const indexHtml = `<!DOCTYPE html>
 </html>
 `
 
+function serveIndex(response) {
+  response.writeHead(200, {'Content-Type': 'text/html'})
+  response.end(indexHtml)
+}
+
 async function serveCommand(command, response) {
   let preString
   try {
@@ -176,8 +181,7 @@ async function requestHandler(request, response) {
   })
 
   if (request.url == '/') {
-    response.writeHead(200, {'Content-Type': 'text/html'})
-    response.end(indexHtml)
+    serveIndex(response)
   } else if (commandMap.has(request.url)) {
     const command = commandMap.get(request.url)
     await serveCommand(command, response)
