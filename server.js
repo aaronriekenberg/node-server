@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 
 const child_process = require('child_process')
+const escapeHtml = require('escape-html')
+const fs = require('fs')
 const http = require('http')
 const util = require('util')
 const winston = require('winston')
 const asyncExec = util.promisify(child_process.exec)
+const asyncReadFile = util.promisify(fs.readFile)
 
-const port = 8080
+const port = 8081
 
 const logger = new winston.Logger({
   transports: [
@@ -27,18 +30,162 @@ const logger = new winston.Logger({
   ]
 });
 
-async function runCommand() {
-  const { stdout, stderr } = await asyncExec('ls -l')
-  return stderr + stdout
+const commandList = [
+  {
+    httpPath: '/ifconfig',
+    command: '/sbin/ifconfig',
+    description: 'ifconfig'
+  },
+  {
+    httpPath: '/iwconfig',
+    command: 'iwconfig',
+    description: 'iwconfig'
+  },
+  {
+    httpPath: '/ncal',
+    command: 'ncal -h -y',
+    description: 'ncal'
+  },
+  {
+    httpPath: '/netstat',
+    command: 'netstat -an',
+    description: 'netstat'
+  },
+  {
+    httpPath: '/ntpq',
+    command: 'ntpq -p',
+    description: 'ntpq'
+  },
+  {
+    httpPath: '/pitemp',
+    command: '/home/pi/bin/pitemp.sh,
+    description: 'pitemp'
+  },
+  {
+    httpPath: '/top',
+    command: 'top -b -n1',
+    description: 'top'
+  },
+  {
+    httpPath: '/unbound_infra',
+    command: 'sudo unbound-control dump_infra',
+    description: 'unbound infra'
+  },
+  {
+    httpPath: '/unbound_stats',
+    command: 'sudo unbound-control stats_noreset',
+    description: 'unbound stats'
+  },
+  {
+    httpPath: '/uptime',
+    command: 'uptime',
+    description: 'uptime'
+  },
+  {
+    httpPath: '/vmstat',
+    command: 'vmstat',
+    description: 'vmstat'
+  },
+  {
+    httpPath: '/w',
+    command: 'w',
+    description: 'w'
+  }
+]
+
+const commandMap = new Map()
+commandList.forEach(command => commandMap.set(command.httpPath, command))
+logger.info("commandMap", commandMap)
+
+const staticFileList = [
+  {
+    httpPath: '/style.css',
+    filePath: 'style.css',
+    contentType: 'text/css'
+  },
+  {
+    httpPath: '/favicon.ico',
+    filePath: 'rsapberrypi-favicon.ico'
+    contentType: 'image/x-icon'
+  }
+]
+
+const staticFileMap = new Map()
+staticFileList.forEach(staticFile => staticFileMap.set(staticFile.httpPath, staticFile))
+logger.info("staticFileMap", staticFileMap)
+
+const indexHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <title>Aaron\'s Raspberry Pi</title>
+  <meta name="viewport" content="width=device, initial-scale=1" />
+  <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+  <h2>Aaron\'s Raspberry Pi</h2>
+  <h3>Commands:</h3>
+  <ul>
+    ${commandList.map(command => `<li><a href="${command.httpPath}">${command.description}</a></li>`)}
+  </ul>
+</body>
+</html>
+`
+
+async function serveCommand(command, response) {
+  let preString
+  try {
+    const { stdout, stderr } = await asyncExec(command.command)
+    preString = `Now: ${new Date().toISOString()}\n\n`
+    preString += `$ ${command.command}\n\n`
+    preString += escapeHtml(stderr + stdout)
+  } catch (err) {
+    preString = 'error running command: ' + err
+  }
+
+  const commandHtml = `<!DOCTYPE html>
+  <html>
+  <head>
+    <title>${command.description}</title>
+    <meta name="viewport" content="width=device, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <a href="..">..</a>
+    <pre>${preString}</pre>
+  </body>
+  </html>
+  `
+
+  response.writeHead(200, {'Content-Type': 'text/html'})
+  response.end(commandHtml)
+}
+
+async function serveFile(staticFile, response) {
+  try {
+    const data = await asyncReadFile(staticFile.filePath)
+    response.writeHead(200, {'Content-Type': staticFile.contentType})
+    response.end(data)
+  } catch (err) {
+    logger.error('serveFile err = ' + err)
+    response.writeHead(404)
+    response.end()
+  }
 }
 
 async function requestHandler(request, response) {
-  logger.info('request = ' + request.url)
+  response.on('finish', function() {
+    logger.info(`${request.method} ${request.url} ${response.statusCode}`)
+  })
+
   if (request.url == '/') {
-    commandOutput = await runCommand() 
-    logger.info('commandOutput = ' + commandOutput)
-    response.writeHead(200, {'Content-Type': 'text/plain'})
-    response.end('Hello Node.js Server!')
+    response.writeHead(200, {'Content-Type': 'text/html'})
+    response.end(indexHtml)
+  } else if (commandMap.has(request.url)) {
+    const command = commandMap.get(request.url)
+    await serveCommand(command, response)
+  } else if (staticFileMap.has(request.url)) {
+    const staticFile = staticFileMap.get(request.url)
+    await serveFile(staticFile, response)
   } else {
     response.writeHead(404, {'Content-Type': 'text/plain'})
     response.end('Unknown path')
