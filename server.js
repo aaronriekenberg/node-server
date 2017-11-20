@@ -137,7 +137,7 @@ AsyncServer.prototype.start = function() {
       logger.error('something bad happened', err)
       return
     }
-    logger.info(`server is listening on ${this.configuration.port}`)
+    logger.info(`server is listening on ${asyncServer.configuration.port}`)
   })
 }
 
