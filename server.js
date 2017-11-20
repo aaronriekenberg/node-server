@@ -28,21 +28,16 @@ const logger = new winston.Logger({
   ]
 });
 
-if (process.argv.length != 3) {
-  console.log("Usage: " + process.argv[1] + " <config json>")
-  process.exit(1)
-}
+function AsyncServer(configuration) {
+  this.configuration = configuration
 
-const configuration = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'))
-logger.info("configuration = " + JSON.stringify(configuration, null, 2))
+  this.commandMap = new Map()
+  configuration.commandList.forEach(command => this.commandMap.set(command.httpPath, command))
 
-const commandMap = new Map()
-configuration.commandList.forEach(command => commandMap.set(command.httpPath, command))
+  this.staticFileMap = new Map()
+  configuration.staticFileList.forEach(staticFile => this.staticFileMap.set(staticFile.httpPath, staticFile))
 
-const staticFileMap = new Map()
-configuration.staticFileList.forEach(staticFile => staticFileMap.set(staticFile.httpPath, staticFile))
-
-const indexHtml = `<!DOCTYPE html>
+  this.indexHtml = `<!DOCTYPE html>
 <html>
 <head>
   <title>${configuration.mainPageTitle}</title>
@@ -58,13 +53,14 @@ const indexHtml = `<!DOCTYPE html>
 </body>
 </html>
 `
-
-function serveIndex(response) {
-  response.writeHead(200, {'Content-Type': 'text/html'})
-  response.end(indexHtml)
 }
 
-async function serveCommand(command, response) {
+AsyncServer.prototype.serveIndex = function(response) {
+  response.writeHead(200, {'Content-Type': 'text/html'})
+  response.end(this.indexHtml)
+}
+
+AsyncServer.prototype.serveCommand = async function(command, response) {
   let preString
   try {
     const { stdout, stderr } = await asyncExec(command.command)
@@ -93,7 +89,7 @@ async function serveCommand(command, response) {
   response.end(commandHtml)
 }
 
-async function serveFile(staticFile, response) {
+AsyncServer.prototype.serveFile = async function(staticFile, response) {
   try {
     const data = await asyncReadFile(staticFile.filePath)
     response.writeHead(200, {
@@ -108,38 +104,54 @@ async function serveFile(staticFile, response) {
   }
 }
 
-function serveNotFound(response) {
+AsyncServer.prototype.serveNotFound = function(response) {
   response.writeHead(404, {'Content-Type': 'text/plain'})
   response.end('Unknown path')
 }
 
-async function requestHandler(request, response) {
-  response.on('finish', function() {
-    logger.info(`${request.socket.remoteAddress}:${request.socket.remotePort} ${request.method} ${request.url} ${response.statusCode}`)
+AsyncServer.prototype.start = function() {
+  logger.info("start")
+
+  const asyncServer = this
+
+  const httpServer = http.createServer(async function(request, response) {
+    response.on('finish', function() {
+      logger.info(`${request.socket.remoteAddress}:${request.socket.remotePort} ${request.method} ${request.url} ${response.statusCode}`)
+    })
+
+    if (request.url == '/') {
+      asyncServer.serveIndex(response)
+    } else if (asyncServer.commandMap.has(request.url)) {
+      const command = asyncServer.commandMap.get(request.url)
+      await asyncServer.serveCommand(command, response)
+    } else if (asyncServer.staticFileMap.has(request.url)) {
+      const staticFile = asyncServer.staticFileMap.get(request.url)
+      await asyncServer.serveFile(staticFile, response)
+    } else {
+      asyncServer.serveNotFound(response)
+    }
   })
 
-  if (request.url == '/') {
-    serveIndex(response)
-  } else if (commandMap.has(request.url)) {
-    const command = commandMap.get(request.url)
-    await serveCommand(command, response)
-  } else if (staticFileMap.has(request.url)) {
-    const staticFile = staticFileMap.get(request.url)
-    await serveFile(staticFile, response)
-  } else {
-    serveNotFound(response)
-  }
-}
-
-function main() {
-  const server = http.createServer(requestHandler)
-  server.listen(configuration.port, (err) => {
+  httpServer.listen(this.configuration.port, (err) => {
     if (err) {
       logger.error('something bad happened', err)
       return
     }
-    logger.info(`server is listening on ${configuration.port}`)
+    logger.info(`server is listening on ${this.configuration.port}`)
   })
+}
+
+function main() {
+  if (process.argv.length != 3) {
+    console.log("Usage: " + process.argv[1] + " <config json>")
+    process.exit(1)
+  }
+
+  const configuration = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'))
+  logger.info("configuration = " + JSON.stringify(configuration, null, 2))
+
+  const asyncServer = new AsyncServer(configuration)
+  asyncServer.start()
 }
 
 main()
