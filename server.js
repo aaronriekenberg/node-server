@@ -37,7 +37,17 @@ function AsyncServer(configuration) {
   this.staticFileMap = new Map();
   configuration.staticFileList.forEach(staticFile => this.staticFileMap.set(staticFile.httpPath, staticFile));
 
-  this.indexHtml = `<!DOCTYPE html>
+  this.indexHtml = AsyncServer.buildIndexHtml(configuration);
+}
+
+AsyncServer.buildIndexHtml = function(configuration) {
+
+  function buildLiForCommand(command) {
+    return `<li><a href="${command.httpPath}">${command.description}</a></li>`;
+  }
+
+  let indexHtml =
+`<!DOCTYPE html>
 <html>
 <head>
   <title>${configuration.mainPageTitle}</title>
@@ -48,11 +58,13 @@ function AsyncServer(configuration) {
   <h2>${configuration.mainPageTitle}</h2>
   <h3>Commands:</h3>
   <ul>
-    ${configuration.commandList.map(command => `<li><a href="${command.httpPath}">${command.description}</a></li>`).join('')}
+    ${configuration.commandList.map(command => buildLiForCommand(command)).join('\n    ')}
   </ul>
 </body>
 </html>
 `;
+
+  return indexHtml;
 }
 
 AsyncServer.prototype.serveIndex = function(response) {
@@ -71,19 +83,20 @@ AsyncServer.prototype.serveCommand = async function(command, response) {
     preString = err;
   }
 
-  const commandHtml = `<!DOCTYPE html>
-  <html>
-  <head>
-    <title>${command.description}</title>
-    <meta name="viewport" content="width=device, initial-scale=1" />
-    <link rel="stylesheet" type="text/css" href="style.css" />
-  </head>
-  <body>
-    <a href="..">..</a>
-    <pre>${preString}</pre>
-  </body>
-  </html>
-  `;
+  const commandHtml =
+`<!DOCTYPE html>
+<html>
+<head>
+  <title>${command.description}</title>
+  <meta name="viewport" content="width=device, initial-scale=1" />
+  <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+  <a href="..">..</a>
+  <pre>${preString}</pre>
+</body>
+</html>
+`;
 
   response.writeHead(200, {'Content-Type': 'text/html'});
   response.end(commandHtml);
