@@ -33,6 +33,11 @@
     "description": "pitemp"
   },
   {
+    "httpPath": "/sleep",
+    "command": "sleep 5",
+    "description": "sleep 5"
+  },
+  {
     "httpPath": "/tail_log",
     "command": "tail -n20 /home/pi/node-server/output",
     "description": "tail log"
