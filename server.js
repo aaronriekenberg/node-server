@@ -119,7 +119,7 @@ AsyncServer.prototype.start = function() {
       logger.info(`${request.socket.remoteAddress}:${request.socket.remotePort} ${request.method} ${request.url} ${response.statusCode}`)
     })
 
-    if (request.url == '/') {
+    if (request.url === '/') {
       asyncServer.serveIndex(response)
     } else if (asyncServer.commandMap.has(request.url)) {
       const command = asyncServer.commandMap.get(request.url)
