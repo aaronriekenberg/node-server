@@ -123,9 +123,12 @@ AsyncServer.prototype.start = function() {
   const asyncServer = this;
 
   const httpServer = http.createServer(async function(request, response) {
+    const startTimeMS = new Date().getTime();
+
     response.on('finish', function() {
-      logger.info(`${request.socket.remoteAddress}:${request.socket.remotePort} ${request.method} ${request.url} ${response.statusCode}`);
-    })
+      const durationMS = new Date().getTime() - startTimeMS;
+      logger.info(`${request.socket.remoteAddress}:${request.socket.remotePort} ${request.method} ${request.url} ${response.statusCode} ${durationMS}ms`);
+    });
 
     if (request.url === '/') {
       asyncServer.serveIndex(response);
