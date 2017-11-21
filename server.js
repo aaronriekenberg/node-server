@@ -35,10 +35,10 @@ function AsyncServer(configuration) {
 
   this.urlToHandler.set('/', AsyncServer.buildIndexHandler(configuration));
 
-  configuration.commandList.forEach(
+  this.configuration.commandList.forEach(
     command => this.urlToHandler.set(command.httpPath, AsyncServer.buildCommandHandler(command)));
 
-  configuration.staticFileList.forEach(
+  this.configuration.staticFileList.forEach(
     staticFile => this.urlToHandler.set(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
 }
 
