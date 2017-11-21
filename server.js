@@ -92,10 +92,7 @@ AsyncServer.prototype.serveCommand = async function(command, response) {
 AsyncServer.prototype.serveFile = async function(staticFile, response) {
   try {
     const data = await asyncReadFile(staticFile.filePath);
-    response.writeHead(200, {
-      'Content-Type': staticFile.contentType,
-      'Cache-Control': 'max-age=' + staticFile.cacheMaxAgeSeconds
-    });
+    response.writeHead(200, staticFile.headers);
     response.end(data);
   } catch (err) {
     logger.error('serveFile err = ' + err);
