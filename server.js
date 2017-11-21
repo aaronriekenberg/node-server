@@ -1,41 +1,41 @@
 #!/usr/bin/env node
 
-'use strict'
+'use strict';
 
-const child_process = require('child_process')
-const escapeHtml = require('escape-html')
-const fs = require('fs')
-const http = require('http')
-const process = require('process')
-const util = require('util')
-const winston = require('winston')
-const asyncExec = util.promisify(child_process.exec)
-const asyncReadFile = util.promisify(fs.readFile)
+const child_process = require('child_process');
+const escapeHtml = require('escape-html');
+const fs = require('fs');
+const http = require('http');
+const process = require('process');
+const util = require('util');
+const winston = require('winston');
+const asyncExec = util.promisify(child_process.exec);
+const asyncReadFile = util.promisify(fs.readFile);
 
 const logger = new winston.Logger({
   transports: [
     new winston.transports.Console({
       timestamp: function() {
-        return new Date().toISOString()
+        return new Date().toISOString();
       },
       formatter: function(options) {
         return options.timestamp() + ' ' +
           options.level.toUpperCase() + ' ' +
           (options.message ? options.message : '') +
-          (options.meta && Object.keys(options.meta).length ? '\n\t'+ JSON.stringify(options.meta) : '')
+          (options.meta && Object.keys(options.meta).length ? '\n\t'+ JSON.stringify(options.meta) : '');
       }
     })
   ]
 });
 
 function AsyncServer(configuration) {
-  this.configuration = configuration
+  this.configuration = configuration;
 
-  this.commandMap = new Map()
-  configuration.commandList.forEach(command => this.commandMap.set(command.httpPath, command))
+  this.commandMap = new Map();
+  configuration.commandList.forEach(command => this.commandMap.set(command.httpPath, command));
 
-  this.staticFileMap = new Map()
-  configuration.staticFileList.forEach(staticFile => this.staticFileMap.set(staticFile.httpPath, staticFile))
+  this.staticFileMap = new Map();
+  configuration.staticFileList.forEach(staticFile => this.staticFileMap.set(staticFile.httpPath, staticFile));
 
   this.indexHtml = `<!DOCTYPE html>
 <html>
@@ -52,23 +52,23 @@ function AsyncServer(configuration) {
   </ul>
 </body>
 </html>
-`
+`;
 }
 
 AsyncServer.prototype.serveIndex = function(response) {
-  response.writeHead(200, {'Content-Type': 'text/html'})
-  response.end(this.indexHtml)
+  response.writeHead(200, {'Content-Type': 'text/html'});
+  response.end(this.indexHtml);
 }
 
 AsyncServer.prototype.serveCommand = async function(command, response) {
-  let preString
+  let preString;
   try {
-    const { stdout, stderr } = await asyncExec(command.command)
-    preString = `Now: ${new Date().toISOString()}\n\n`
-    preString += `$ ${command.command}\n\n`
-    preString += escapeHtml(stderr + stdout)
+    const { stdout, stderr } = await asyncExec(command.command);
+    preString = `Now: ${new Date().toISOString()}\n\n`;
+    preString += `$ ${command.command}\n\n`;
+    preString += escapeHtml(stderr + stdout);
   } catch (err) {
-    preString = err
+    preString = err;
   }
 
   const commandHtml = `<!DOCTYPE html>
@@ -83,75 +83,73 @@ AsyncServer.prototype.serveCommand = async function(command, response) {
     <pre>${preString}</pre>
   </body>
   </html>
-  `
+  `;
 
-  response.writeHead(200, {'Content-Type': 'text/html'})
-  response.end(commandHtml)
+  response.writeHead(200, {'Content-Type': 'text/html'});
+  response.end(commandHtml);
 }
 
 AsyncServer.prototype.serveFile = async function(staticFile, response) {
   try {
-    const data = await asyncReadFile(staticFile.filePath)
+    const data = await asyncReadFile(staticFile.filePath);
     response.writeHead(200, {
       'Content-Type': staticFile.contentType,
       'Cache-Control': 'max-age=' + staticFile.cacheMaxAgeSeconds
-    })
-    response.end(data)
+    });
+    response.end(data);
   } catch (err) {
-    logger.error('serveFile err = ' + err)
-    response.writeHead(404)
-    response.end()
+    logger.error('serveFile err = ' + err);
+    response.writeHead(404);
+    response.end();
   }
 }
 
 AsyncServer.prototype.serveNotFound = function(response) {
-  response.writeHead(404, {'Content-Type': 'text/plain'})
-  response.end('Unknown path')
+  response.writeHead(404, {'Content-Type': 'text/plain'});
+  response.end('Unknown path');
 }
 
 AsyncServer.prototype.start = function() {
-  logger.info("start")
-
-  const asyncServer = this
+  const asyncServer = this;
 
   const httpServer = http.createServer(async function(request, response) {
     response.on('finish', function() {
-      logger.info(`${request.socket.remoteAddress}:${request.socket.remotePort} ${request.method} ${request.url} ${response.statusCode}`)
+      logger.info(`${request.socket.remoteAddress}:${request.socket.remotePort} ${request.method} ${request.url} ${response.statusCode}`);
     })
 
     if (request.url === '/') {
-      asyncServer.serveIndex(response)
+      asyncServer.serveIndex(response);
     } else if (asyncServer.commandMap.has(request.url)) {
-      const command = asyncServer.commandMap.get(request.url)
-      await asyncServer.serveCommand(command, response)
+      const command = asyncServer.commandMap.get(request.url);
+      await asyncServer.serveCommand(command, response);
     } else if (asyncServer.staticFileMap.has(request.url)) {
-      const staticFile = asyncServer.staticFileMap.get(request.url)
-      await asyncServer.serveFile(staticFile, response)
+      const staticFile = asyncServer.staticFileMap.get(request.url);
+      await asyncServer.serveFile(staticFile, response);
     } else {
-      asyncServer.serveNotFound(response)
+      asyncServer.serveNotFound(response);
     }
-  })
+  });
 
   httpServer.listen(this.configuration.port, (err) => {
     if (err) {
-      logger.error('something bad happened', err)
-      return
+      logger.error('something bad happened', err);
+      return;
     }
-    logger.info(`server is listening on ${asyncServer.configuration.port}`)
-  })
+    logger.info(`server is listening on ${asyncServer.configuration.port}`);
+  });
 }
 
 function main() {
   if (process.argv.length != 3) {
-    console.log("Usage: " + process.argv[1] + " <config json>")
-    process.exit(1)
+    console.log("Usage: " + process.argv[1] + " <config json>");
+    process.exit(1);
   }
 
-  const configuration = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'))
-  logger.info("configuration = " + JSON.stringify(configuration, null, 2))
+  const configuration = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+  logger.info("configuration = " + JSON.stringify(configuration, null, 2));
 
-  const asyncServer = new AsyncServer(configuration)
-  asyncServer.start()
+  const asyncServer = new AsyncServer(configuration);
+  asyncServer.start();
 }
 
-main()
+main();
