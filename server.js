@@ -31,16 +31,18 @@ const logger = new winston.Logger({
 function AsyncServer(configuration) {
   this.configuration = configuration;
 
-  this.commandMap = new Map();
-  configuration.commandList.forEach(command => this.commandMap.set(command.httpPath, command));
+  this.urlToHandler = new Map();
 
-  this.staticFileMap = new Map();
-  configuration.staticFileList.forEach(staticFile => this.staticFileMap.set(staticFile.httpPath, staticFile));
+  this.urlToHandler.set('/', AsyncServer.buildIndexHandler(configuration));
 
-  this.indexHtml = AsyncServer.buildIndexHtml(configuration);
+  configuration.commandList.forEach(
+    command => this.urlToHandler.set(command.httpPath, AsyncServer.buildCommandHandler(command)));
+
+  configuration.staticFileList.forEach(
+    staticFile => this.urlToHandler.set(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
 }
 
-AsyncServer.buildIndexHtml = function(configuration) {
+AsyncServer.buildIndexHandler = function(configuration) {
 
   function buildLiForCommand(command) {
     return `<li><a href="${command.httpPath}">${command.description}</a></li>`;
@@ -64,26 +66,25 @@ AsyncServer.buildIndexHtml = function(configuration) {
 </html>
 `;
 
-  return indexHtml;
+  return async function(response) {
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end(indexHtml);
+  };
 }
 
-AsyncServer.prototype.serveIndex = function(response) {
-  response.writeHead(200, {'Content-Type': 'text/html'});
-  response.end(this.indexHtml);
-}
+AsyncServer.buildCommandHandler = function(command) {
+  return async function(response) {
+    let preString;
+    try {
+      const { stdout, stderr } = await asyncExec(command.command);
+      preString = `Now: ${new Date().toISOString()}\n\n`;
+      preString += `$ ${command.command}\n\n`;
+      preString += escapeHtml(stderr + stdout);
+    } catch (err) {
+      preString = err;
+    }
 
-AsyncServer.prototype.serveCommand = async function(command, response) {
-  let preString;
-  try {
-    const { stdout, stderr } = await asyncExec(command.command);
-    preString = `Now: ${new Date().toISOString()}\n\n`;
-    preString += `$ ${command.command}\n\n`;
-    preString += escapeHtml(stderr + stdout);
-  } catch (err) {
-    preString = err;
-  }
-
-  const commandHtml =
+    const commandHtml =
 `<!DOCTYPE html>
 <html>
 <head>
@@ -98,23 +99,26 @@ AsyncServer.prototype.serveCommand = async function(command, response) {
 </html>
 `;
 
-  response.writeHead(200, {'Content-Type': 'text/html'});
-  response.end(commandHtml);
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end(commandHtml);
+  };
 }
 
-AsyncServer.prototype.serveFile = async function(staticFile, response) {
-  try {
-    const data = await asyncReadFile(staticFile.filePath);
-    response.writeHead(200, staticFile.headers);
-    response.end(data);
-  } catch (err) {
-    logger.error('serveFile err = ' + err);
-    response.writeHead(404);
-    response.end();
+AsyncServer.buildStaticFileHandler = function(staticFile) {
+  return async function(response) {
+    try {
+      const data = await asyncReadFile(staticFile.filePath);
+      response.writeHead(200, staticFile.headers);
+      response.end(data);
+    } catch (err) {
+      logger.error('serveFile err = ' + err);
+      response.writeHead(404);
+      response.end();
+    }
   }
 }
 
-AsyncServer.prototype.serveNotFound = function(response) {
+AsyncServer.serveNotFound = function(response) {
   response.writeHead(404, {'Content-Type': 'text/plain'});
   response.end('Unknown path');
 }
@@ -130,16 +134,11 @@ AsyncServer.prototype.start = function() {
       logger.info(`${request.socket.remoteAddress}:${request.socket.remotePort} ${request.method} ${request.url} ${response.statusCode} ${durationMS}ms`);
     });
 
-    if (request.url === '/') {
-      asyncServer.serveIndex(response);
-    } else if (asyncServer.commandMap.has(request.url)) {
-      const command = asyncServer.commandMap.get(request.url);
-      await asyncServer.serveCommand(command, response);
-    } else if (asyncServer.staticFileMap.has(request.url)) {
-      const staticFile = asyncServer.staticFileMap.get(request.url);
-      await asyncServer.serveFile(staticFile, response);
+    const handler = asyncServer.urlToHandler.get(request.url);
+    if (handler) {
+      await handler(response);
     } else {
-      asyncServer.serveNotFound(response);
+      AsyncServer.serveNotFound(response);
     }
   });
 
