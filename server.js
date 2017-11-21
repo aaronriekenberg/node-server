@@ -66,7 +66,7 @@ AsyncServer.buildIndexHandler = function(configuration) {
 </html>
 `;
 
-  return async function(response) {
+  return function(response) {
     response.writeHead(200, {'Content-Type': 'text/html'});
     response.end(indexHtml);
   };
@@ -126,7 +126,7 @@ AsyncServer.serveNotFound = function(response) {
 AsyncServer.prototype.start = function() {
   const asyncServer = this;
 
-  const httpServer = http.createServer(async function(request, response) {
+  const httpServer = http.createServer(function(request, response) {
     const startTimeMS = new Date().getTime();
 
     response.on('finish', function() {
@@ -136,7 +136,7 @@ AsyncServer.prototype.start = function() {
 
     const handler = asyncServer.urlToHandler.get(request.url);
     if (handler) {
-      await handler(response);
+      handler(response);
     } else {
       AsyncServer.serveNotFound(response);
     }
