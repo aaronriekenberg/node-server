@@ -60,7 +60,7 @@ AsyncServer.buildIndexHandler = function(configuration) {
   <h2>${configuration.mainPageTitle}</h2>
   <h3>Commands:</h3>
   <ul>
-    ${configuration.commandList.map(command => buildLiForCommand(command)).join('\n    ')}
+    ${configuration.commandList.map(buildLiForCommand).join('\n    ')}
   </ul>
 </body>
 </html>
