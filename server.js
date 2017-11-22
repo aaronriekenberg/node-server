@@ -81,6 +81,7 @@ AsyncServer.buildCommandHandler = function(command) {
       preString += `$ ${command.command}\n\n`;
       preString += escapeHtml(stderr + stdout);
     } catch (err) {
+      logger.error('command err = ' + err);
       preString = err;
     }
 
@@ -111,7 +112,7 @@ AsyncServer.buildStaticFileHandler = function(staticFile) {
       response.writeHead(200, staticFile.headers);
       response.end(data);
     } catch (err) {
-      logger.error('serveFile err = ' + err);
+      logger.error('static file err = ' + err);
       response.writeHead(404);
       response.end();
     }
