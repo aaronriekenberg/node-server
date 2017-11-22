@@ -129,7 +129,9 @@ AsyncServer.prototype.start = function() {
 
     response.on('finish', function() {
       const durationMS = Date.now() - startTimeMS;
-      logger.info(`${request.socket.remoteAddress}:${request.socket.remotePort} ${request.method} ${request.url} ${response.statusCode} ${durationMS}ms`);
+      logger.info(
+        `${request.socket.remoteAddress}:${request.socket.remotePort} ` +
+        `${request.method} ${request.url} ${response.statusCode} ${durationMS}ms`);
     });
 
     const handler = this.urlToHandler.get(request.url);
