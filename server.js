@@ -127,10 +127,10 @@ AsyncServer.prototype.start = function() {
   const asyncServer = this;
 
   const httpServer = http.createServer(function(request, response) {
-    const startTimeMS = new Date().getTime();
+    const startTimeMS = Date.now();
 
     response.on('finish', function() {
-      const durationMS = new Date().getTime() - startTimeMS;
+      const durationMS = Date.now() - startTimeMS;
       logger.info(`${request.socket.remoteAddress}:${request.socket.remotePort} ${request.method} ${request.url} ${response.statusCode} ${durationMS}ms`);
     });
 
