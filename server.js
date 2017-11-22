@@ -124,9 +124,7 @@ AsyncServer.serveNotFound = function(response) {
 }
 
 AsyncServer.prototype.start = function() {
-  const asyncServer = this;
-
-  const httpServer = http.createServer(function(request, response) {
+  const httpServer = http.createServer((request, response) => {
     const startTimeMS = Date.now();
 
     response.on('finish', function() {
@@ -134,7 +132,7 @@ AsyncServer.prototype.start = function() {
       logger.info(`${request.socket.remoteAddress}:${request.socket.remotePort} ${request.method} ${request.url} ${response.statusCode} ${durationMS}ms`);
     });
 
-    const handler = asyncServer.urlToHandler.get(request.url);
+    const handler = this.urlToHandler.get(request.url);
     if (handler) {
       handler(response);
     } else {
@@ -147,7 +145,7 @@ AsyncServer.prototype.start = function() {
       logger.error('something bad happened', err);
       return;
     }
-    logger.info(`server is listening on ${asyncServer.configuration.port}`);
+    logger.info(`server is listening on ${this.configuration.port}`);
   });
 }
 
