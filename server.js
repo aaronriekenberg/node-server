@@ -28,7 +28,9 @@ const logger = new winston.Logger({
   ]
 });
 
-function AsyncServer(configuration) {
+class AsyncServer {
+
+constructor(configuration) {
   this.configuration = configuration;
 
   this.urlToHandler = new Map();
@@ -42,7 +44,7 @@ function AsyncServer(configuration) {
     staticFile => this.urlToHandler.set(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
 }
 
-AsyncServer.buildIndexHandler = function(configuration) {
+static buildIndexHandler(configuration) {
 
   function buildLiForCommand(command) {
     return `<li><a href="${command.httpPath}">${command.description}</a></li>`;
@@ -94,7 +96,7 @@ AsyncServer.buildIndexHandler = function(configuration) {
   };
 }
 
-AsyncServer.buildCommandHandler = function(command) {
+static buildCommandHandler(command) {
   return async function(response) {
     let preString;
     try {
@@ -127,7 +129,7 @@ AsyncServer.buildCommandHandler = function(command) {
   };
 }
 
-AsyncServer.buildStaticFileHandler = function(staticFile) {
+static buildStaticFileHandler(staticFile) {
   return async function(response) {
     try {
       const data = await asyncReadFile(staticFile.filePath);
@@ -141,12 +143,12 @@ AsyncServer.buildStaticFileHandler = function(staticFile) {
   }
 }
 
-AsyncServer.serveNotFound = function(response) {
+static serveNotFound(response) {
   response.writeHead(404, {'Content-Type': 'text/plain'});
   response.end('Unknown path');
 }
 
-AsyncServer.prototype.start = function() {
+start() {
   const httpServer = http.createServer((request, response) => {
     const startTimeMS = Date.now();
 
@@ -175,6 +177,8 @@ AsyncServer.prototype.start = function() {
       }
       logger.info(`server is listening on ${this.configuration.listenAddress + ':' + this.configuration.listenPort}`);
     });
+}
+
 }
 
 function main() {

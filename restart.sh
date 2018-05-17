@@ -5,6 +5,8 @@ CONFIG_FILE=$(hostname)-config.json
 
 $KILL_CMD node
 
+sleep 2
+
 if [ ! -d logs ]; then
   mkdir logs
 fi
