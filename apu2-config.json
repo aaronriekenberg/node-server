@@ -1,0 +1,152 @@
+{
+  "listenAddress": "192.168.0.1",
+  "listenPort": "8080",
+  "mainPageTitle": "Aaron's APU2",
+  "commandList": [
+  {
+    "httpPath": "/arp",
+    "command": "/sbin/ifconfig",
+    "description": "arp"
+  },
+  {
+    "httpPath": "/dhcp-lease-list",
+    "command": "/home/aaron/rust-dhcp-leases/target/release/rust-dhcp-leases",
+    "description": "dhcp lease list"
+  },
+  {
+    "httpPath": "/dmesg",
+    "command": "sudo dmesg",
+    "description": "dmesg"
+  },
+  {
+    "httpPath": "/ifconfig",
+    "command": "/sbin/ifconfig",
+    "description": "ifconfig"
+  },
+  {
+    "httpPath": "/ncal",
+    "command": "ncal -h -y",
+    "description": "ncal"
+  },
+  {
+    "httpPath": "/netstat_an",
+    "command": "netstat -an",
+    "description": "netstat -an"
+  },
+  {
+    "httpPath": "/netstat_s",
+    "command": "netstat -s",
+    "description": "netstat -s"
+  },
+  {
+    "httpPath": "/ntpq",
+    "command": "ntpq -p",
+    "description": "ntpq"
+  },
+  {
+    "httpPath": "/sensors",
+    "command": "sensors",
+    "description": "sensors"
+  },
+  {
+    "httpPath": "/tail_log",
+    "command": "tail -n20 ~/node-server/output",
+    "description": "tail log"
+  },
+  {
+    "httpPath": "/top",
+    "command": "top -b -n1",
+    "description": "top"
+  },
+  {
+    "httpPath": "/unbound_infra",
+    "command": "sudo unbound-control dump_infra",
+    "description": "unbound infra"
+  },
+  {
+    "httpPath": "/unbound_stats",
+    "command": "sudo unbound-control stats_noreset",
+    "description": "unbound stats"
+  },
+  {
+    "httpPath": "/uptime",
+    "command": "uptime",
+    "description": "uptime"
+  },
+  {
+    "httpPath": "/vmstat",
+    "command": "vmstat",
+    "description": "vmstat"
+  },
+  {
+    "httpPath": "/w",
+    "command": "w",
+    "description": "w"
+  }
+  ],
+  "staticFileList": [
+  {
+    "httpPath": "/style.css",
+    "filePath": "style.css",
+    "headers": {
+      "Content-Type": "text/css",
+      "Cache-Control": "max-age=3600"
+    },
+    "includeInMainPage": false
+  },
+  {
+    "httpPath": "/vnstat.html",
+    "filePath": "/home/aaron/vnstat/vnstat.html",
+    "headers": {
+      "Content-Type": "text/html",
+      "Cache-Control": "max-age=60"
+    },
+    "includeInMainPage": true
+  },
+  {
+    "httpPath": "/vnstat_summary.png",
+    "filePath": "/home/aaron/vnstat/vnstat_summary.png",
+    "headers": {
+      "Content-Type": "image/png",
+      "Cache-Control": "max-age=60"
+    },
+    "includeInMainPage": false
+  },
+  {
+    "httpPath": "/vnstat_hours.png",
+    "filePath": "/home/aaron/vnstat/vnstat_hours.png",
+    "headers": {
+      "Content-Type": "image/png",
+      "Cache-Control": "max-age=60"
+    },
+    "includeInMainPage": false
+  },
+  {
+    "httpPath": "/vnstat_days.png",
+    "filePath": "/home/aaron/vnstat/vnstat_days.png",
+    "headers": {
+      "Content-Type": "image/png",
+      "Cache-Control": "max-age=60"
+    },
+    "includeInMainPage": false
+  },
+  {
+    "httpPath": "/vnstat_months.png",
+    "filePath": "/home/aaron/vnstat/vnstat_months.png",
+    "headers": {
+      "Content-Type": "image/png",
+      "Cache-Control": "max-age=60"
+    },
+    "includeInMainPage": false
+  },
+  {
+    "httpPath": "/vnstat_top10.png",
+    "filePath": "/home/aaron/vnstat/vnstat_top10.png",
+    "headers": {
+      "Content-Type": "image/png",
+      "Cache-Control": "max-age=60"
+    },
+    "includeInMainPage": false
+  }
+  ]
+}

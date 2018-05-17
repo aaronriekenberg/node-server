@@ -48,7 +48,28 @@ AsyncServer.buildIndexHandler = function(configuration) {
     return `<li><a href="${command.httpPath}">${command.description}</a></li>`;
   }
 
-  let indexHtml =
+  function buildLiForStaticFile(staticFile) {
+    return `<li><a href="${staticFile.httpPath}">${staticFile.filePath}</a></li>`;
+  }
+
+  function buildStaticFilesBlock() {
+    const staticFilesInMainPage =
+      configuration.staticFileList.filter(sf => sf.includeInMainPage);
+    if (staticFilesInMainPage.length === 0) {
+      return '';
+    } else {
+      const staticFilesBlockHtml =
+`
+  <h3>Static Paths:</h3>
+  <ul>
+    ${staticFilesInMainPage.map(buildLiForStaticFile).join('\n    ')}
+  </ul>
+`;
+      return staticFilesBlockHtml;
+    }
+  }
+
+  const indexHtml =
 `<!DOCTYPE html>
 <html>
 <head>
@@ -62,6 +83,7 @@ AsyncServer.buildIndexHandler = function(configuration) {
   <ul>
     ${configuration.commandList.map(buildLiForCommand).join('\n    ')}
   </ul>
+  ${buildStaticFilesBlock()}
 </body>
 </html>
 `;
@@ -143,13 +165,16 @@ AsyncServer.prototype.start = function() {
     }
   });
 
-  httpServer.listen(this.configuration.port, (err) => {
-    if (err) {
-      logger.error('something bad happened', err);
-      return;
-    }
-    logger.info(`server is listening on ${this.configuration.port}`);
-  });
+  httpServer.listen(
+    this.configuration.listenPort,
+    this.configuration.listenAddress,
+    err => {
+      if (err) {
+        logger.error('something bad happened', err);
+        return;
+      }
+      logger.info(`server is listening on ${this.configuration.listenAddress + ':' + this.configuration.listenPort}`);
+    });
 }
 
 function main() {
