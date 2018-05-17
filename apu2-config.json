@@ -24,6 +24,16 @@
     "description": "ifconfig"
   },
   {
+    "httpPath": "/log_ls",
+    "command": "ls -latrh ~/node-server/logs",
+    "description": "log ls"
+  },
+  {
+    "httpPath": "/log_tail",
+    "command": "tail -n20 ~/node-server/logs/current",
+    "description": "log tail"
+  },
+  {
     "httpPath": "/ncal",
     "command": "ncal -h -y",
     "description": "ncal"
@@ -47,11 +57,6 @@
     "httpPath": "/sensors",
     "command": "sensors",
     "description": "sensors"
-  },
-  {
-    "httpPath": "/tail_log",
-    "command": "tail -n20 ~/node-server/output",
-    "description": "tail log"
   },
   {
     "httpPath": "/top",
