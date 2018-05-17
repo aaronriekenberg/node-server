@@ -15,10 +15,10 @@ const asyncReadFile = util.promisify(fs.readFile);
 const logger = new winston.Logger({
   transports: [
     new winston.transports.Console({
-      timestamp: function() {
+      timestamp: () => {
         return new Date().toISOString();
       },
-      formatter: function(options) {
+      formatter: (options) => {
         return options.timestamp() + ' ' +
           options.level.toUpperCase() + ' ' +
           (options.message ? options.message : '') +
@@ -152,7 +152,7 @@ start() {
   const httpServer = http.createServer((request, response) => {
     const startTimeMS = Date.now();
 
-    response.on('finish', function() {
+    response.on('finish', () => {
       const durationMS = Date.now() - startTimeMS;
       logger.info(
         `${request.socket.remoteAddress}:${request.socket.remotePort} ` +
@@ -167,16 +167,17 @@ start() {
     }
   });
 
+  httpServer.on('error', (err) => {
+    logger.error('httpServer error err = ' + err);
+  });
+
   httpServer.listen(
     this.configuration.listenPort,
     this.configuration.listenAddress,
-    err => {
-      if (err) {
-        logger.error('something bad happened', err);
-        return;
-      }
+    () => {
       logger.info(`server is listening on ${this.configuration.listenAddress + ':' + this.configuration.listenPort}`);
     });
+
 }
 
 }
