@@ -5,7 +5,7 @@
 const child_process = require('child_process');
 const escapeHtml = require('escape-html');
 const fs = require('fs');
-const http = require('http');
+const http2 = require('http2');
 const process = require('process');
 const util = require('util');
 const winston = require('winston');
@@ -149,35 +149,45 @@ static serveNotFound(response) {
 }
 
 start() {
-  const httpServer = http.createServer((request, response) => {
-    const startTimeMS = Date.now();
+  const serverOptions = {
+    key: fs.readFileSync(this.configuration.tlsKeyFile),
+    cert: fs.readFileSync(this.configuration.tlsCertFile)
+  };
 
-    response.on('finish', () => {
-      const durationMS = Date.now() - startTimeMS;
-      logger.info(
-        `${request.socket.remoteAddress}:${request.socket.remotePort} ` +
-        `${request.method} ${request.url} ${response.statusCode} ${durationMS}ms`);
-    });
+  const requstHandler =
+    (request, response) => {
+      const startTimeMS = Date.now();
 
-    const handler = this.urlToHandler.get(request.url);
-    if (handler) {
-      handler(response);
-    } else {
-      AsyncServer.serveNotFound(response);
-    }
-  });
+      const remoteAddress = request.socket.remoteAddress;
+      const remotePort = request.socket.remotePort;
 
-  httpServer.on('error', (err) => {
-    logger.error('httpServer error err = ' + err);
-  });
+      response.on('finish', () => {
+        const durationMS = Date.now() - startTimeMS;
+        logger.info(
+          `${remoteAddress}:${remotePort} ` +
+          `${request.method} ${request.url} ${response.statusCode} ${durationMS}ms`);
+      });
+
+      const handler = this.urlToHandler.get(request.url);
+      if (handler) {
+        handler(response);
+      } else {
+        AsyncServer.serveNotFound(response);
+      }
+    };
+
+  const httpServer = http2.createSecureServer(serverOptions, requstHandler);
+
+  httpServer.on('error', (err) => logger.error('httpServer error err = ' + err));
+
+  const listenOptions = {
+    host: this.configuration.listenAddress,
+    port: this.configuration.listenPort
+  };
 
   httpServer.listen(
-    this.configuration.listenPort,
-    this.configuration.listenAddress,
-    () => {
-      logger.info(`server is listening on ${this.configuration.listenAddress + ':' + this.configuration.listenPort}`);
-    });
-
+    listenOptions,
+    () => logger.info(`server is listening on ${this.configuration.listenAddress + ':' + this.configuration.listenPort}`));
 }
 
 }
