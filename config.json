@@ -1,0 +1,33 @@
+{
+  "listenAddress": "127.0.0.1",
+  "listenPort": "8080",
+  "mainPageTitle": "JS Server",
+  "commandList": [
+  {
+    "httpPath": "/ifconfig",
+    "command": "/sbin/ifconfig",
+    "description": "ifconfig"
+  },
+  {
+    "httpPath": "/uptime",
+    "command": "uptime",
+    "description": "uptime"
+  },
+  {
+    "httpPath": "/w",
+    "command": "w",
+    "description": "w"
+  }
+  ],
+  "staticFileList": [
+  {
+    "httpPath": "/style.css",
+    "filePath": "style.css",
+    "headers": {
+      "Content-Type": "text/css",
+      "Cache-Control": "max-age=3600"
+    },
+    "includeInMainPage": false
+  }
+  ]
+}
