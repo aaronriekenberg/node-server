@@ -48,18 +48,25 @@ constructor(configuration) {
     staticFile => this.pathToHandler.set(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
 }
 
+static getRemoteAddressPort(stream) {
+  if (stream.session) {
+    return `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}`;
+  } else {
+    return 'UNKNOWN';
+  }
+}
+
 static writeResponse(stream, headers, body) {
   try {
-    const remoteAddress = stream.session.socket.remoteAddress;
-    const remotePort = stream.session.socket.remotePort;
-
     stream.respond(headers);
     stream.end(body);
 
-    logger.info(`<<< ${remoteAddress}:${remotePort} ${headers[':status']}`);
+    logger.info(`<<< ${AsyncServer.getRemoteAddressPort(stream)} ${headers[':status']}`);
   } catch (err) {
     logger.error('writeResponse error err = ' + err);
-    stream.session.destroy();
+    if (stream.session) {
+      stream.session.destroy();
+    }
   }
 }
 
@@ -172,14 +179,11 @@ static buildStaticFileHandler(staticFile) {
     Object.assign(responseHeaders, staticFile.headers);
 
     try {
-      const remoteAddress = stream.session.socket.remoteAddress;
-      const remotePort = stream.session.socket.remotePort;
-
       stream.respondWithFile(staticFile.filePath,
                              responseHeaders,
                              {statCheck, onError});
 
-      logger.info(`<<< ${remoteAddress}:${remotePort} respondWithFile ${staticFile.filePath}`);
+      logger.info(`<<< ${AsyncServer.getRemoteAddressPort(stream)} respondWithFile ${staticFile.filePath}`);
     } catch (err) {
       logger.error('respondWithFile error err = ' + err);
       stream.session.destroy();
@@ -205,13 +209,10 @@ start() {
   httpServer.on('error', (err) => logger.error('httpServer error err = ' + err));
 
   httpServer.on('stream', (stream, headers) => {
-    const remoteAddress = stream.session.socket.remoteAddress;
-    const remotePort = stream.session.socket.remotePort;
-
     const method = headers[':method'];
     const path = headers[':path'];
 
-    logger.info(`>>> ${remoteAddress}:${remotePort} ${method} ${path}`);
+    logger.info(`>>> ${AsyncServer.getRemoteAddressPort(stream)} ${method} ${path}`);
 
     if (method === 'GET') {
       const handler = this.pathToHandler.get(path);
