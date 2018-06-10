@@ -36,6 +36,11 @@
     "description": "log tail"
   },
   {
+    "httpPath": "/lscpu",
+    "command": "lscpu",
+    "description": "lscpu"
+  },
+  {
     "httpPath": "/ncal",
     "command": "ncal -h -y",
     "description": "ncal"
