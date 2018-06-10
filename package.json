@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "escape-html": "^1.0.3",
+    "moment": "^2.22.2",
     "winston": "^2.4.2"
   }
 }

@@ -6,17 +6,22 @@ const child_process = require('child_process');
 const escapeHtml = require('escape-html');
 const fs = require('fs');
 const http2 = require('http2');
+const moment = require('moment');
 const process = require('process');
 const util = require('util');
 const winston = require('winston');
 const asyncExec = util.promisify(child_process.exec);
 const asyncReadFile = util.promisify(fs.readFile);
 
+function formattedDateTime() {
+  return moment().format('YYYY-MM-DD[T]HH:mm:ss.SSSZ');
+}
+
 const logger = new winston.Logger({
   transports: [
     new winston.transports.Console({
       timestamp: () => {
-        return new Date().toISOString();
+        return formattedDateTime();
       },
       formatter: (options) => {
         return options.timestamp() + ' ' +
@@ -33,15 +38,30 @@ class AsyncServer {
 constructor(configuration) {
   this.configuration = configuration;
 
-  this.urlToHandler = new Map();
+  this.pathToHandler = new Map();
 
-  this.urlToHandler.set('/', AsyncServer.buildIndexHandler(configuration));
+  this.pathToHandler.set('/', AsyncServer.buildIndexHandler(configuration));
 
   this.configuration.commandList.forEach(
-    command => this.urlToHandler.set(command.httpPath, AsyncServer.buildCommandHandler(command)));
+    command => this.pathToHandler.set(command.httpPath, AsyncServer.buildCommandHandler(command)));
 
   this.configuration.staticFileList.forEach(
-    staticFile => this.urlToHandler.set(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
+    staticFile => this.pathToHandler.set(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
+}
+
+static writeResponse(stream, headers, body) {
+  try {
+    const remoteAddress = stream.session.socket.remoteAddress;
+    const remotePort = stream.session.socket.remotePort;
+
+    stream.respond(headers);
+    stream.end(body);
+
+    logger.info(`<<< ${remoteAddress}:${remotePort} ${headers[':status']}`);
+  } catch (err) {
+    logger.error('writeResponse error err = ' + err);
+    stream.session.destroy();
+  }
 }
 
 static buildIndexHandler(configuration) {
@@ -90,18 +110,20 @@ static buildIndexHandler(configuration) {
 </html>
 `;
 
-  return function(response) {
-    response.writeHead(200, {'Content-Type': 'text/html'});
-    response.end(indexHtml);
+  return function(stream) {
+    AsyncServer.writeResponse(
+      stream,
+      {':status': 200, 'content-type': 'text/html'},
+      indexHtml);
   };
 }
 
 static buildCommandHandler(command) {
-  return async function(response) {
+  return async function(stream) {
     let preString;
     try {
       const { stdout, stderr } = await asyncExec(command.command);
-      preString = `Now: ${new Date().toISOString()}\n\n`;
+      preString = `Now: ${formattedDateTime()}\n\n`;
       preString += `$ ${command.command}\n\n`;
       preString += escapeHtml(stderr + stdout);
     } catch (err) {
@@ -124,28 +146,53 @@ static buildCommandHandler(command) {
 </html>
 `;
 
-    response.writeHead(200, {'Content-Type': 'text/html'});
-    response.end(commandHtml);
+    AsyncServer.writeResponse(
+      stream,
+      {':status': 200, 'content-type': 'text/html'},
+      commandHtml);
   };
 }
 
 static buildStaticFileHandler(staticFile) {
-  return async function(response) {
+  return function(stream) {
+    const statCheck = (stat, headers) => {
+      headers['last-modified'] = stat.mtime.toUTCString();
+    };
+
+    const onError = (err) => {
+      logger.error('file onError err = ' + err);
+      if (err.code === 'ENOENT') {
+        stream.respond({':status': 404});
+      } else {
+        stream.respond({':status': 500});
+      }
+      stream.end();
+    };
+
+    const responseHeaders = {':status': 200};
+    Object.assign(responseHeaders, staticFile.headers);
+
     try {
-      const data = await asyncReadFile(staticFile.filePath);
-      response.writeHead(200, staticFile.headers);
-      response.end(data);
+      const remoteAddress = stream.session.socket.remoteAddress;
+      const remotePort = stream.session.socket.remotePort;
+
+      stream.respondWithFile(staticFile.filePath,
+                             responseHeaders,
+                             {statCheck, onError});
+
+      logger.info(`<<< ${remoteAddress}:${remotePort} respondWithFile ${staticFile.filePath}`);
     } catch (err) {
-      logger.error('static file err = ' + err);
-      response.writeHead(404);
-      response.end();
+      logger.error('respondWithFile error err = ' + err);
+      stream.session.destroy();
     }
   }
 }
 
-static serveNotFound(response) {
-  response.writeHead(404, {'Content-Type': 'text/plain'});
-  response.end('Unknown path');
+static serveNotFound(stream) {
+  AsyncServer.writeResponse(
+    stream,
+    {':status': 404, 'content-type': 'text/plain'},
+    'Unknown path');
 }
 
 start() {
@@ -154,36 +201,29 @@ start() {
     cert: fs.readFileSync(this.configuration.tlsCertFile)
   };
 
-  const requstHandler =
-    (request, response) => {
-      const startTimeMS = Date.now();
-
-      const remoteAddress = request.socket.remoteAddress;
-      const remotePort = request.socket.remotePort;
-
-      response.on('finish', () => {
-        const durationMS = Date.now() - startTimeMS;
-        logger.info(
-          `${remoteAddress}:${remotePort} ` +
-          `${request.method} ${request.url} ${response.statusCode} ${durationMS}ms`);
-      });
-
-      try {
-        const handler = this.urlToHandler.get(request.url);
-        if (handler) {
-          handler(response);
-        } else {
-          AsyncServer.serveNotFound(response);
-        }
-      } catch (err) {
-        logger.error('handler err = ' + err);
-        response.stream.close();
-      }
-    };
-
-  const httpServer = http2.createSecureServer(serverOptions, requstHandler);
+  const httpServer = http2.createSecureServer(serverOptions);
 
   httpServer.on('error', (err) => logger.error('httpServer error err = ' + err));
+
+  httpServer.on('stream', (stream, headers) => {
+    const remoteAddress = stream.session.socket.remoteAddress;
+    const remotePort = stream.session.socket.remotePort;
+
+    const method = headers[':method'];
+    const path = headers[':path'];
+
+    logger.info(`>>> ${remoteAddress}:${remotePort} ${method} ${path}`);
+
+    if (method === 'GET') {
+      const handler = this.pathToHandler.get(path);
+      if (handler) {
+        handler(stream);
+      } else {
+        AsyncServer.serveNotFound(stream);
+      }
+    }
+
+  });
 
   const listenOptions = {
     host: this.configuration.listenAddress,
