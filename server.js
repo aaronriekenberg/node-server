@@ -168,11 +168,16 @@ start() {
           `${request.method} ${request.url} ${response.statusCode} ${durationMS}ms`);
       });
 
-      const handler = this.urlToHandler.get(request.url);
-      if (handler) {
-        handler(response);
-      } else {
-        AsyncServer.serveNotFound(response);
+      try {
+        const handler = this.urlToHandler.get(request.url);
+        if (handler) {
+          handler(response);
+        } else {
+          AsyncServer.serveNotFound(response);
+        }
+      } catch (err) {
+        logger.error('handler err = ' + err);
+        response.stream.close();
       }
     };
 
