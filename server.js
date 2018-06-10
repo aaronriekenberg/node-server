@@ -238,7 +238,7 @@ start() {
 }
 
 function main() {
-  if (process.argv.length != 3) {
+  if (process.argv.length !== 3) {
     console.log("Usage: " + process.argv[1] + " <config json>");
     process.exit(1);
   }
