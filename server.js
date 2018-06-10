@@ -11,7 +11,6 @@ const process = require('process');
 const util = require('util');
 const winston = require('winston');
 const asyncExec = util.promisify(child_process.exec);
-const asyncReadFile = util.promisify(fs.readFile);
 
 function formattedDateTime() {
   return moment().format('YYYY-MM-DD[T]HH:mm:ss.SSSZ');
