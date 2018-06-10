@@ -1,6 +1,8 @@
 {
-  "listenAddress": "192.168.0.1",
-  "listenPort": "8080",
+  "tlsKeyFile": "apu2-privkey.pem",
+  "tlsCertFile": "apu2-cert.pem",
+  "listenAddress": "192.168.1.1",
+  "listenPort": "8000",
   "mainPageTitle": "Aaron's APU2",
   "commandList": [
   {
@@ -101,7 +103,7 @@
   },
   {
     "httpPath": "/vnstat.html",
-    "filePath": "/home/aaron/vnstat/vnstat.html",
+    "filePath": "/home/aaron/vnstat/index.html",
     "headers": {
       "Content-Type": "text/html",
       "Cache-Control": "max-age=60"
