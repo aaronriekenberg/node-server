@@ -32,7 +32,7 @@
   },
   {
     "httpPath": "/log_tail",
-    "command": "tail -n20 ~/node-server/logs/current",
+    "command": "tail -n30 ~/node-server/logs/current",
     "description": "log tail"
   },
   {
