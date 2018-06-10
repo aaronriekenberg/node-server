@@ -195,7 +195,7 @@ static serveNotFound(stream) {
   AsyncServer.writeResponse(
     stream,
     {':status': 404, 'content-type': 'text/plain'},
-    'Unknown path');
+    'Unknown request');
 }
 
 start() {
@@ -214,13 +214,16 @@ start() {
 
     logger.info(`>>> ${AsyncServer.getRemoteAddressPort(stream)} ${method} ${path}`);
 
+    let handled = false;
     if (method === 'GET') {
       const handler = this.pathToHandler.get(path);
       if (handler) {
         handler(stream);
-      } else {
-        AsyncServer.serveNotFound(stream);
+        handled = true;
       }
+    }
+    if (!handled) {
+      AsyncServer.serveNotFound(stream);
     }
 
   });
