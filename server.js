@@ -56,6 +56,14 @@ static getRemoteAddressPort(stream) {
   }
 }
 
+static destroyStream(stream) {
+  try {
+    stream.destroy();
+  } catch (err) {
+    logger.error('destroyStream error err = ' + err);
+  }
+}
+
 static writeResponse(stream, headers, body) {
   try {
     stream.respond(headers);
@@ -64,9 +72,7 @@ static writeResponse(stream, headers, body) {
     logger.info(`<<< ${AsyncServer.getRemoteAddressPort(stream)} sid=${stream.id} status ${headers[':status']}`);
   } catch (err) {
     logger.error('writeResponse error err = ' + err);
-    if (stream.session) {
-      stream.session.destroy();
-    }
+    destroyStream(stream);
   }
 }
 
