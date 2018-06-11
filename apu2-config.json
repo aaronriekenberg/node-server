@@ -7,7 +7,7 @@
   "commandList": [
   {
     "httpPath": "/arp",
-    "command": "/sbin/ifconfig",
+    "command": "/usr/sbin/arp -an",
     "description": "arp"
   },
   {
