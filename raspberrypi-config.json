@@ -1,7 +1,20 @@
 {
-  "port": "8081",
+  "tlsKeyFile": "raspberrypi-privkey.pem",
+  "tlsCertFile": "raspberrypi-cert.pem",
+  "listenAddress": "0.0.0.0",
+  "listenPort": "8000",
   "mainPageTitle": "Aaron's Raspberry Pi",
   "commandList": [
+  {
+    "httpPath": "/arp",
+    "command": "/usr/sbin/arp -an",
+    "description": "arp"
+  },
+  {
+    "httpPath": "/dmesg",
+    "command": "dmesg",
+    "description": "dmesg"
+  },
   {
     "httpPath": "/ifconfig",
     "command": "/sbin/ifconfig",
@@ -13,14 +26,34 @@
     "description": "iwconfig"
   },
   {
+    "httpPath": "/log_ls",
+    "command": "ls -latrh ~/node-server/logs",
+    "description": "log ls"
+  },
+  {
+    "httpPath": "/log_tail",
+    "command": "tail -n30 ~/node-server/logs/current",
+    "description": "log tail"
+  },
+  {
+    "httpPath": "/lscpu",
+    "command": "lscpu",
+    "description": "lscpu"
+  },
+  {
     "httpPath": "/ncal",
     "command": "ncal -h -y",
     "description": "ncal"
   },
   {
-    "httpPath": "/netstat",
+    "httpPath": "/netstat_an",
     "command": "netstat -an",
-    "description": "netstat"
+    "description": "netstat -an"
+  },
+  {
+    "httpPath": "/netstat_s",
+    "command": "netstat -s",
+    "description": "netstat -s"
   },
   {
     "httpPath": "/ntpq",
@@ -31,16 +64,6 @@
     "httpPath": "/pitemp",
     "command": "/home/pi/bin/pitemp.sh",
     "description": "pitemp"
-  },
-  {
-    "httpPath": "/sleep",
-    "command": "sleep 5",
-    "description": "sleep 5"
-  },
-  {
-    "httpPath": "/tail_log",
-    "command": "tail -n20 /home/pi/node-server/output",
-    "description": "tail log"
   },
   {
     "httpPath": "/top",
