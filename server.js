@@ -61,7 +61,7 @@ static writeResponse(stream, headers, body) {
     stream.respond(headers);
     stream.end(body);
 
-    logger.info(`<<< ${AsyncServer.getRemoteAddressPort(stream)} ${headers[':status']}`);
+    logger.info(`<<< ${AsyncServer.getRemoteAddressPort(stream)} sid=${stream.id} status ${headers[':status']}`);
   } catch (err) {
     logger.error('writeResponse error err = ' + err);
     if (stream.session) {
@@ -72,15 +72,15 @@ static writeResponse(stream, headers, body) {
 
 static buildIndexHandler(configuration) {
 
-  function buildLiForCommand(command) {
+  const buildLiForCommand = (command) => {
     return `<li><a href="${command.httpPath}">${command.description}</a></li>`;
   }
 
-  function buildLiForStaticFile(staticFile) {
+  const buildLiForStaticFile = (staticFile) => {
     return `<li><a href="${staticFile.httpPath}">${staticFile.filePath}</a></li>`;
   }
 
-  function buildStaticFilesBlock() {
+  const buildStaticFilesBlock = () => {
     const staticFilesInMainPage =
       configuration.staticFileList.filter(sf => sf.includeInMainPage);
     if (staticFilesInMainPage.length === 0) {
@@ -183,7 +183,7 @@ static buildStaticFileHandler(staticFile) {
                              responseHeaders,
                              {statCheck, onError});
 
-      logger.info(`<<< ${AsyncServer.getRemoteAddressPort(stream)} respondWithFile ${staticFile.filePath}`);
+      logger.info(`<<< ${AsyncServer.getRemoteAddressPort(stream)} sid=${stream.id} respondWithFile ${staticFile.filePath}`);
     } catch (err) {
       logger.error('respondWithFile error err = ' + err);
       stream.session.destroy();
@@ -212,7 +212,7 @@ start() {
     const method = headers[':method'];
     const path = headers[':path'];
 
-    logger.info(`>>> ${AsyncServer.getRemoteAddressPort(stream)} ${method} ${path}`);
+    logger.info(`>>> ${AsyncServer.getRemoteAddressPort(stream)} sid=${stream.id} ${method} ${path}`);
 
     let handled = false;
     if (method === 'GET') {
