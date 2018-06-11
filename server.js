@@ -192,7 +192,7 @@ static buildStaticFileHandler(staticFile) {
       logger.info(`<<< ${AsyncServer.getRemoteAddressPort(stream)} sid=${stream.id} respondWithFile ${staticFile.filePath}`);
     } catch (err) {
       logger.error('respondWithFile error err = ' + err);
-      stream.session.destroy();
+      destroyStream(stream);
     }
   }
 }
