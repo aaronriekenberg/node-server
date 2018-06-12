@@ -140,7 +140,7 @@ static buildCommandHandler(command) {
       preString += escapeHtml(stderr + stdout);
     } catch (err) {
       logger.error('command err = ' + err);
-      preString = err;
+      preString = escapeHtml(err);
     }
 
     const commandHtml =
