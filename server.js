@@ -12,7 +12,7 @@ const util = require('util');
 const winston = require('winston');
 const asyncExec = util.promisify(child_process.exec);
 
-function formattedDateTime() {
+const formattedDateTime = () => {
   return moment().format('YYYY-MM-DD[T]HH:mm:ss.SSSZ');
 }
 
@@ -122,7 +122,7 @@ static buildIndexHandler(configuration) {
 </html>
 `;
 
-  return function(stream) {
+  return (stream) => {
     AsyncServer.writeResponse(
       stream,
       {':status': 200, 'content-type': 'text/html'},
@@ -131,7 +131,7 @@ static buildIndexHandler(configuration) {
 }
 
 static buildCommandHandler(command) {
-  return async function(stream) {
+  return async (stream) => {
     let preString;
     try {
       const { stdout, stderr } = await asyncExec(command.command);
@@ -166,7 +166,7 @@ static buildCommandHandler(command) {
 }
 
 static buildStaticFileHandler(staticFile) {
-  return function(stream) {
+  return (stream) => {
     const statCheck = (stat, headers) => {
       headers['last-modified'] = stat.mtime.toUTCString();
     };
@@ -246,7 +246,7 @@ start() {
 
 }
 
-function main() {
+const main = () => {
   if (process.argv.length !== 3) {
     console.log("Usage: " + process.argv[1] + " <config json>");
     process.exit(1);
