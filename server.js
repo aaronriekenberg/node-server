@@ -72,7 +72,7 @@ static writeResponse(stream, headers, body) {
     logger.info(`<<< ${AsyncServer.getRemoteAddressPort(stream)} sid=${stream.id} status ${headers[':status']}`);
   } catch (err) {
     logger.error('writeResponse error err = ' + err);
-    destroyStream(stream);
+    AsyncServer.destroyStream(stream);
   }
 }
 
@@ -192,7 +192,7 @@ static buildStaticFileHandler(staticFile) {
       logger.info(`<<< ${AsyncServer.getRemoteAddressPort(stream)} sid=${stream.id} respondWithFile ${staticFile.filePath}`);
     } catch (err) {
       logger.error('respondWithFile error err = ' + err);
-      destroyStream(stream);
+      AsyncServer.destroyStream(stream);
     }
   }
 }
