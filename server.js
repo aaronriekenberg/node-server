@@ -6,15 +6,22 @@ const child_process = require('child_process');
 const escapeHtml = require('escape-html');
 const fs = require('fs');
 const http2 = require('http2');
+const fecha = require('fecha');
 const process = require('process');
 const util = require('util');
 const winston = require('winston');
 const asyncExec = util.promisify(child_process.exec);
 
+const dateTimeFormat = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
+
+const formattedDateTime = () => {
+  return fecha.format(new Date(), dateTimeFormat);
+};
+
 const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp({
-      format: 'YYYY-MM-DDTHH:mm:ss.SSSZZ'
+      format: dateTimeFormat
     }),
     winston.format.printf(info => {
       return `${info.timestamp} ${info.level}: ${info.message}`;
