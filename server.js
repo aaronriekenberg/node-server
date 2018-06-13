@@ -6,30 +6,21 @@ const child_process = require('child_process');
 const escapeHtml = require('escape-html');
 const fs = require('fs');
 const http2 = require('http2');
-const moment = require('moment');
 const process = require('process');
 const util = require('util');
 const winston = require('winston');
 const asyncExec = util.promisify(child_process.exec);
 
-const formattedDateTime = () => {
-  return moment().format('YYYY-MM-DD[T]HH:mm:ss.SSSZ');
-}
-
-const logger = new winston.Logger({
-  transports: [
-    new winston.transports.Console({
-      timestamp: () => {
-        return formattedDateTime();
-      },
-      formatter: (options) => {
-        return options.timestamp() + ' ' +
-          options.level.toUpperCase() + ' ' +
-          (options.message ? options.message : '') +
-          (options.meta && Object.keys(options.meta).length ? '\n\t'+ JSON.stringify(options.meta) : '');
-      }
+const logger = winston.createLogger({
+  format: winston.format.combine(
+    winston.format.timestamp({
+      format: 'YYYY-MM-DDTHH:mm:ss.SSSZZ'
+    }),
+    winston.format.printf(info => {
+      return `${info.timestamp} ${info.level}: ${info.message}`;
     })
-  ]
+  ),
+  transports: [new winston.transports.Console()]
 });
 
 class AsyncServer {
