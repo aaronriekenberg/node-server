@@ -56,7 +56,9 @@ static getRemoteAddressPort(stream) {
 
 static destroyStream(stream) {
   try {
-    stream.destroy();
+    if (!stream.destroyed) {
+      stream.destroy();
+    }
   } catch (err) {
     logger.error('destroyStream error err = ' + err);
   }
@@ -64,6 +66,11 @@ static destroyStream(stream) {
 
 static writeResponse(stream, headers, body) {
   try {
+    if (stream.destroyed) {
+      logger.warn(`stream destroyed sid=${stream.id}`);
+      return;
+    }
+
     stream.respond(headers);
     stream.end(body);
 
