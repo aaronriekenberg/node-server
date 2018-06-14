@@ -67,7 +67,7 @@ static destroyStream(stream) {
 static writeResponse(stream, headers, body) {
   try {
     if (stream.destroyed) {
-      logger.warn(`stream destroyed sid=${stream.id}`);
+      logger.info(`stream destroyed sid=${stream.id}`);
       return;
     }
 
