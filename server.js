@@ -171,19 +171,25 @@ static buildCommandHandler(command) {
 }
 
 static buildStaticFileHandler(staticFile) {
-  return (stream) => {
-    const statCheck = (stat, headers) => {
-      headers['last-modified'] = stat.mtime.toUTCString();
-    };
+  const statCheck = (stat, headers) => {
+    headers['last-modified'] = stat.mtime.toUTCString();
+  };
 
+  return (stream) => {
     const onError = (err) => {
       logger.error('file onError err = ' + err);
+
       if (err.code === 'ENOENT') {
-        stream.respond({':status': 404});
+        AsyncServer.writeResponse(
+          stream,
+          {':status': 404, 'content-type': 'text/plain'},
+          'File not found');
       } else {
-        stream.respond({':status': 500});
+        AsyncServer.writeResponse(
+          stream,
+          {':status': 500, 'content-type': 'text/plain'},
+          'Error reading file');
       }
-      stream.end();
     };
 
     const responseHeaders = {':status': 200};
