@@ -104,7 +104,7 @@ respondWithFile(path, responseHeaders, options) {
 
     logger.info(
       `${this.remoteAddressPort} ${this.getMethod()} ${this.getPath()} sid=${this.getStreamID()} ` +
-      `respondWithFile path=${path} status=${responseHeaders[':status']} ${this.getDeltaTime()}`);
+      `respondWithFile path=${path} status=${responseHeaders[':status']} ${this.getDeltaTime()}s`);
   } catch (err) {
     logger.error('respondWithFile error err = ' + err);
     this.destroyStream();
