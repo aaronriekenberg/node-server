@@ -192,8 +192,9 @@ static buildStaticFileHandler(staticFile) {
       }
     };
 
-    const responseHeaders = {':status': 200};
-    Object.assign(responseHeaders, staticFile.headers);
+    const responseHeaders = Object.assign(
+      {':status': 200},
+      staticFile.headers);
 
     try {
       stream.respondWithFile(staticFile.filePath,
