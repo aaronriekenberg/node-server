@@ -33,6 +33,7 @@ const logger = winston.createLogger({
 class RequestContext {
 
 constructor(stream, headers) {
+  this.startTime = process.hrtime();
   this.stream = stream;
   this.headers = headers;
   this.remoteAddressPort = RequestContext.buildRemoteAddressPort(stream);
@@ -58,6 +59,11 @@ getPath() {
   return this.headers[':path'];
 }
 
+getDeltaTime() {
+  const delta = process.hrtime(this.startTime);
+  return (delta[0] + (delta[1] / 1e9));
+}
+
 destroyStream() {
   try {
     if (!this.stream.destroyed) {
@@ -78,7 +84,9 @@ writeResponse(responseHeaders, body) {
     this.stream.respond(responseHeaders);
     this.stream.end(body);
 
-    logger.info(`${this.remoteAddressPort} ${this.getMethod()} ${this.getPath()} sid=${this.getStreamID()} status=${responseHeaders[':status']}`);
+    logger.info(
+      `${this.remoteAddressPort} ${this.getMethod()} ${this.getPath()} sid=${this.getStreamID()} ` +
+      `status=${responseHeaders[':status']} ${this.getDeltaTime()}s`);
   } catch (err) {
     logger.error('writeResponse error err = ' + err);
     this.destroyStream();
@@ -94,7 +102,9 @@ respondWithFile(path, responseHeaders, options) {
      
     this.stream.respondWithFile(path, responseHeaders, options);
 
-    logger.info(`${this.remoteAddressPort} ${this.getMethod()} ${this.getPath()} sid=${this.getStreamID()} respondWithFile path=${path} status=${responseHeaders[':status']}`);
+    logger.info(
+      `${this.remoteAddressPort} ${this.getMethod()} ${this.getPath()} sid=${this.getStreamID()} ` +
+      `respondWithFile path=${path} status=${responseHeaders[':status']} ${this.getDeltaTime()}`);
   } catch (err) {
     logger.error('respondWithFile error err = ' + err);
     this.destroyStream();
