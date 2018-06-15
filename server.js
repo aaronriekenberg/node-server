@@ -36,8 +36,6 @@ constructor(stream, headers) {
   this.stream = stream;
   this.headers = headers;
   this.remoteAddressPort = RequestContext.buildRemoteAddressPort(stream);
-
-  logger.info(`>>> ${this.remoteAddressPort} sid=${this.getStreamID()} ${this.getMethod()} ${this.getPath()}`);
 }
 
 static buildRemoteAddressPort(stream) {
@@ -80,7 +78,7 @@ writeResponse(responseHeaders, body) {
     this.stream.respond(responseHeaders);
     this.stream.end(body);
 
-    logger.info(`<<< ${this.remoteAddressPort} sid=${this.getStreamID()} status=${responseHeaders[':status']}`);
+    logger.info(`${this.remoteAddressPort} ${this.getMethod()} ${this.getPath()} sid=${this.getStreamID()} status=${responseHeaders[':status']}`);
   } catch (err) {
     logger.error('writeResponse error err = ' + err);
     this.destroyStream();
@@ -96,7 +94,7 @@ respondWithFile(path, responseHeaders, options) {
      
     this.stream.respondWithFile(path, responseHeaders, options);
 
-    logger.info(`<<< ${this.remoteAddressPort} sid=${this.getStreamID()} respondWithFile path=${path} status=${responseHeaders[':status']}`);
+    logger.info(`${this.remoteAddressPort} ${this.getMethod()} ${this.getPath()} sid=${this.getStreamID()} respondWithFile path=${path} status=${responseHeaders[':status']}`);
   } catch (err) {
     logger.error('respondWithFile error err = ' + err);
     this.destroyStream();
