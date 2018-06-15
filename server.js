@@ -216,12 +216,10 @@ static serveNotFound(stream) {
 }
 
 start() {
-  const serverOptions = {
-    key: fs.readFileSync(this.configuration.tlsKeyFile),
-    cert: fs.readFileSync(this.configuration.tlsCertFile)
-  };
-
-  const httpServer = http2.createSecureServer(serverOptions);
+  const httpServer = http2.createSecureServer({
+      key: fs.readFileSync(this.configuration.tlsKeyFile),
+      cert: fs.readFileSync(this.configuration.tlsCertFile)
+    });
 
   httpServer.on('error', (err) => logger.error('httpServer error err = ' + err));
 
@@ -245,13 +243,11 @@ start() {
 
   });
 
-  const listenOptions = {
-    host: this.configuration.listenAddress,
-    port: this.configuration.listenPort
-  };
 
-  httpServer.listen(
-    listenOptions,
+  httpServer.listen({
+      host: this.configuration.listenAddress,
+      port: this.configuration.listenPort
+    },
     () => logger.info(`server is listening on ${this.configuration.listenAddress + ':' + this.configuration.listenPort}`));
 }
 
