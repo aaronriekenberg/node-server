@@ -30,6 +30,81 @@ const logger = winston.createLogger({
   transports: [new winston.transports.Console()]
 });
 
+class RequestContext {
+
+constructor(stream, headers) {
+  this.stream = stream;
+  this.headers = headers;
+  this.remoteAddressPort = RequestContext.buildRemoteAddressPort(stream);
+
+  logger.info(`>>> ${this.remoteAddressPort} sid=${this.getStreamID()} ${this.getMethod()} ${this.getPath()}`);
+}
+
+static buildRemoteAddressPort(stream) {
+  if (stream.session) {
+    return `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}`;
+  } else {
+    return 'UNKNOWN';
+  }
+}
+
+getStreamID() {
+  return this.stream.id;
+}
+
+getMethod() {
+  return this.headers[':method'];
+}
+
+getPath() {
+  return this.headers[':path'];
+}
+
+destroyStream() {
+  try {
+    if (!this.stream.destroyed) {
+      this.stream.destroy();
+    }
+  } catch (err) {
+    logger.error('destroyStream error err = ' + err);
+  }
+}
+
+writeResponse(responseHeaders, body) {
+  try {
+    if (this.stream.destroyed) {
+      logger.info(`writeResponse stream destroyed ${this.remoteAddressPort} sid=${this.getStreamID()}`);
+      return;
+    }
+
+    this.stream.respond(responseHeaders);
+    this.stream.end(body);
+
+    logger.info(`<<< ${this.remoteAddressPort} sid=${this.getStreamID()} status=${responseHeaders[':status']}`);
+  } catch (err) {
+    logger.error('writeResponse error err = ' + err);
+    this.destroyStream();
+  }
+}
+
+respondWithFile(path, responseHeaders, options) {
+  try {
+    if (this.stream.destroyed) {
+      logger.info(`respondWithFile stream destroyed ${this.remoteAddressPort} sid=${this.getStreamID()}`);
+      return;
+    }
+     
+    this.stream.respondWithFile(path, responseHeaders, options);
+
+    logger.info(`<<< ${this.remoteAddressPort} sid=${this.getStreamID()} respondWithFile path=${path} status=${responseHeaders[':status']}`);
+  } catch (err) {
+    logger.error('respondWithFile error err = ' + err);
+    this.destroyStream();
+  }
+}
+
+}
+
 class AsyncServer {
 
 constructor(configuration) {
@@ -44,41 +119,6 @@ constructor(configuration) {
 
   this.configuration.staticFileList.forEach(
     staticFile => this.pathToHandler.set(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
-}
-
-static getRemoteAddressPort(stream) {
-  if (stream.session) {
-    return `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}`;
-  } else {
-    return 'UNKNOWN';
-  }
-}
-
-static destroyStream(stream) {
-  try {
-    if (!stream.destroyed) {
-      stream.destroy();
-    }
-  } catch (err) {
-    logger.error('destroyStream error err = ' + err);
-  }
-}
-
-static writeResponse(stream, headers, body) {
-  try {
-    if (stream.destroyed) {
-      logger.info(`stream destroyed sid=${stream.id}`);
-      return;
-    }
-
-    stream.respond(headers);
-    stream.end(body);
-
-    logger.info(`<<< ${AsyncServer.getRemoteAddressPort(stream)} sid=${stream.id} status ${headers[':status']}`);
-  } catch (err) {
-    logger.error('writeResponse error err = ' + err);
-    AsyncServer.destroyStream(stream);
-  }
 }
 
 static buildIndexHandler(configuration) {
@@ -127,16 +167,15 @@ static buildIndexHandler(configuration) {
 </html>
 `;
 
-  return (stream) => {
-    AsyncServer.writeResponse(
-      stream,
+  return (requestContext) => {
+    requestContext.writeResponse(
       {':status': 200, 'content-type': 'text/html'},
       indexHtml);
   };
 }
 
 static buildCommandHandler(command) {
-  return async (stream) => {
+  return async (requestContext) => {
     let preString;
     try {
       const { stdout, stderr } = await asyncExec(command.command);
@@ -163,8 +202,7 @@ static buildCommandHandler(command) {
 </html>
 `;
 
-    AsyncServer.writeResponse(
-      stream,
+    requestContext.writeResponse(
       {':status': 200, 'content-type': 'text/html'},
       commandHtml);
   };
@@ -175,18 +213,16 @@ static buildStaticFileHandler(staticFile) {
     headers['last-modified'] = stat.mtime.toUTCString();
   };
 
-  return (stream) => {
+  return (requestContext) => {
     const onError = (err) => {
       logger.error('file onError err = ' + err);
 
       if (err.code === 'ENOENT') {
-        AsyncServer.writeResponse(
-          stream,
+        requestContext.writeResponse(
           {':status': 404, 'content-type': 'text/plain'},
           'File not found');
       } else {
-        AsyncServer.writeResponse(
-          stream,
+        requestContext.writeResponse(
           {':status': 500, 'content-type': 'text/plain'},
           'Error reading file');
       }
@@ -196,22 +232,14 @@ static buildStaticFileHandler(staticFile) {
       {':status': 200},
       staticFile.headers);
 
-    try {
-      stream.respondWithFile(staticFile.filePath,
-                             responseHeaders,
-                             {statCheck, onError});
-
-      logger.info(`<<< ${AsyncServer.getRemoteAddressPort(stream)} sid=${stream.id} respondWithFile ${staticFile.filePath}`);
-    } catch (err) {
-      logger.error('respondWithFile error err = ' + err);
-      AsyncServer.destroyStream(stream);
-    }
+    requestContext.respondWithFile(staticFile.filePath,
+                                   responseHeaders,
+                                   {statCheck, onError});
   }
 }
 
-static serveNotFound(stream) {
-  AsyncServer.writeResponse(
-    stream,
+static serveNotFound(requestContext) {
+  requestContext.writeResponse(
     {':status': 404, 'content-type': 'text/plain'},
     'Unknown request');
 }
@@ -225,21 +253,19 @@ start() {
   httpServer.on('error', (err) => logger.error('httpServer error err = ' + err));
 
   httpServer.on('stream', (stream, headers) => {
-    const method = headers[':method'];
-    const path = headers[':path'];
 
-    logger.info(`>>> ${AsyncServer.getRemoteAddressPort(stream)} sid=${stream.id} ${method} ${path}`);
+    const requestContext = new RequestContext(stream, headers);
 
     let handled = false;
-    if (method === 'GET') {
-      const handler = this.pathToHandler.get(path);
+    if (requestContext.getMethod() === 'GET') {
+      const handler = this.pathToHandler.get(requestContext.getPath());
       if (handler) {
-        handler(stream);
+        handler(requestContext);
         handled = true;
       }
     }
     if (!handled) {
-      AsyncServer.serveNotFound(stream);
+      AsyncServer.serveNotFound(requestContext);
     }
 
   });
