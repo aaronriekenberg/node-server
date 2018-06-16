@@ -35,7 +35,8 @@ class RequestContext {
 constructor(stream, requestHeaders) {
   this.startTime = process.hrtime();
   this.stream = stream;
-  this.requestHeaders = requestHeaders;
+  this.requestMethod = requestHeaders[':method'];
+  this.requestPath = requestHeaders[':path'];
   this.remoteAddressPort = RequestContext.buildRemoteAddressPort(stream);
 }
 
@@ -47,19 +48,11 @@ static buildRemoteAddressPort(stream) {
   }
 }
 
-getStreamID() {
+get streamID() {
   return this.stream.id;
 }
 
-getMethod() {
-  return this.requestHeaders[':method'];
-}
-
-getPath() {
-  return this.requestHeaders[':path'];
-}
-
-getDeltaTime() {
+get deltaTime() {
   const delta = process.hrtime(this.startTime);
   return (delta[0] + (delta[1] / 1e9));
 }
@@ -77,7 +70,7 @@ destroyStream() {
 writeResponse(responseHeaders, body) {
   try {
     if (this.stream.destroyed) {
-      logger.info(`writeResponse stream destroyed ${this.remoteAddressPort} sid=${this.getStreamID()}`);
+      logger.info(`writeResponse stream destroyed ${this.remoteAddressPort} sid=${this.streamID}`);
       return;
     }
 
@@ -85,8 +78,8 @@ writeResponse(responseHeaders, body) {
     this.stream.end(body);
 
     logger.info(
-      `${this.remoteAddressPort} ${this.getMethod()} ${this.getPath()} sid=${this.getStreamID()} ` +
-      `status=${responseHeaders[':status']} ${this.getDeltaTime()}s`);
+      `${this.remoteAddressPort} ${this.requestMethod} ${this.requestPath} sid=${this.streamID} ` +
+      `status=${responseHeaders[':status']} ${this.deltaTime}s`);
   } catch (err) {
     logger.error('writeResponse error err = ' + err);
     this.destroyStream();
@@ -96,15 +89,15 @@ writeResponse(responseHeaders, body) {
 respondWithFile(path, responseHeaders, options) {
   try {
     if (this.stream.destroyed) {
-      logger.info(`respondWithFile stream destroyed ${this.remoteAddressPort} sid=${this.getStreamID()}`);
+      logger.info(`respondWithFile stream destroyed ${this.remoteAddressPort} sid=${this.streamID}`);
       return;
     }
      
     this.stream.respondWithFile(path, responseHeaders, options);
 
     logger.info(
-      `${this.remoteAddressPort} ${this.getMethod()} ${this.getPath()} sid=${this.getStreamID()} ` +
-      `respondWithFile path=${path} status=${responseHeaders[':status']} ${this.getDeltaTime()}s`);
+      `${this.remoteAddressPort} ${this.requestMethod} ${this.requestPath} sid=${this.streamID} ` +
+      `respondWithFile path=${path} status=${responseHeaders[':status']} ${this.deltaTime}s`);
   } catch (err) {
     logger.error('respondWithFile error err = ' + err);
     this.destroyStream();
@@ -265,8 +258,8 @@ start() {
     const requestContext = new RequestContext(stream, headers);
 
     let handled = false;
-    if (requestContext.getMethod() === 'GET') {
-      const handler = this.pathToHandler.get(requestContext.getPath());
+    if (requestContext.requestMethod === 'GET') {
+      const handler = this.pathToHandler.get(requestContext.requestPath);
       if (handler) {
         handler(requestContext);
         handled = true;
