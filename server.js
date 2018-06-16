@@ -35,8 +35,7 @@ class RequestContext {
 constructor(stream, requestHeaders) {
   this.startTime = process.hrtime();
   this.stream = stream;
-  this.requestMethod = requestHeaders[':method'];
-  this.requestPath = requestHeaders[':path'];
+  this.requestHeaders = requestHeaders;
   this.remoteAddressPort = RequestContext.buildRemoteAddressPort(stream);
 }
 
@@ -46,6 +45,14 @@ static buildRemoteAddressPort(stream) {
   } else {
     return 'UNKNOWN';
   }
+}
+
+get requestMethod() {
+  return this.requestHeaders[':method'];
+}
+
+get requestPath() {
+  return this.requestHeaders[':path'];
 }
 
 get streamID() {
