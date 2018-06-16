@@ -102,7 +102,7 @@
     "filePath": "style.css",
     "headers": {
       "Content-Type": "text/css",
-      "Cache-Control": "max-age=3600"
+      "Cache-Control": "max-age=60"
     }
   },
   {
@@ -110,7 +110,7 @@
     "filePath": "raspberrypi-favicon.ico",
     "headers": {
       "Content-Type": "image/x-icon",
-      "Cache-Control": "max-age=3600"
+      "Cache-Control": "max-age=60"
     }
   }
   ]
