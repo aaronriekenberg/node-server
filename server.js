@@ -171,6 +171,8 @@ static buildIndexHandler(configuration) {
     ${configuration.commandList.map(buildLiForCommand).join('\n    ')}
   </ul>
   ${buildStaticFilesBlock()}
+  <hr>
+  <small>Last Modified: ${formattedDateTime()}</small>
 </body>
 </html>
 `;
