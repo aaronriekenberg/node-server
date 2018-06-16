@@ -101,16 +101,16 @@
     "httpPath": "/style.css",
     "filePath": "style.css",
     "headers": {
-      "Content-Type": "text/css",
-      "Cache-Control": "max-age=60"
+      "content-type": "text/css",
+      "cache-control": "max-age=60"
     }
   },
   {
     "httpPath": "/favicon.ico",
     "filePath": "raspberrypi-favicon.ico",
     "headers": {
-      "Content-Type": "image/x-icon",
-      "Cache-Control": "max-age=60"
+      "content-type": "image/x-icon",
+      "cache-control": "max-age=60"
     }
   }
   ]

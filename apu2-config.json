@@ -101,8 +101,8 @@
     "httpPath": "/style.css",
     "filePath": "style.css",
     "headers": {
-      "Content-Type": "text/css",
-      "Cache-Control": "max-age=60"
+      "content-type": "text/css",
+      "cache-control": "max-age=60"
     },
     "includeInMainPage": false
   },
@@ -110,8 +110,8 @@
     "httpPath": "/vnstat.html",
     "filePath": "/home/aaron/vnstat/index.html",
     "headers": {
-      "Content-Type": "text/html",
-      "Cache-Control": "max-age=60"
+      "content-type": "text/html",
+      "cache-control": "max-age=60"
     },
     "includeInMainPage": true
   },
@@ -119,8 +119,8 @@
     "httpPath": "/vnstat_summary.png",
     "filePath": "/home/aaron/vnstat/vnstat_summary.png",
     "headers": {
-      "Content-Type": "image/png",
-      "Cache-Control": "max-age=60"
+      "content-type": "image/png",
+      "cache-control": "max-age=60"
     },
     "includeInMainPage": false
   },
@@ -128,8 +128,8 @@
     "httpPath": "/vnstat_hours.png",
     "filePath": "/home/aaron/vnstat/vnstat_hours.png",
     "headers": {
-      "Content-Type": "image/png",
-      "Cache-Control": "max-age=60"
+      "content-type": "image/png",
+      "cache-control": "max-age=60"
     },
     "includeInMainPage": false
   },
@@ -137,8 +137,8 @@
     "httpPath": "/vnstat_days.png",
     "filePath": "/home/aaron/vnstat/vnstat_days.png",
     "headers": {
-      "Content-Type": "image/png",
-      "Cache-Control": "max-age=60"
+      "content-type": "image/png",
+      "cache-control": "max-age=60"
     },
     "includeInMainPage": false
   },
@@ -146,8 +146,8 @@
     "httpPath": "/vnstat_months.png",
     "filePath": "/home/aaron/vnstat/vnstat_months.png",
     "headers": {
-      "Content-Type": "image/png",
-      "Cache-Control": "max-age=60"
+      "content-type": "image/png",
+      "cache-control": "max-age=60"
     },
     "includeInMainPage": false
   },
@@ -155,8 +155,8 @@
     "httpPath": "/vnstat_top10.png",
     "filePath": "/home/aaron/vnstat/vnstat_top10.png",
     "headers": {
-      "Content-Type": "image/png",
-      "Cache-Control": "max-age=60"
+      "content-type": "image/png",
+      "cache-control": "max-age=60"
     },
     "includeInMainPage": false
   }
