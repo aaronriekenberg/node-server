@@ -36,15 +36,20 @@ constructor(stream, requestHeaders) {
   this.startTime = process.hrtime();
   this.stream = stream;
   this.requestHeaders = requestHeaders;
-  this.remoteAddressPort = RequestContext.buildRemoteAddressPort(stream);
+  this.streamIDString = RequestContext.buildStreamIDString(stream);
 }
 
-static buildRemoteAddressPort(stream) {
+static buildStreamIDString(stream) {
+  let streamIDString = '';
+
   if (stream.session) {
-    return `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}`;
+    streamIDString += `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}`;
   } else {
-    return 'UNKNOWN';
+    streamIDString += 'UNKNOWN';
   }
+
+  streamIDString += `/${stream.id}`;
+  return streamIDString;
 }
 
 get requestMethod() {
@@ -77,7 +82,7 @@ destroyStream() {
 writeResponse(responseHeaders, body) {
   try {
     if (this.stream.destroyed) {
-      logger.info(`writeResponse stream destroyed ${this.remoteAddressPort} sid=${this.streamID}`);
+      logger.info(`${this.streamIDString} writeResponse stream destroyed`);
       return;
     }
 
@@ -85,7 +90,7 @@ writeResponse(responseHeaders, body) {
     this.stream.end(body);
 
     logger.info(
-      `${this.remoteAddressPort} ${this.requestMethod} ${this.requestPath} sid=${this.streamID} ` +
+      `${this.streamIDString} ${this.requestMethod} ${this.requestPath} ` +
       `status=${responseHeaders[':status']} ${this.deltaTime}s`);
   } catch (err) {
     logger.error('writeResponse error err = ' + err);
@@ -96,14 +101,14 @@ writeResponse(responseHeaders, body) {
 respondWithFile(path, responseHeaders, options) {
   try {
     if (this.stream.destroyed) {
-      logger.info(`respondWithFile stream destroyed ${this.remoteAddressPort} sid=${this.streamID}`);
+      logger.info(`${this.streamIDString} respondWithFile stream destroyed`);
       return;
     }
      
     this.stream.respondWithFile(path, responseHeaders, options);
 
     logger.info(
-      `${this.remoteAddressPort} ${this.requestMethod} ${this.requestPath} sid=${this.streamID} ` +
+      `${this.streamIDString} ${this.requestMethod} ${this.requestPath} ` +
       `respondWithFile status=${responseHeaders[':status']} ${this.deltaTime}s`);
   } catch (err) {
     logger.error('respondWithFile error err = ' + err);
