@@ -32,10 +32,10 @@ const logger = winston.createLogger({
 
 class RequestContext {
 
-constructor(stream, headers) {
+constructor(stream, requestHeaders) {
   this.startTime = process.hrtime();
   this.stream = stream;
-  this.headers = headers;
+  this.requestHeaders = requestHeaders;
   this.remoteAddressPort = RequestContext.buildRemoteAddressPort(stream);
 }
 
@@ -52,11 +52,11 @@ getStreamID() {
 }
 
 getMethod() {
-  return this.headers[':method'];
+  return this.requestHeaders[':method'];
 }
 
 getPath() {
-  return this.headers[':path'];
+  return this.requestHeaders[':path'];
 }
 
 getDeltaTime() {
