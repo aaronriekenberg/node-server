@@ -79,7 +79,7 @@ destroyStream() {
   }
 }
 
-writeResponse(responseHeaders, body) {
+writeResponse(responseHeaders, body = null) {
   try {
     if (this.stream.destroyed) {
       logger.info(`${this.streamIDString} writeResponse stream destroyed`);
@@ -224,11 +224,30 @@ static buildCommandHandler(command) {
 }
 
 static buildStaticFileHandler(staticFile) {
-  const statCheck = (stat, headers) => {
-    headers['last-modified'] = stat.mtime.toUTCString();
-  };
-
   return (requestContext) => {
+
+    const statCheck = (stat, headers) => {
+      try {
+        // resolution for http headers is 1 second
+        stat.mtime.setMilliseconds(0);
+
+        headers['last-modified'] = stat.mtime.toUTCString();
+
+        const ifModifiedSinceString = requestContext.requestHeaders['if-modified-since'];
+        if (ifModifiedSinceString) {
+          const ifModifiedSinceDate = new Date(ifModifiedSinceString);
+          if (stat.mtime.getTime() <= ifModifiedSinceDate.getTime()) {
+            headers[':status'] = 304;
+            requestContext.writeResponse(headers);
+            return false;
+          }
+        }
+      } catch (err) {
+        logger.error('statChect error err = ' + err);
+      }
+      return true;
+    };
+
     const onError = (err) => {
       logger.error('file onError err = ' + err);
 
