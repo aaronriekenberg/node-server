@@ -243,7 +243,7 @@ static buildStaticFileHandler(staticFile) {
           }
         }
       } catch (err) {
-        logger.error('statChect error err = ' + err);
+        logger.error('statCheck error err = ' + err);
       }
       return true;
     };
