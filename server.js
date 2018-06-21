@@ -86,8 +86,12 @@ writeResponse(responseHeaders, body = null) {
       return;
     }
 
-    this.stream.respond(responseHeaders);
-    this.stream.end(body);
+    if (!body) {
+      this.stream.respond(responseHeaders, {endStream: true});
+    } else {
+      this.stream.respond(responseHeaders);
+      this.stream.end(body);
+    }
 
     logger.info(
       `${this.streamIDString} ${this.requestMethod} ${this.requestPath} ` +
