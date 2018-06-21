@@ -226,19 +226,19 @@ static buildCommandHandler(command) {
 static buildStaticFileHandler(staticFile) {
   return (requestContext) => {
 
-    const statCheck = (stat, headers) => {
+    const statCheck = (stat, statResponseHeaders) => {
       try {
         // resolution for http headers is 1 second
         stat.mtime.setMilliseconds(0);
 
-        headers['last-modified'] = stat.mtime.toUTCString();
+        statResponseHeaders['last-modified'] = stat.mtime.toUTCString();
 
         const ifModifiedSinceString = requestContext.requestHeaders['if-modified-since'];
         if (ifModifiedSinceString) {
           const ifModifiedSinceDate = new Date(ifModifiedSinceString);
           if (stat.mtime.getTime() <= ifModifiedSinceDate.getTime()) {
-            headers[':status'] = 304;
-            requestContext.writeResponse(headers);
+            statResponseHeaders[':status'] = 304;
+            requestContext.writeResponse(statResponseHeaders);
             return false;
           }
         }
