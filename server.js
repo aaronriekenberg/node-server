@@ -144,7 +144,7 @@ constructor(configuration) {
   this.configuration.staticFileList.forEach(
     (staticFile) => setOrThrow(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
 
-  logger.info(`pathToHandler.size = ${this.pathToHandler.size()}`);
+  logger.info(`pathToHandler.size = ${this.pathToHandler.size}`);
 }
 
 static buildIndexHandler(configuration) {
