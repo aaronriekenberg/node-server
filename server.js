@@ -129,13 +129,22 @@ constructor(configuration) {
 
   this.pathToHandler = new Map();
 
-  this.pathToHandler.set('/', AsyncServer.buildIndexHandler(configuration));
+  const setOrThrow = (key, value) => {
+    if (this.pathToHandler.has(key)) {
+      throw `duplicate path key ${key}`;
+    }
+    this.pathToHandler.set(key, value);
+  };
+
+  setOrThrow('/', AsyncServer.buildIndexHandler(configuration));
 
   this.configuration.commandList.forEach(
-    command => this.pathToHandler.set(command.httpPath, AsyncServer.buildCommandHandler(command)));
+    (command) => setOrThrow(command.httpPath, AsyncServer.buildCommandHandler(command)));
 
   this.configuration.staticFileList.forEach(
-    staticFile => this.pathToHandler.set(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
+    (staticFile) => setOrThrow(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
+
+  logger.info(`pathToHandler.size = ${this.pathToHandler.size()}`);
 }
 
 static buildIndexHandler(configuration) {
