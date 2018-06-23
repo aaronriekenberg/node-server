@@ -365,7 +365,12 @@ const main = async () => {
   }
   logger.info("configuration = " + JSON.stringify(configuration, null, 2));
 
-  new AsyncServer(configuration).start();
+  try {
+    await new AsyncServer(configuration).start();
+  } catch (err) {
+    logger.error('error starting server err = ' + err);
+    process.exit(1);
+  }
 }
 
 main();
