@@ -133,7 +133,7 @@ constructor(configuration) {
 
   const setOrThrow = (key, value) => {
     if (this.pathToHandler.has(key)) {
-      throw `duplicate path key ${key}`;
+      throw new Error(`duplicate path key ${key}`);
     }
     this.pathToHandler.set(key, value);
   };
@@ -296,13 +296,19 @@ static serveNotFound(requestContext) {
 }
 
 async start() {
-  const tlsKeyFilePromise = readFileAsync(this.configuration.tlsKeyFile);
-  const tlsCertFilePromise = readFileAsync(this.configuration.tlsCertFile);
+  let httpServerConfig = {};
+  try {
+    [httpServerConfig.key, httpServerConfig.cert] = await Promise.all([
+      readFileAsync(this.configuration.tlsKeyFile),
+      readFileAsync(this.configuration.tlsCertFile)
+    ]);
 
-  const httpServer = http2.createSecureServer({
-      key: await tlsKeyFilePromise,
-      cert: await tlsCertFilePromise
-    });
+  } catch (err) {
+    logger.error('error reading tls file err = ' + err);
+    throw new Error('error reading tls file');
+  }
+
+  const httpServer = http2.createSecureServer(httpServerConfig);
 
   httpServer.on('error', (err) => logger.error('httpServer error err = ' + err));
 
@@ -339,13 +345,21 @@ const getGitHash = async () => {
   return gitLog.latest.hash;
 }
 
-const readConfiguration = async (filePath) => {
-  let readFilePromise = readFileAsync(filePath, 'utf8');
-  let gitHashPromise = getGitHash();
+const readConfiguration = async (configFilePath) => {
+  let fileContent;
+  let gitHash;
+  try {
+    [fileContent, gitHash] = await Promise.all([
+      readFileAsync(configFilePath, 'utf8'),
+      getGitHash()
+    ]);
+  } catch (err) {
+    logger.error('error waiting for config file or git hash err = ' + err);
+    throw new Error('readConfiguration error');
+  }
 
-  const fileContent = await readFilePromise;
   const configuration = JSON.parse(fileContent);
-  configuration.gitHash = await gitHashPromise;
+  configuration.gitHash = gitHash;
 
   return configuration;
 }
