@@ -366,7 +366,7 @@ const main = async () => {
   logger.info("configuration = " + JSON.stringify(configuration, null, 2));
 
   const asyncServer = new AsyncServer(configuration);
-  await asyncServer.start();
+  asyncServer.start();
 }
 
 main();
