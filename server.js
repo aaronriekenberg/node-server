@@ -301,7 +301,7 @@ async start() {
 
   const httpServer = http2.createSecureServer({
       key: await tlsKeyFilePromise,
-      cert: await tlsCertFilePromise,
+      cert: await tlsCertFilePromise
     });
 
   httpServer.on('error', (err) => logger.error('httpServer error err = ' + err));
@@ -365,8 +365,7 @@ const main = async () => {
   }
   logger.info("configuration = " + JSON.stringify(configuration, null, 2));
 
-  const asyncServer = new AsyncServer(configuration);
-  asyncServer.start();
+  new AsyncServer(configuration).start();
 }
 
 main();
