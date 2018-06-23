@@ -6,11 +6,13 @@ const child_process = require('child_process');
 const escapeHtml = require('escape-html');
 const fecha = require('fecha');
 const fs = require('fs');
+const git = require('simple-git/promise');
 const http2 = require('http2');
 const process = require('process');
 const util = require('util');
 const winston = require('winston');
 const asyncExec = util.promisify(child_process.exec);
+const readFileAsync = util.promisify(fs.readFile);
 
 const dateTimeFormat = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
 
@@ -191,6 +193,8 @@ static buildIndexHandler(configuration) {
   ${buildStaticFilesBlock()}
   <hr>
   <small>Last Modified: ${formattedDateTime()}</small>
+  <br>
+  <small>Git Hash: ${configuration.gitHash}</small>
 </body>
 </html>
 `;
@@ -291,10 +295,13 @@ static serveNotFound(requestContext) {
     'Unknown request');
 }
 
-start() {
+async start() {
+  const tlsKeyFilePromise = readFileAsync(this.configuration.tlsKeyFile);
+  const tlsCertFilePromise = readFileAsync(this.configuration.tlsCertFile);
+
   const httpServer = http2.createSecureServer({
-      key: fs.readFileSync(this.configuration.tlsKeyFile),
-      cert: fs.readFileSync(this.configuration.tlsCertFile)
+      key: await tlsKeyFilePromise,
+      cert: await tlsCertFilePromise,
     });
 
   httpServer.on('error', (err) => logger.error('httpServer error err = ' + err));
@@ -327,17 +334,39 @@ start() {
 
 }
 
-const main = () => {
+const getGitHash = async () => {
+  const gitLog = await git('.').log(['-1']);
+  return gitLog.latest.hash;
+}
+
+const readConfiguration = async (filePath) => {
+  let readFilePromise = readFileAsync(filePath, 'utf8');
+  let gitHashPromise = getGitHash();
+
+  const fileContent = await readFilePromise;
+  const configuration = JSON.parse(fileContent);
+  configuration.gitHash = await gitHashPromise;
+
+  return configuration;
+}
+
+const main = async () => {
   if (process.argv.length !== 3) {
     console.log("Usage: " + process.argv[1] + " <config json>");
     process.exit(1);
   }
 
-  const configuration = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+  let configuration;
+  try {
+    configuration = await readConfiguration(process.argv[2]);
+  } catch (err) {
+    logger.error('error reading configuration err = ' + err);
+    process.exit(1);
+  }
   logger.info("configuration = " + JSON.stringify(configuration, null, 2));
 
   const asyncServer = new AsyncServer(configuration);
-  asyncServer.start();
+  await asyncServer.start();
 }
 
 main();

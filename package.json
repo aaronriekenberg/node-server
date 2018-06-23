@@ -12,6 +12,7 @@
   "dependencies": {
     "escape-html": "^1.0.3",
     "fecha": "^2.3.3",
+    "simple-git": "^1.96.0",
     "winston": "^3.0.0"
   }
 }
