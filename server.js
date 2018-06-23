@@ -330,7 +330,6 @@ async start() {
 
   });
 
-
   httpServer.listen({
       host: this.configuration.listenAddress,
       port: this.configuration.listenPort
