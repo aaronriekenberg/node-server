@@ -40,12 +40,12 @@ constructor(stream, requestHeaders) {
 }
 
 static buildStreamIDString(stream) {
-  let streamIDString = '';
+  let streamIDString;
 
-  if (stream.session) {
-    streamIDString += `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}`;
+  if (stream.session && stream.session.socket) {
+    streamIDString = `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}`;
   } else {
-    streamIDString += 'UNKNOWN';
+    streamIDString = 'UNKNOWN';
   }
 
   streamIDString += `/${stream.id}`;
