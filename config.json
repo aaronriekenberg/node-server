@@ -2,7 +2,7 @@
   "tlsKeyFile": "localhost-privkey.pem",
   "tlsCertFile": "localhost-cert.pem",
   "listenAddress": "127.0.0.1",
-  "listenPort": "8080",
+  "listenPort": "8000",
   "mainPageTitle": "JS Server",
   "commandList": [
   {

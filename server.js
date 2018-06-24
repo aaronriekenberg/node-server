@@ -297,18 +297,13 @@ static serveNotFound(requestContext) {
 
 async start() {
   let httpServerConfig = {};
-  try {
-    [httpServerConfig.key, httpServerConfig.cert] = await Promise.all([
-      readFileAsync(this.configuration.tlsKeyFile),
-      readFileAsync(this.configuration.tlsCertFile)
-    ]);
-
-  } catch (err) {
-    logger.error('error reading tls file err = ' + err);
-    throw new Error('error reading tls file');
-  }
+  [httpServerConfig.key, httpServerConfig.cert] = await Promise.all([
+    readFileAsync(this.configuration.tlsKeyFile),
+    readFileAsync(this.configuration.tlsCertFile)
+  ]);
 
   const httpServer = http2.createSecureServer(httpServerConfig);
+  httpServerConfig = null;
 
   httpServer.on('error', (err) => logger.error('httpServer error err = ' + err));
 
@@ -345,17 +340,10 @@ const getGitHash = async () => {
 }
 
 const readConfiguration = async (configFilePath) => {
-  let fileContent;
-  let gitHash;
-  try {
-    [fileContent, gitHash] = await Promise.all([
-      readFileAsync(configFilePath, 'utf8'),
-      getGitHash()
-    ]);
-  } catch (err) {
-    logger.error('error waiting for config file or git hash err = ' + err);
-    throw new Error('readConfiguration error');
-  }
+  const [fileContent, gitHash] = await Promise.all([
+    readFileAsync(configFilePath, 'utf8'),
+    getGitHash()
+  ]);
 
   const configuration = JSON.parse(fileContent);
   configuration.gitHash = gitHash;
