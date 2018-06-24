@@ -307,6 +307,8 @@ async start() {
 
   httpServer.on('error', (err) => logger.error('httpServer error err = ' + err));
 
+  httpServer.on('listening', () => logger.info(`httpServer listening on ${JSON.stringify(httpServer.address())}`));
+
   httpServer.on('stream', (stream, headers) => {
 
     const requestContext = new RequestContext(stream, headers);
@@ -326,10 +328,9 @@ async start() {
   });
 
   httpServer.listen({
-      host: this.configuration.listenAddress,
-      port: this.configuration.listenPort
-    },
-    () => logger.info(`server is listening on ${this.configuration.listenAddress + ':' + this.configuration.listenPort}`));
+    host: this.configuration.listenAddress,
+    port: this.configuration.listenPort
+  });
 }
 
 }
