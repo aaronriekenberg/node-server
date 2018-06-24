@@ -192,7 +192,7 @@ static buildIndexHandler(configuration) {
   </ul>
   ${buildStaticFilesBlock()}
   <hr>
-  <small>Last Modified: ${formattedDateTime()}</small>
+  <small>Page Generated: ${formattedDateTime()}</small>
   <br>
   <small>Git Hash: ${configuration.gitHash}</small>
 </body>
