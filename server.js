@@ -248,15 +248,17 @@ static serveNotFound(requestContext) {
     'Unknown request');
 }
 
-async start() {
+async createHttpServer() {
   let httpServerConfig = {};
   [httpServerConfig.key, httpServerConfig.cert] = await Promise.all([
     readFileAsync(this.configuration.tlsKeyFile),
     readFileAsync(this.configuration.tlsCertFile)
   ]);
+  return http2.createSecureServer(httpServerConfig);
+}
 
-  const httpServer = http2.createSecureServer(httpServerConfig);
-  httpServerConfig = null;
+async start() {
+  const httpServer = await this.createHttpServer();
 
   httpServer.on('error', (err) => logger.error('httpServer error err = ' + err));
 
@@ -322,21 +324,17 @@ const main = async () => {
   }
 
   let configuration;
+  let templates;
   try {
-    configuration = await readConfiguration(process.argv[2]);
+    [configuration, templates] = await Promise.all([
+      readConfiguration(process.argv[2]),
+      readTemplates()
+    ]);
   } catch (err) {
-    logger.error('error reading configuration err = ' + err);
+    logger.error('error reading data at startup err = ' + err);
     process.exit(1);
   }
   logger.info("configuration = " + JSON.stringify(configuration, null, 2));
-
-  let templates;
-  try {
-    templates = await readTemplates();
-  } catch (err) {
-    logger.error('error reading templates err = ' + err);
-    process.exit(1);
-  }
 
   try {
     await new AsyncServer(configuration, templates).start();
