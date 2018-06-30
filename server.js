@@ -153,13 +153,13 @@ constructor(configuration, templates) {
 static buildIndexHandler(template, configuration) {
   const staticFilesInMainPage = configuration.staticFileList.filter((sf) => sf.includeInMainPage);
 
-  const indexMetadata = {
+  const indexData = {
     now: formattedDateTime(),
     staticFilesInMainPage,
     configuration
   };
 
-  const indexHtml = mustache.render(template, indexMetadata);
+  const indexHtml = mustache.render(template, indexData);
 
   return (requestContext) => {
     requestContext.writeResponse(
@@ -179,13 +179,13 @@ static buildCommandHandler(template, command) {
       commandOutput = err;
     }
 
-    const commandMetadata = {
+    const commandData = {
       now: formattedDateTime(),
       command,
       commandOutput
     };
 
-    const commandHtml = mustache.render(template, commandMetadata);
+    const commandHtml = mustache.render(template, commandData);
 
     requestContext.writeResponse(
       {':status': 200, 'content-type': 'text/html'},
