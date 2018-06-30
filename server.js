@@ -308,8 +308,8 @@ const readConfiguration = async (configFilePath) => {
 const readTemplates = async () => {
   const templates = {};
   [templates.index, templates.command] = await Promise.all([
-    readFileAsync('index.mustache', 'utf8'),
-    readFileAsync('command.mustache', 'utf8')
+    readFileAsync('templates/index.mustache', 'utf8'),
+    readFileAsync('templates/command.mustache', 'utf8')
   ]);
   Object.values(templates).forEach((t) => mustache.parse(t));
   return templates;

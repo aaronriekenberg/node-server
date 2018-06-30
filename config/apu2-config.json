@@ -99,7 +99,7 @@
   "staticFileList": [
   {
     "httpPath": "/style.css",
-    "filePath": "style.css",
+    "filePath": "static/style.css",
     "headers": {
       "content-type": "text/css",
       "cache-control": "max-age=60"

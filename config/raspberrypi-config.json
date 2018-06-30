@@ -99,7 +99,7 @@
   "staticFileList": [
   {
     "httpPath": "/style.css",
-    "filePath": "style.css",
+    "filePath": "static/style.css",
     "headers": {
       "content-type": "text/css",
       "cache-control": "max-age=60"
@@ -107,7 +107,7 @@
   },
   {
     "httpPath": "/favicon.ico",
-    "filePath": "raspberrypi-favicon.ico",
+    "filePath": "static/raspberrypi-favicon.ico",
     "headers": {
       "content-type": "image/x-icon",
       "cache-control": "max-age=60"

@@ -1,7 +1,7 @@
 #!/bin/sh -x
 
 KILL_CMD=pkill
-CONFIG_FILE=$(hostname)-config.json
+CONFIG_FILE=config/$(hostname)-config.json
 
 $KILL_CMD node
 
