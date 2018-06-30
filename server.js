@@ -3,11 +3,11 @@
 'use strict';
 
 const child_process = require('child_process');
-const escapeHtml = require('escape-html');
 const fecha = require('fecha');
 const fs = require('fs');
 const git = require('simple-git/promise');
 const http2 = require('http2');
+const moustache = require('moustache');
 const process = require('process');
 const util = require('util');
 const winston = require('winston');
@@ -126,8 +126,9 @@ respondWithFile(path, responseHeaders, options) {
 
 class AsyncServer {
 
-constructor(configuration) {
+constructor(configuration, templates) {
   this.configuration = configuration;
+  this.templates = templates;
 
   this.pathToHandler = new Map();
 
@@ -138,10 +139,10 @@ constructor(configuration) {
     this.pathToHandler.set(key, value);
   };
 
-  setOrThrow('/', AsyncServer.buildIndexHandler(configuration));
+  setOrThrow('/', AsyncServer.buildIndexHandler(this.templates.index, this.configuration));
 
   this.configuration.commandList.forEach(
-    (command) => setOrThrow(command.httpPath, AsyncServer.buildCommandHandler(command)));
+    (command) => setOrThrow(command.httpPath, AsyncServer.buildCommandHandler(this.templates.command, command)));
 
   this.configuration.staticFileList.forEach(
     (staticFile) => setOrThrow(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
@@ -149,55 +150,16 @@ constructor(configuration) {
   logger.info(`pathToHandler.size = ${this.pathToHandler.size}`);
 }
 
-static buildIndexHandler(configuration) {
+static buildIndexHandler(template, configuration) {
+  const staticFilesInMainPage = configuration.staticFileList.filter((sf) => sf.includeInMainPage);
 
-  const buildLiForCommand = (command) => {
-    return `<li><a href="${command.httpPath}">${command.description}</a></li>`;
-  }
+  const indexMetadata = {
+    now: formattedDateTime(),
+    staticFilesInMainPage,
+    configuration
+  };
 
-  const buildLiForStaticFile = (staticFile) => {
-    return `<li><a href="${staticFile.httpPath}">${staticFile.filePath}</a></li>`;
-  }
-
-  const buildStaticFilesBlock = () => {
-    const staticFilesInMainPage =
-      configuration.staticFileList.filter(sf => sf.includeInMainPage);
-    if (staticFilesInMainPage.length === 0) {
-      return '';
-    } else {
-      const staticFilesBlockHtml =
-`
-  <h3>Static Paths:</h3>
-  <ul>
-    ${staticFilesInMainPage.map(buildLiForStaticFile).join('\n    ')}
-  </ul>
-`;
-      return staticFilesBlockHtml;
-    }
-  }
-
-  const indexHtml =
-`<!DOCTYPE html>
-<html>
-<head>
-  <title>${configuration.mainPageTitle}</title>
-  <meta name="viewport" content="width=device, initial-scale=1" />
-  <link rel="stylesheet" type="text/css" href="style.css" />
-</head>
-<body>
-  <h2>${configuration.mainPageTitle}</h2>
-  <h3>Commands:</h3>
-  <ul>
-    ${configuration.commandList.map(buildLiForCommand).join('\n    ')}
-  </ul>
-  ${buildStaticFilesBlock()}
-  <hr>
-  <small>Page Generated: ${formattedDateTime()}</small>
-  <br>
-  <small>Git Hash: ${configuration.gitHash}</small>
-</body>
-</html>
-`;
+  const indexHtml = moustache.render(template, indexMetadata);
 
   return (requestContext) => {
     requestContext.writeResponse(
@@ -206,33 +168,24 @@ static buildIndexHandler(configuration) {
   };
 }
 
-static buildCommandHandler(command) {
+static buildCommandHandler(template, command) {
   return async (requestContext) => {
-    let preString;
+    let commandOutput;
     try {
       const { stdout, stderr } = await asyncExec(command.command);
-      preString = `Now: ${formattedDateTime()}\n\n`;
-      preString += `$ ${command.command}\n\n`;
-      preString += escapeHtml(stderr + stdout);
+      commandOutput = stderr + stdout;
     } catch (err) {
       logger.error('command err = ' + err);
-      preString = escapeHtml(err);
+      commandOutput = err;
     }
 
-    const commandHtml =
-`<!DOCTYPE html>
-<html>
-<head>
-  <title>${command.description}</title>
-  <meta name="viewport" content="width=device, initial-scale=1" />
-  <link rel="stylesheet" type="text/css" href="style.css" />
-</head>
-<body>
-  <a href="..">..</a>
-  <pre>${preString}</pre>
-</body>
-</html>
-`;
+    const commandMetadata = {
+      now: formattedDateTime(),
+      command,
+      commandOutput
+    };
+
+    const commandHtml = moustache.render(template, commandMetadata);
 
     requestContext.writeResponse(
       {':status': 200, 'content-type': 'text/html'},
@@ -352,6 +305,16 @@ const readConfiguration = async (configFilePath) => {
   return configuration;
 }
 
+const readTemplates = async () => {
+  const templates = {};
+  [templates.index, templates.command] = await Promise.all([
+    readFileAsync('index.moustache', 'utf8'),
+    readFileAsync('command.moustache', 'utf8')
+  ]);
+  Object.values(templates).forEach((t) => moustache.parse(t));
+  return templates;
+}
+
 const main = async () => {
   if (process.argv.length !== 3) {
     console.log("Usage: " + process.argv[1] + " <config json>");
@@ -367,8 +330,16 @@ const main = async () => {
   }
   logger.info("configuration = " + JSON.stringify(configuration, null, 2));
 
+  let templates;
   try {
-    await new AsyncServer(configuration).start();
+    templates = await readTemplates();
+  } catch (err) {
+    logger.error('error reading templates err = ' + err);
+    process.exit(1);
+  }
+
+  try {
+    await new AsyncServer(configuration, templates).start();
   } catch (err) {
     logger.error('error starting server err = ' + err);
     process.exit(1);

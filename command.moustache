@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>{{command.description}}</title>
+  <meta name="viewport" content="width=device, initial-scale=1" />
+  <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+
+<body>
+<a href="..">..</a>
+
+<pre>Now: {{now}}
+
+$ {{command.command}}
+
+{{commandOutput}}
+</pre>
+
+</body>
+
+</html>

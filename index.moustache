@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>{{configuration.mainPageTitle}}</title>
+  <meta name="viewport" content="width=device, initial-scale=1" />
+  <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+
+<body>
+  <h2>{{configuration.mainPageTitle}}</h2>
+  <h3>Commands:</h3>
+  <ul>
+    {{#configuration.commandList}}
+      <li><a href="{{httpPath}}">{{description}}</a></li>
+    {{/configuration.commandList}}
+  </ul>
+
+  {{#staticFilesInMainPage}}
+  <h3>Static Paths:</h3>
+  <ul>
+    {{#staticFilesInMainPage}}
+      <li><a href="{{httpPath}}">{{filePath}}</a></li>
+    {{/staticFilesInMainPage}}
+  </ul>
+  {{/staticFilesInMainPage}}
+
+  <hr>
+  <small>Page Generated: {{now}}</small>
+  <br>
+  <small>Git Hash: {{configuration.gitHash}}</small>
+</body>
+
+</html>

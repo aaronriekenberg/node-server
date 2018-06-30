@@ -10,8 +10,8 @@
   "author": "Aaron Riekenberg",
   "license": "ISC",
   "dependencies": {
-    "escape-html": "^1.0.3",
     "fecha": "^2.3.3",
+    "moustache": "0.0.2",
     "simple-git": "^1.96.0",
     "winston": "^3.0.0"
   }
