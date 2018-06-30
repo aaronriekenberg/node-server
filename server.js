@@ -249,7 +249,7 @@ static serveNotFound(requestContext) {
 }
 
 async createHttpServer() {
-  let httpServerConfig = {};
+  const httpServerConfig = {};
   [httpServerConfig.key, httpServerConfig.cert] = await Promise.all([
     readFileAsync(this.configuration.tlsKeyFile),
     readFileAsync(this.configuration.tlsCertFile)
