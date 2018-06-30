@@ -291,11 +291,13 @@ async start() {
 }
 
 const getGitHash = async () => {
+  logger.info('getGitHash');
   const gitLog = await git('.').log(['-1']);
   return gitLog.latest.hash;
 }
 
 const readConfiguration = async (configFilePath) => {
+  logger.info('readConfiguration ' + configFilePath);
   const [fileContent, gitHash] = await Promise.all([
     readFileAsync(configFilePath, 'utf8'),
     getGitHash()
@@ -308,6 +310,7 @@ const readConfiguration = async (configFilePath) => {
 }
 
 const readTemplates = async () => {
+  logger.info('readTemplates');
   const templates = {};
   [templates.index, templates.command] = await Promise.all([
     readFileAsync('templates/index.mustache', 'utf8'),
