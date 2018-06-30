@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "fecha": "^2.3.3",
-    "moustache": "0.0.2",
+    "mustache": "^2.3.0",
     "simple-git": "^1.96.0",
     "winston": "^3.0.0"
   }

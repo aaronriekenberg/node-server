@@ -7,7 +7,7 @@ const fecha = require('fecha');
 const fs = require('fs');
 const git = require('simple-git/promise');
 const http2 = require('http2');
-const moustache = require('moustache');
+const mustache = require('mustache');
 const process = require('process');
 const util = require('util');
 const winston = require('winston');
@@ -159,7 +159,7 @@ static buildIndexHandler(template, configuration) {
     configuration
   };
 
-  const indexHtml = moustache.render(template, indexMetadata);
+  const indexHtml = mustache.render(template, indexMetadata);
 
   return (requestContext) => {
     requestContext.writeResponse(
@@ -185,7 +185,7 @@ static buildCommandHandler(template, command) {
       commandOutput
     };
 
-    const commandHtml = moustache.render(template, commandMetadata);
+    const commandHtml = mustache.render(template, commandMetadata);
 
     requestContext.writeResponse(
       {':status': 200, 'content-type': 'text/html'},
@@ -308,10 +308,10 @@ const readConfiguration = async (configFilePath) => {
 const readTemplates = async () => {
   const templates = {};
   [templates.index, templates.command] = await Promise.all([
-    readFileAsync('index.moustache', 'utf8'),
-    readFileAsync('command.moustache', 'utf8')
+    readFileAsync('index.mustache', 'utf8'),
+    readFileAsync('command.mustache', 'utf8')
   ]);
-  Object.values(templates).forEach((t) => moustache.parse(t));
+  Object.values(templates).forEach((t) => mustache.parse(t));
   return templates;
 }
 
