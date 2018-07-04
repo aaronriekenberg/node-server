@@ -62,13 +62,13 @@ get requestPath() {
   return this.requestHeaders[':path'];
 }
 
-get streamID() {
-  return this.stream.id;
-}
-
 get deltaTime() {
   const delta = process.hrtime(this.startTime);
   return (delta[0] + (delta[1] / 1e9));
+}
+
+get streamDestroyed() {
+  return this.stream.destroyed;
 }
 
 destroyStream() {
@@ -83,7 +83,7 @@ destroyStream() {
 
 writeResponse(responseHeaders, body = null) {
   try {
-    if (this.stream.destroyed) {
+    if (this.streamDestroyed) {
       logger.info(`${this.streamIDString} writeResponse stream destroyed`);
       return;
     }
@@ -106,7 +106,7 @@ writeResponse(responseHeaders, body = null) {
 
 respondWithFile(path, responseHeaders, options) {
   try {
-    if (this.stream.destroyed) {
+    if (this.streamDestroyed) {
       logger.info(`${this.streamIDString} respondWithFile stream destroyed`);
       return;
     }
@@ -178,6 +178,11 @@ static buildCommandHandler(template, command) {
       logger.error('command err = ' + err);
       commandOutput = err;
     }
+
+    if (requestContext.streamDestroyed) {
+      logger.info(`${requestContext.streamIDString} stream destroyed after command`);
+      return;
+    };
 
     const commandData = {
       now: formattedDateTime(),
