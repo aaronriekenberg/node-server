@@ -170,19 +170,26 @@ static buildIndexHandler(template, configuration) {
 
 static buildCommandHandler(template, command) {
   return async (requestContext) => {
-    let commandOutput;
+    let childProcess;
+    let commandErr;
     try {
-      const { stdout, stderr } = await asyncExec(command.command);
-      commandOutput = stderr + stdout;
+      childProcess = await asyncExec(command.command);
     } catch (err) {
       logger.error('command err = ' + err);
-      commandOutput = err;
+      commandErr = err;
     }
 
     if (requestContext.streamDestroyed) {
       logger.info(`${requestContext.streamIDString} stream destroyed after command`);
       return;
     };
+
+    let commandOutput;
+    if (commandErr) {
+      commandOutput = commandErr;
+    } else {
+      commandOutput = childProcess.stderr + childProcess.stdout;
+    }
 
     const commandData = {
       now: formattedDateTime(),
