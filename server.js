@@ -5,6 +5,7 @@
 const child_process = require('child_process');
 const fecha = require('fecha');
 const fs = require('fs');
+const fsPromises = fs.promises;
 const git = require('simple-git/promise');
 const http2 = require('http2');
 const mustache = require('mustache');
@@ -12,7 +13,6 @@ const process = require('process');
 const util = require('util');
 const winston = require('winston');
 const asyncExec = util.promisify(child_process.exec);
-const readFileAsync = util.promisify(fs.readFile);
 
 const dateTimeFormat = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
 
@@ -31,6 +31,19 @@ const logger = winston.createLogger({
   ),
   transports: [new winston.transports.Console()]
 });
+
+const readFileAsync = async (filePath, encoding = null) => {
+  let fileHandle;
+  try {
+    fileHandle = await fsPromises.open(filePath, 'r');
+    let content = await fileHandle.readFile({encoding});
+    return content;
+  } finally {
+    if (fileHandle) {
+      await fileHandle.close();
+    }
+  }
+}
 
 class RequestContext {
 
@@ -182,7 +195,7 @@ static buildCommandHandler(template, command) {
     if (requestContext.streamDestroyed) {
       logger.info(`${requestContext.streamIDString} stream destroyed after command`);
       return;
-    };
+    }
 
     let commandOutput;
     if (commandErr) {
