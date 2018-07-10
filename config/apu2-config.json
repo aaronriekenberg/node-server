@@ -81,6 +81,11 @@
     "description": "unbound stats"
   },
   {
+    "httpPath": "/tc_qdisc",
+    "command": "/sbin/tc -s qdisc show",
+    "description": "tc qdisc show"
+  },
+  {
     "httpPath": "/uptime",
     "command": "uptime",
     "description": "uptime"
