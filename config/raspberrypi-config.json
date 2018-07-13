@@ -66,6 +66,11 @@
     "description": "pitemp"
   },
   {
+    "httpPath": "/tc_qdisc",
+    "command": "/sbin/tc -s qdisc show",
+    "description": "tc qdisc show"
+  },
+  {
     "httpPath": "/top",
     "command": "top -b -n1",
     "description": "top"
