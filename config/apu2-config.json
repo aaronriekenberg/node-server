@@ -66,6 +66,11 @@
     "description": "sensors"
   },
   {
+    "httpPath": "/tc_qdisc",
+    "command": "/sbin/tc -s qdisc show",
+    "description": "tc qdisc show"
+  },
+  {
     "httpPath": "/top",
     "command": "top -b -n1",
     "description": "top"
@@ -79,11 +84,6 @@
     "httpPath": "/unbound_stats",
     "command": "sudo unbound-control stats_noreset",
     "description": "unbound stats"
-  },
-  {
-    "httpPath": "/tc_qdisc",
-    "command": "/sbin/tc -s qdisc show",
-    "description": "tc qdisc show"
   },
   {
     "httpPath": "/uptime",
