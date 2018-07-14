@@ -36,8 +36,7 @@ const readFileAsync = async (filePath, encoding = null) => {
   let fileHandle;
   try {
     fileHandle = await fsPromises.open(filePath, 'r');
-    let content = await fileHandle.readFile({encoding});
-    return content;
+    return await fileHandle.readFile({encoding});
   } finally {
     if (fileHandle) {
       await fileHandle.close();
