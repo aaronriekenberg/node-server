@@ -18,7 +18,7 @@ const DATE_TIME_FORMAT = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
 
 const formattedDateTime = () => {
   return fecha.format(new Date(), DATE_TIME_FORMAT);
-};
+}
 
 const logger = winston.createLogger({
   format: winston.format.combine(
