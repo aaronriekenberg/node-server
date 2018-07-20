@@ -344,7 +344,7 @@ const readTemplates = async () => {
 
 const main = async () => {
   if (process.argv.length !== 3) {
-    console.log("Usage: " + process.argv[1] + " <config json>");
+    console.log(`Usage: ${process.argv[1]} <config json>`);
     process.exit(1);
   }
 
@@ -359,7 +359,7 @@ const main = async () => {
     logger.error('error reading data at startup err = ' + err);
     process.exit(1);
   }
-  logger.info("configuration = " + JSON.stringify(configuration, null, 2));
+  logger.info(`configuration = ${JSON.stringify(configuration, null, 2)}`);
 
   try {
     await new AsyncServer(configuration, templates).start();
