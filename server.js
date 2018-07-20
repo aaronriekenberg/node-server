@@ -317,7 +317,7 @@ const getGitHash = async () => {
 }
 
 const readConfiguration = async (configFilePath) => {
-  logger.info('readConfiguration ' + configFilePath);
+  logger.info(`readConfiguration '${configFilePath}'`);
   const [fileContent, gitHash] = await Promise.all([
     readFileAsync(configFilePath, 'utf8'),
     getGitHash()
