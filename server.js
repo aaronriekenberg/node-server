@@ -87,7 +87,7 @@ destroyStream() {
       this.stream.destroy();
     }
   } catch (err) {
-    logger.error('destroyStream error err = ' + err);
+    logger.error(`destroyStream error err = ${err}`);
   }
 }
 
@@ -109,7 +109,7 @@ writeResponse(responseHeaders, body = null) {
       `${this.streamIDString} ${this.requestMethod} ${this.requestPath} ` +
       `status=${responseHeaders[':status']} ${this.deltaTime}s`);
   } catch (err) {
-    logger.error('writeResponse error err = ' + err);
+    logger.error(`writeResponse error err = ${err}`);
     this.destroyStream();
   }
 }
@@ -127,7 +127,7 @@ respondWithFile(path, responseHeaders, options) {
       `${this.streamIDString} ${this.requestMethod} ${this.requestPath} ` +
       `respondWithFile status=${responseHeaders[':status']} ${this.deltaTime}s`);
   } catch (err) {
-    logger.error('respondWithFile error err = ' + err);
+    logger.error(`respondWithFile error err = ${err}`);
     this.destroyStream();
   }
 }
@@ -185,7 +185,7 @@ static buildCommandHandler(template, command) {
     try {
       childProcess = await asyncExec(command.command);
     } catch (err) {
-      logger.error('command err = ' + err);
+      logger.error(`command err = ${err}`);
       commandErr = err;
     }
 
@@ -235,13 +235,13 @@ static buildStaticFileHandler(staticFile) {
           }
         }
       } catch (err) {
-        logger.error('statCheck error err = ' + err);
+        logger.error(`statCheck error err = ${err}`);
       }
       return true;
     };
 
     const onError = (err) => {
-      logger.error('file onError err = ' + err);
+      logger.error(`file onError err = ${err}`);
 
       if (err.code === 'ENOENT') {
         requestContext.writeResponse(
@@ -282,7 +282,7 @@ async createHttpServer() {
 async start() {
   const httpServer = await this.createHttpServer();
 
-  httpServer.on('error', (err) => logger.error('httpServer error err = ' + err));
+  httpServer.on('error', (err) => logger.error(`httpServer error err = ${err}`));
 
   httpServer.on('listening', () => logger.info(`httpServer listening on ${JSON.stringify(httpServer.address())}`));
 
@@ -356,7 +356,7 @@ const main = async () => {
       readTemplates()
     ]);
   } catch (err) {
-    logger.error('error reading data at startup err = ' + err);
+    logger.error(`error reading data at startup err = ${err}`);
     process.exit(1);
   }
   logger.info(`configuration = ${JSON.stringify(configuration, null, 2)}`);
@@ -364,7 +364,7 @@ const main = async () => {
   try {
     await new AsyncServer(configuration, templates).start();
   } catch (err) {
-    logger.error('error starting server err = ' + err);
+    logger.error(`error starting server err = ${err}`);
     process.exit(1);
   }
 }
