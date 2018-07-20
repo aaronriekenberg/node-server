@@ -14,16 +14,16 @@ const util = require('util');
 const winston = require('winston');
 const asyncExec = util.promisify(child_process.exec);
 
-const dateTimeFormat = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
+const DATE_TIME_FORMAT = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
 
 const formattedDateTime = () => {
-  return fecha.format(new Date(), dateTimeFormat);
+  return fecha.format(new Date(), DATE_TIME_FORMAT);
 };
 
 const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp({
-      format: dateTimeFormat
+      format: DATE_TIME_FORMAT
     }),
     winston.format.printf(info => {
       return `${info.timestamp} ${info.level}: ${info.message}`;
