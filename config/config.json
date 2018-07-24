@@ -11,6 +11,11 @@
     "description": "ifconfig"
   },
   {
+    "httpPath": "/netstat_an",
+    "command": "netstat -an",
+    "description": "netstat -an"
+  },
+  {
     "httpPath": "/sleep",
     "command": "sleep 5",
     "description": "sleep"
