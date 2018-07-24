@@ -53,8 +53,7 @@ static buildStreamIDString(stream) {
   let streamIDString;
 
   try {
-    streamIDString = `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}`;
-    streamIDString += `/${stream.id}`;
+    streamIDString = `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}/${stream.id}`;
   } catch (err) {
     streamIDString = 'UNKNOWN';
   }
