@@ -16,7 +16,7 @@ const asyncExec = util.promisify(child_process.exec);
 
 const DATE_TIME_FORMAT = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
 
-const formattedDateTime = () => fecha.format(new Date(), DATE_TIME_FORMAT)
+const formattedDateTime = () => fecha.format(new Date(), DATE_TIME_FORMAT);
 
 const logger = winston.createLogger({
   format: winston.format.combine(
@@ -38,7 +38,7 @@ const readFileAsync = async (filePath, encoding = null) => {
       await fileHandle.close();
     }
   }
-}
+};
 
 class RequestContext {
 
@@ -136,7 +136,6 @@ class AsyncServer {
 
 constructor(configuration, templates) {
   this.configuration = configuration;
-  this.templates = templates;
 
   this.pathToHandler = new Map();
 
@@ -147,10 +146,10 @@ constructor(configuration, templates) {
     this.pathToHandler.set(key, value);
   };
 
-  setOrThrow('/', AsyncServer.buildIndexHandler(this.templates.index, this.configuration));
+  setOrThrow('/', AsyncServer.buildIndexHandler(templates.index, this.configuration));
 
   this.configuration.commandList.forEach(
-    (command) => setOrThrow(command.httpPath, AsyncServer.buildCommandHandler(this.templates.command, command)));
+    (command) => setOrThrow(command.httpPath, AsyncServer.buildCommandHandler(templates.command, command)));
 
   this.configuration.staticFileList.forEach(
     (staticFile) => setOrThrow(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
@@ -314,7 +313,7 @@ const getGitHash = async () => {
   logger.info('getGitHash');
   const gitLog = await git('.').log(['-1']);
   return gitLog.latest.hash;
-}
+};
 
 const readConfiguration = async (configFilePath) => {
   logger.info(`readConfiguration '${configFilePath}'`);
@@ -327,7 +326,7 @@ const readConfiguration = async (configFilePath) => {
   configuration.gitHash = gitHash;
 
   return configuration;
-}
+};
 
 const readTemplates = async () => {
   logger.info('readTemplates');
@@ -338,7 +337,7 @@ const readTemplates = async () => {
   ]);
   Object.values(templates).forEach((t) => mustache.parse(t));
   return templates;
-}
+};
 
 const main = async () => {
   if (process.argv.length !== 3) {
@@ -365,6 +364,6 @@ const main = async () => {
     logger.error(`error starting server err = ${err}`);
     process.exit(1);
   }
-}
+};
 
 main();
