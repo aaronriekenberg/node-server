@@ -52,13 +52,13 @@ constructor(stream, requestHeaders) {
 static buildStreamIDString(stream) {
   let streamIDString;
 
-  if (stream.session && stream.session.socket) {
+  try {
     streamIDString = `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}`;
-  } else {
+    streamIDString += `/${stream.id}`;
+  } catch (err) {
     streamIDString = 'UNKNOWN';
   }
 
-  streamIDString += `/${stream.id}`;
   return streamIDString;
 }
 
