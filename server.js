@@ -336,29 +336,21 @@ const readTemplates = async () => {
 
 const main = async () => {
   if (process.argv.length !== 3) {
-    console.log(`Usage: ${process.argv[1]} <config json>`);
-    process.exit(1);
+    throw new Error('config json path required as command line argument');
   }
 
-  let configuration;
-  let templates;
-  try {
-    [configuration, templates] = await Promise.all([
-      readConfiguration(process.argv[2]),
-      readTemplates()
-    ]);
-  } catch (err) {
-    logger.error(`error reading data at startup err = ${err}`);
-    process.exit(1);
-  }
+  const [configuration, templates] = await Promise.all([
+    readConfiguration(process.argv[2]),
+    readTemplates()
+  ]);
+
   logger.info(`configuration = ${JSON.stringify(configuration, null, 2)}`);
 
-  try {
-    await new AsyncServer(configuration, templates).start();
-  } catch (err) {
-    logger.error(`error starting server err = ${err}`);
-    process.exit(1);
-  }
+  const asyncServer = new AsyncServer(configuration, templates);
+  await asyncServer.start();
 };
 
-main();
+main().catch((err) => {
+  logger.error(`main error err = ${err}`);
+  process.exit(1);
+});
