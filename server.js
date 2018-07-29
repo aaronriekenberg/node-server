@@ -50,15 +50,11 @@ constructor(stream, requestHeaders) {
 }
 
 static buildStreamIDString(stream) {
-  let streamIDString;
-
   try {
-    streamIDString = `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}/${stream.id}`;
+    return `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}/${stream.id}`;
   } catch (err) {
-    streamIDString = 'UNKNOWN';
+    return 'UNKNOWN';
   }
-
-  return streamIDString;
 }
 
 get requestMethod() {
