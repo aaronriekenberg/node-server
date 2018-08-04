@@ -28,6 +28,14 @@ const logger = winston.createLogger({
   transports: [new winston.transports.Console()]
 });
 
+const formatError = (err) => {
+  if (err.stack) {
+    return `${err.message} ${err.stack}`;
+  } else {
+    return err.message;
+  }
+};
+
 const readFileAsync = async (filePath, encoding = null) => {
   let fileHandle;
   try {
@@ -80,7 +88,7 @@ destroyStream() {
       this.stream.destroy();
     }
   } catch (err) {
-    logger.error(`destroyStream error err = ${err}`);
+    logger.error(`destroyStream error err = ${formatError(err)}`);
   }
 }
 
@@ -102,7 +110,7 @@ writeResponse(responseHeaders, body = null) {
       `${this.streamIDString} ${this.requestMethod} ${this.requestPath} ` +
       `status=${responseHeaders[':status']} ${this.deltaTime}s`);
   } catch (err) {
-    logger.error(`writeResponse error err = ${err}`);
+    logger.error(`writeResponse error err = ${formatError(err)}`);
     this.destroyStream();
   }
 }
@@ -120,7 +128,7 @@ respondWithFile(path, responseHeaders, options) {
       `${this.streamIDString} ${this.requestMethod} ${this.requestPath} ` +
       `respondWithFile status=${responseHeaders[':status']} ${this.deltaTime}s`);
   } catch (err) {
-    logger.error(`respondWithFile error err = ${err}`);
+    logger.error(`respondWithFile error err = ${formatError(err)}`);
     this.destroyStream();
   }
 }
@@ -177,7 +185,7 @@ static buildCommandHandler(template, command) {
     try {
       childProcess = await asyncExec(command.command);
     } catch (err) {
-      logger.error(`command err = ${err}`);
+      logger.error(`command err = ${formatError(err)}`);
       commandErr = err;
     }
 
@@ -227,13 +235,13 @@ static buildStaticFileHandler(staticFile) {
           }
         }
       } catch (err) {
-        logger.error(`statCheck error err = ${err}`);
+        logger.error(`statCheck error err = ${formatError(err)}`);
       }
       return true;
     };
 
     const onError = (err) => {
-      logger.error(`file onError err = ${err}`);
+      logger.error(`file onError err = ${formatError(err)}`);
 
       if (err.code === 'ENOENT') {
         requestContext.writeResponse(
@@ -274,7 +282,7 @@ async createHttpServer() {
 async start() {
   const httpServer = await this.createHttpServer();
 
-  httpServer.on('error', (err) => logger.error(`httpServer error err = ${err}`));
+  httpServer.on('error', (err) => logger.error(`httpServer error err = ${formatError(err)}`));
 
   httpServer.on('listening', () => logger.info(`httpServer listening on ${JSON.stringify(httpServer.address())}`));
 
@@ -351,6 +359,6 @@ const main = async () => {
 };
 
 main().catch((err) => {
-  logger.error(`main error err = ${err}`);
+  logger.error(`main error err = ${formatError(err)}`);
   process.exit(1);
 });
