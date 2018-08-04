@@ -30,7 +30,7 @@ const logger = winston.createLogger({
 
 const formatError = (err) => {
   if (err.stack) {
-    return `${err.message} ${err.stack}`;
+    return err.stack;
   } else {
     return err.message;
   }
