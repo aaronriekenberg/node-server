@@ -11,6 +11,11 @@
     "description": "arp"
   },
   {
+    "httpPath": "/df",
+    "command": "df -h",
+    "description": "df"
+  },
+  {
     "httpPath": "/dhcp-lease-list",
     "command": "/home/aaron/rust-dhcp-leases/target/release/rust-dhcp-leases",
     "description": "dhcp lease list"

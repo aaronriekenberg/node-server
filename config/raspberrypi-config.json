@@ -11,6 +11,11 @@
     "description": "arp"
   },
   {
+    "httpPath": "/df",
+    "command": "df -h",
+    "description": "df"
+  },
+  {
     "httpPath": "/dmesg",
     "command": "dmesg",
     "description": "dmesg"
