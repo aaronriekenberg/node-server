@@ -117,7 +117,7 @@
     "includeInMainPage": false
   },
   {
-    "httpPath": "/vnstat.html",
+    "httpPath": "/vnstat/index.html",
     "filePath": "/home/aaron/vnstat/index.html",
     "headers": {
       "content-type": "text/html",
@@ -126,7 +126,7 @@
     "includeInMainPage": true
   },
   {
-    "httpPath": "/vnstat_summary.png",
+    "httpPath": "/vnstat/vnstat_summary.png",
     "filePath": "/home/aaron/vnstat/vnstat_summary.png",
     "headers": {
       "content-type": "image/png",
@@ -135,7 +135,7 @@
     "includeInMainPage": false
   },
   {
-    "httpPath": "/vnstat_hours.png",
+    "httpPath": "/vnstat/vnstat_hours.png",
     "filePath": "/home/aaron/vnstat/vnstat_hours.png",
     "headers": {
       "content-type": "image/png",
@@ -144,7 +144,7 @@
     "includeInMainPage": false
   },
   {
-    "httpPath": "/vnstat_days.png",
+    "httpPath": "/vnstat/vnstat_days.png",
     "filePath": "/home/aaron/vnstat/vnstat_days.png",
     "headers": {
       "content-type": "image/png",
@@ -153,7 +153,7 @@
     "includeInMainPage": false
   },
   {
-    "httpPath": "/vnstat_months.png",
+    "httpPath": "/vnstat/vnstat_months.png",
     "filePath": "/home/aaron/vnstat/vnstat_months.png",
     "headers": {
       "content-type": "image/png",
@@ -162,7 +162,7 @@
     "includeInMainPage": false
   },
   {
-    "httpPath": "/vnstat_top10.png",
+    "httpPath": "/vnstat/vnstat_top10.png",
     "filePath": "/home/aaron/vnstat/vnstat_top10.png",
     "headers": {
       "content-type": "image/png",
