@@ -28,13 +28,7 @@ const logger = winston.createLogger({
   transports: [new winston.transports.Console()]
 });
 
-const formatError = (err) => {
-  if (err.stack) {
-    return err.stack;
-  } else {
-    return err.message;
-  }
-};
+const formatError = (err) => (err.stack || err.message);
 
 const readFileAsync = async (filePath, encoding = null) => {
   let fileHandle;
