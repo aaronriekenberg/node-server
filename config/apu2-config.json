@@ -11,6 +11,21 @@
     "description": "arp"
   },
   {
+    "httpPath": "/coredns_log_tail",
+    "command": "tail -n30 /home/aaron/coredns-run/logs/current",
+    "description": "coredns log tail"
+  },
+  {
+    "httpPath": "/coredns_metrics",
+    "command": "/usr/bin/curl -s http://localhost:9153/metrics",
+    "description": "coredns metrics"
+  },
+  {
+    "httpPath": "/cpu_vulnerabilities",
+    "command": "grep . /sys/devices/system/cpu/vulnerabilities/*",
+    "description": "cpu vulnerabilities"
+  },
+  {
     "httpPath": "/df",
     "command": "df -h",
     "description": "df"
@@ -79,16 +94,6 @@
     "httpPath": "/top",
     "command": "top -b -n1",
     "description": "top"
-  },
-  {
-    "httpPath": "/unbound_infra",
-    "command": "sudo unbound-control dump_infra",
-    "description": "unbound infra"
-  },
-  {
-    "httpPath": "/unbound_stats",
-    "command": "sudo unbound-control stats_noreset",
-    "description": "unbound stats"
   },
   {
     "httpPath": "/uptime",
