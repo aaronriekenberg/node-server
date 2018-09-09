@@ -16,11 +16,6 @@
     "description": "coredns log tail"
   },
   {
-    "httpPath": "/coredns_metrics",
-    "command": "/usr/bin/curl -s http://localhost:9153/metrics",
-    "description": "coredns metrics"
-  },
-  {
     "httpPath": "/cpu_vulnerabilities",
     "command": "grep . /sys/devices/system/cpu/vulnerabilities/*",
     "description": "cpu vulnerabilities"
@@ -109,6 +104,18 @@
     "httpPath": "/w",
     "command": "w",
     "description": "w"
+  }
+  ],
+  "proxyList": [
+  {
+    "httpPath": "/coredns_metrics",
+    "description": "coredns metrics",
+    "options": {
+      "hostname": "localhost",
+      "port": 9153,
+      "path": "/metrics",
+      "method": "GET"
+    }
   }
   ],
   "staticFileList": [

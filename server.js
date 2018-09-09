@@ -7,6 +7,7 @@ const fecha = require('fecha');
 const fs = require('fs');
 const fsPromises = fs.promises;
 const git = require('simple-git/promise');
+const http = require('http');
 const http2 = require('http2');
 const mustache = require('mustache');
 const process = require('process');
@@ -148,6 +149,9 @@ constructor(configuration, templates) {
   this.configuration.commandList.forEach(
     (command) => setOrThrow(command.httpPath, AsyncServer.buildCommandHandler(templates.command, command)));
 
+  this.configuration.proxyList.forEach(
+    (proxy) => setOrThrow(proxy.httpPath, AsyncServer.buildProxyHandler(templates.proxy, proxy)));
+
   this.configuration.staticFileList.forEach(
     (staticFile) => setOrThrow(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
 
@@ -206,6 +210,57 @@ static buildCommandHandler(template, command) {
     requestContext.writeResponse(
       {':status': 200, 'content-type': 'text/html'},
       commandHtml);
+  };
+}
+
+static buildProxyHandler(template, proxy) {
+  return (requestContext) => {
+
+    let responseWritten = false;
+    let proxyResponseData = '';
+    let proxyError;
+
+    const writeProxyResponse = () => {
+      if (responseWritten) {
+        return;
+      };
+      responseWritten = true;
+     
+      if (requestContext.streamDestroyed) {
+        logger.info(`${requestContext.streamIDString} stream destroyed after proxy`);
+        return;
+      }
+
+      const proxyData = {
+        now: formattedDateTime(),
+        proxy,
+        responseData: (proxyError || proxyResponseData)
+      };
+
+      const proxyHtml = mustache.render(template, proxyData);
+
+      requestContext.writeResponse(
+        {':status': 200, 'content-type': 'text/html'},
+        proxyHtml);
+    };
+
+    const proxyRequest = http.request(proxy.options, (proxyResponse) => {
+      proxyResponse.setEncoding('utf8');
+      proxyResponse.on('data', (chunk) => {
+        proxyResponseData += chunk;
+      });
+      proxyResponse.on('end', () => {
+        writeProxyResponse();
+      });
+    });
+
+    proxyRequest.on('error', (err) => {
+      logger.error(`proxy err = ${formatError(err)}`);
+      proxyError = err;
+      writeProxyResponse();
+    });
+
+    proxyRequest.end();
   };
 }
 
@@ -328,9 +383,10 @@ const readConfiguration = async (configFilePath) => {
 const readTemplates = async () => {
   logger.info('readTemplates');
   const templates = {};
-  [templates.index, templates.command] = await Promise.all([
+  [templates.command, templates.index, templates.proxy] = await Promise.all([
+    readFileAsync('templates/command.mustache', 'utf8'),
     readFileAsync('templates/index.mustache', 'utf8'),
-    readFileAsync('templates/command.mustache', 'utf8')
+    readFileAsync('templates/proxy.mustache', 'utf8')
   ]);
   Object.values(templates).forEach((t) => mustache.parse(t));
   return templates;

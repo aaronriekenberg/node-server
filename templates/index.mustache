@@ -16,14 +16,23 @@
     {{/configuration.commandList}}
   </ul>
 
-  {{#staticFilesInMainPage}}
+  {{#configuration.proxyList.length}}
+  <h3>Proxy Paths:</h3>
+  <ul>
+    {{#configuration.proxyList}}
+      <li><a href="{{httpPath}}">{{description}}</a></li>
+    {{/configuration.proxyList}}
+  </ul>
+  {{/configuration.proxyList.length}}
+
+  {{#staticFilesInMainPage.length}}
   <h3>Static Paths:</h3>
   <ul>
     {{#staticFilesInMainPage}}
       <li><a href="{{httpPath}}">{{filePath}}</a></li>
     {{/staticFilesInMainPage}}
   </ul>
-  {{/staticFilesInMainPage}}
+  {{/staticFilesInMainPage.length}}
 
   <hr>
   <small>Page Generated: {{now}}</small>
