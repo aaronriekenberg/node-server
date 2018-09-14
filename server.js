@@ -136,8 +136,7 @@ constructor(configuration, templates) {
   this.configuration = configuration;
 
   this.httpKeepAliveAgent = new http.Agent({
-    keepAlive: true,
-    timeout: 30 * 1000
+    keepAlive: true
   });
 
   this.pathToHandler = new Map();
