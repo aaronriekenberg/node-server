@@ -135,6 +135,10 @@ class AsyncServer {
 constructor(configuration, templates) {
   this.configuration = configuration;
 
+  this.httpKeepAliveAgent = new http.Agent({
+    keepAlive: true
+  });
+
   this.pathToHandler = new Map();
 
   const setOrThrow = (key, value) => {
@@ -150,7 +154,7 @@ constructor(configuration, templates) {
     (command) => setOrThrow(command.httpPath, AsyncServer.buildCommandHandler(templates.command, command)));
 
   this.configuration.proxyList.forEach(
-    (proxy) => setOrThrow(proxy.httpPath, AsyncServer.buildProxyHandler(templates.proxy, proxy)));
+    (proxy) => setOrThrow(proxy.httpPath, AsyncServer.buildProxyHandler(templates.proxy, this.httpKeepAliveAgent, proxy)));
 
   this.configuration.staticFileList.forEach(
     (staticFile) => setOrThrow(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
@@ -213,18 +217,14 @@ static buildCommandHandler(template, command) {
   };
 }
 
-static buildProxyHandler(template, proxy) {
+static buildProxyHandler(template, httpKeepAliveAgent, proxy) {
   return (requestContext) => {
 
-    let responseWritten = false;
     let proxyResponseData = '';
     let proxyError;
 
-    const writeProxyResponse = () => {
-      if (responseWritten) {
-        return;
-      };
-      responseWritten = true;
+    let writeProxyResponse = () => {
+      writeProxyResponse = () => {};
      
       if (requestContext.streamDestroyed) {
         logger.info(`${requestContext.streamIDString} stream destroyed after proxy`);
@@ -244,7 +244,11 @@ static buildProxyHandler(template, proxy) {
         proxyHtml);
     };
 
-    const proxyRequest = http.request(proxy.options, (proxyResponse) => {
+    const requestOptions = Object.assign(
+      { agent: httpKeepAliveAgent },
+      proxy.options);
+
+    const proxyRequest = http.request(requestOptions, (proxyResponse) => {
       proxyResponse.setEncoding('utf8');
       proxyResponse.on('data', (chunk) => {
         proxyResponseData += chunk;
