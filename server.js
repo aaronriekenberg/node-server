@@ -55,7 +55,6 @@ constructor() {
 }
 
 createConnection(...args) {
-  logger.info('createConnection');
   const socket = super.createConnection(...args);
 
   this.socketToTimeoutHandler.set(socket, () => {
