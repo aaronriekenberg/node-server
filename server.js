@@ -15,14 +15,14 @@ const util = require('util');
 const winston = require('winston');
 const asyncExec = util.promisify(child_process.exec);
 
-const DATE_TIME_FORMAT = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
+const dateTimeFormat = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
 
-const formattedDateTime = () => fecha.format(new Date(), DATE_TIME_FORMAT);
+const formattedDateTime = () => fecha.format(new Date(), dateTimeFormat);
 
 const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp({
-      format: DATE_TIME_FORMAT
+      format: dateTimeFormat
     }),
     winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
   ),
@@ -42,6 +42,46 @@ const readFileAsync = async (filePath, encoding = null) => {
     }
   }
 };
+
+class HttpKeepAliveAgent extends http.Agent {
+
+constructor() {
+  super({
+    keepAlive: true,
+    timeout: 10 * 1000
+  })
+
+  this.socketToTimeoutHandler = new Map();
+}
+
+createConnection(...args) {
+  logger.info('createConnection');
+  const socket = super.createConnection(...args);
+
+  this.socketToTimeoutHandler.set(socket, () => {
+    socket.end();
+  });
+
+  socket.on('close', () => {
+    this.socketToTimeoutHandler.delete(socket);
+  });
+
+  return socket;
+}
+
+keepSocketAlive(socket) {
+  socket.on('timeout', this.socketToTimeoutHandler.get(socket));
+  return super.keepSocketAlive(socket);
+}
+
+reuseSocket(socket, req) {
+  socket.removeListener('timeout', this.socketToTimeoutHandler.get(socket));
+  return super.reuseSocket(socket, req);
+}
+
+}
+
+const httpKeepAliveAgent = new HttpKeepAliveAgent();
 
 class RequestContext {
 
@@ -135,9 +175,6 @@ class AsyncServer {
 constructor(configuration, templates) {
   this.configuration = configuration;
 
-  this.httpKeepAliveAgent = new http.Agent({
-    keepAlive: true
-  });
 
   this.pathToHandler = new Map();
 
@@ -154,7 +191,7 @@ constructor(configuration, templates) {
     (command) => setOrThrow(command.httpPath, AsyncServer.buildCommandHandler(templates.command, command)));
 
   this.configuration.proxyList.forEach(
-    (proxy) => setOrThrow(proxy.httpPath, AsyncServer.buildProxyHandler(templates.proxy, this.httpKeepAliveAgent, proxy)));
+    (proxy) => setOrThrow(proxy.httpPath, AsyncServer.buildProxyHandler(templates.proxy, proxy)));
 
   this.configuration.staticFileList.forEach(
     (staticFile) => setOrThrow(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
@@ -217,7 +254,7 @@ static buildCommandHandler(template, command) {
   };
 }
 
-static buildProxyHandler(template, httpKeepAliveAgent, proxy) {
+static buildProxyHandler(template, proxy) {
   return (requestContext) => {
 
     let proxyResponseData = '';
