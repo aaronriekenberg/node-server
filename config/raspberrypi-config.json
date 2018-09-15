@@ -106,7 +106,6 @@
     "description": "w"
   }
   ],
-  "proxyList": [],
   "staticFileList": [
   {
     "httpPath": "/style.css",

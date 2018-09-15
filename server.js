@@ -80,7 +80,11 @@ reuseSocket(socket, req) {
 
 }
 
-const httpKeepAliveAgent = new HttpKeepAliveAgent();
+let httpKeepAliveAgent = () => {
+  const agent = new HttpKeepAliveAgent();
+  httpKeepAliveAgent = () => agent;
+  return agent;
+};
 
 class RequestContext {
 
@@ -186,13 +190,13 @@ constructor(configuration, templates) {
 
   setOrThrow('/', AsyncServer.buildIndexHandler(templates.index, this.configuration));
 
-  this.configuration.commandList.forEach(
+  (this.configuration.commandList || []).forEach(
     (command) => setOrThrow(command.httpPath, AsyncServer.buildCommandHandler(templates.command, command)));
 
-  this.configuration.proxyList.forEach(
+  (this.configuration.proxyList || []).forEach(
     (proxy) => setOrThrow(proxy.httpPath, AsyncServer.buildProxyHandler(templates.proxy, proxy)));
 
-  this.configuration.staticFileList.forEach(
+  (this.configuration.staticFileList || []).forEach(
     (staticFile) => setOrThrow(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
 
   logger.info(`pathToHandler.size = ${this.pathToHandler.size}`);
@@ -281,7 +285,7 @@ static buildProxyHandler(template, proxy) {
     };
 
     const requestOptions = Object.assign(
-      { agent: httpKeepAliveAgent },
+      { agent: httpKeepAliveAgent() },
       proxy.options);
 
     const proxyRequest = http.request(requestOptions, (proxyResponse) => {
