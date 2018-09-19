@@ -261,6 +261,8 @@ static buildProxyHandler(template, proxy) {
   return (requestContext) => {
 
     let proxyResponseData = '';
+    let proxyResponseStatus = '';
+    let proxyResponseHeaders = '';
     let proxyError;
 
     let writeProxyResponse = () => {
@@ -274,7 +276,9 @@ static buildProxyHandler(template, proxy) {
       const proxyData = {
         now: formattedDateTime(),
         proxy,
-        responseData: (proxyError || proxyResponseData)
+        responseData: (proxyError || proxyResponseData),
+        responseStatus: proxyResponseStatus,
+        responseHeaders: proxyResponseHeaders
       };
 
       const proxyHtml = mustache.render(template, proxyData);
@@ -289,10 +293,15 @@ static buildProxyHandler(template, proxy) {
       proxy.options);
 
     const proxyRequest = http.request(requestOptions, (proxyResponse) => {
+      proxyResponseStatus = proxyResponse.statusCode;
+      proxyResponseHeaders = JSON.stringify(proxyResponse.headers, null, 2);
+
       proxyResponse.setEncoding('utf8');
+
       proxyResponse.on('data', (chunk) => {
         proxyResponseData += chunk;
       });
+
       proxyResponse.on('end', () => {
         writeProxyResponse();
       });
