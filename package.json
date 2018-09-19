@@ -12,7 +12,7 @@
   "dependencies": {
     "fecha": "^2.3.3",
     "mustache": "^2.3.2",
-    "simple-git": "^1.96.0",
+    "simple-git": "^1.100.0",
     "winston": "^3.1.0"
   }
 }
