@@ -178,7 +178,6 @@ class AsyncServer {
 constructor(configuration, templates) {
   this.configuration = configuration;
 
-
   this.pathToHandler = new Map();
 
   const setOrThrow = (key, value) => {
