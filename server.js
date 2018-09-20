@@ -51,7 +51,7 @@ constructor() {
     timeout: 10 * 1000
   })
 
-  this.socketToTimeoutHandler = new Map();
+  this.socketToTimeoutHandler = new WeakMap();
 }
 
 createConnection(...args) {
@@ -59,10 +59,6 @@ createConnection(...args) {
 
   this.socketToTimeoutHandler.set(socket, () => {
     socket.end();
-  });
-
-  socket.on('close', () => {
-    this.socketToTimeoutHandler.delete(socket);
   });
 
   return socket;
