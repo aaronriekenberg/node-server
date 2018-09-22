@@ -80,14 +80,9 @@
       "description": "top"
     },
     {
-      "httpPath": "/unbound_infra",
-      "command": "sudo unbound-control dump_infra",
-      "description": "unbound infra"
-    },
-    {
-      "httpPath": "/unbound_stats",
-      "command": "sudo unbound-control stats_noreset",
-      "description": "unbound stats"
+      "httpPath": "/unifi_log",
+      "command": "sudo tail -n30 /var/log/unifi/server.log",
+      "description": "unifi log"
     },
     {
       "httpPath": "/uptime",
