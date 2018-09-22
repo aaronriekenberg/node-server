@@ -139,35 +139,7 @@ respondWithFile(path, responseHeaders, options) {
 
 }
 
-class AsyncServer {
-
-constructor(configuration, templates) {
-  this.configuration = configuration;
-
-  this.pathToHandler = new Map();
-
-  const setOrThrow = (key, value) => {
-    if (this.pathToHandler.has(key)) {
-      throw new Error(`duplicate path key ${key}`);
-    }
-    this.pathToHandler.set(key, value);
-  };
-
-  setOrThrow('/', AsyncServer.buildIndexHandler(templates.index, this.configuration));
-
-  (this.configuration.commandList || []).forEach(
-    (command) => setOrThrow(command.httpPath, AsyncServer.buildCommandHandler(templates.command, command)));
-
-  (this.configuration.proxyList || []).forEach(
-    (proxy) => setOrThrow(proxy.httpPath, AsyncServer.buildProxyHandler(templates.proxy, proxy)));
-
-  (this.configuration.staticFileList || []).forEach(
-    (staticFile) => setOrThrow(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
-
-  setOrThrow('/http_agent_status', AsyncServer.buildHttpAgentStatusHandler());
-
-  logger.info(`pathToHandler.size = ${this.pathToHandler.size}`);
-}
+class Handlers {
 
 static buildIndexHandler(template, configuration) {
   const staticFilesInMainPage = configuration.staticFileList.filter((sf) => sf.includeInMainPage);
@@ -343,7 +315,39 @@ static buildHttpAgentStatusHandler() {
   };
 }
 
-static serveNotFound(requestContext) {
+}
+
+class AsyncServer {
+
+constructor(configuration, templates) {
+  this.configuration = configuration;
+
+  this.pathToHandler = new Map();
+
+  const setOrThrow = (key, value) => {
+    if (this.pathToHandler.has(key)) {
+      throw new Error(`duplicate path key ${key}`);
+    }
+    this.pathToHandler.set(key, value);
+  };
+
+  setOrThrow('/', Handlers.buildIndexHandler(templates.index, this.configuration));
+
+  (this.configuration.commandList || []).forEach(
+    (command) => setOrThrow(command.httpPath, Handlers.buildCommandHandler(templates.command, command)));
+
+  (this.configuration.proxyList || []).forEach(
+    (proxy) => setOrThrow(proxy.httpPath, Handlers.buildProxyHandler(templates.proxy, proxy)));
+
+  (this.configuration.staticFileList || []).forEach(
+    (staticFile) => setOrThrow(staticFile.httpPath, Handlers.buildStaticFileHandler(staticFile)));
+
+  setOrThrow('/http_agent_status', Handlers.buildHttpAgentStatusHandler());
+
+  logger.info(`pathToHandler.size = ${this.pathToHandler.size}`);
+}
+
+serveNotFound(requestContext) {
   requestContext.writeResponse(
     {':status': 404, 'content-type': 'text/plain'},
     'Unknown request');
@@ -378,7 +382,7 @@ async start() {
       }
     }
     if (!handled) {
-      AsyncServer.serveNotFound(requestContext);
+      this.serveNotFound(requestContext);
     }
 
   });
