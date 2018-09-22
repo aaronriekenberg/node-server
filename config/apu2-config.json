@@ -4,110 +4,108 @@
   "listenAddress": "192.168.1.1",
   "listenPort": "8000",
   "mainPageTitle": "Aaron's APU2",
-  "commandList": [
-  {
-    "httpPath": "/arp",
-    "command": "/usr/sbin/arp -an",
-    "description": "arp"
-  },
-  {
-    "httpPath": "/coredns_log_tail",
-    "command": "tail -n30 /home/aaron/coredns-run/logs/current",
-    "description": "coredns log tail"
-  },
-  {
-    "httpPath": "/cpu_vulnerabilities",
-    "command": "grep . /sys/devices/system/cpu/vulnerabilities/*",
-    "description": "cpu vulnerabilities"
-  },
-  {
-    "httpPath": "/df",
-    "command": "df -h",
-    "description": "df"
-  },
-  {
-    "httpPath": "/dhcp-lease-list",
-    "command": "/home/aaron/rust-dhcp-leases/target/release/rust-dhcp-leases",
-    "description": "dhcp lease list"
-  },
-  {
-    "httpPath": "/dmesg",
-    "command": "sudo dmesg",
-    "description": "dmesg"
-  },
-  {
-    "httpPath": "/ifconfig",
-    "command": "/sbin/ifconfig",
-    "description": "ifconfig"
-  },
-  {
-    "httpPath": "/log_ls",
-    "command": "ls -latrh ~/node-server/logs",
-    "description": "log ls"
-  },
-  {
-    "httpPath": "/log_tail",
-    "command": "tail -n30 ~/node-server/logs/current",
-    "description": "log tail"
-  },
-  {
-    "httpPath": "/lscpu",
-    "command": "lscpu",
-    "description": "lscpu"
-  },
-  {
-    "httpPath": "/ncal",
-    "command": "ncal -h -y",
-    "description": "ncal"
-  },
-  {
-    "httpPath": "/netstat_an",
-    "command": "netstat -an",
-    "description": "netstat -an"
-  },
-  {
-    "httpPath": "/netstat_s",
-    "command": "netstat -s",
-    "description": "netstat -s"
-  },
-  {
-    "httpPath": "/ntpq",
-    "command": "ntpq -p",
-    "description": "ntpq"
-  },
-  {
-    "httpPath": "/sensors",
-    "command": "sensors",
-    "description": "sensors"
-  },
-  {
-    "httpPath": "/tc_qdisc",
-    "command": "/sbin/tc -s qdisc show",
-    "description": "tc qdisc show"
-  },
-  {
-    "httpPath": "/top",
-    "command": "top -b -n1",
-    "description": "top"
-  },
-  {
-    "httpPath": "/uptime",
-    "command": "uptime",
-    "description": "uptime"
-  },
-  {
-    "httpPath": "/vmstat",
-    "command": "vmstat",
-    "description": "vmstat"
-  },
-  {
-    "httpPath": "/w",
-    "command": "w",
-    "description": "w"
-  }
+  "commandList": [{
+      "httpPath": "/arp",
+      "command": "/usr/sbin/arp -an",
+      "description": "arp"
+    },
+    {
+      "httpPath": "/coredns_log_tail",
+      "command": "tail -n30 /home/aaron/coredns-run/logs/current",
+      "description": "coredns log tail"
+    },
+    {
+      "httpPath": "/cpu_vulnerabilities",
+      "command": "grep . /sys/devices/system/cpu/vulnerabilities/*",
+      "description": "cpu vulnerabilities"
+    },
+    {
+      "httpPath": "/df",
+      "command": "df -h",
+      "description": "df"
+    },
+    {
+      "httpPath": "/dhcp-lease-list",
+      "command": "/home/aaron/rust-dhcp-leases/target/release/rust-dhcp-leases",
+      "description": "dhcp lease list"
+    },
+    {
+      "httpPath": "/dmesg",
+      "command": "sudo dmesg",
+      "description": "dmesg"
+    },
+    {
+      "httpPath": "/ifconfig",
+      "command": "/sbin/ifconfig",
+      "description": "ifconfig"
+    },
+    {
+      "httpPath": "/log_ls",
+      "command": "ls -latrh ~/node-server/logs",
+      "description": "log ls"
+    },
+    {
+      "httpPath": "/log_tail",
+      "command": "tail -n30 ~/node-server/logs/current",
+      "description": "log tail"
+    },
+    {
+      "httpPath": "/lscpu",
+      "command": "lscpu",
+      "description": "lscpu"
+    },
+    {
+      "httpPath": "/ncal",
+      "command": "ncal -h -y",
+      "description": "ncal"
+    },
+    {
+      "httpPath": "/netstat_an",
+      "command": "netstat -an",
+      "description": "netstat -an"
+    },
+    {
+      "httpPath": "/netstat_s",
+      "command": "netstat -s",
+      "description": "netstat -s"
+    },
+    {
+      "httpPath": "/ntpq",
+      "command": "ntpq -p",
+      "description": "ntpq"
+    },
+    {
+      "httpPath": "/sensors",
+      "command": "sensors",
+      "description": "sensors"
+    },
+    {
+      "httpPath": "/tc_qdisc",
+      "command": "/sbin/tc -s qdisc show",
+      "description": "tc qdisc show"
+    },
+    {
+      "httpPath": "/top",
+      "command": "top -b -n1",
+      "description": "top"
+    },
+    {
+      "httpPath": "/uptime",
+      "command": "uptime",
+      "description": "uptime"
+    },
+    {
+      "httpPath": "/vmstat",
+      "command": "vmstat",
+      "description": "vmstat"
+    },
+    {
+      "httpPath": "/w",
+      "command": "w",
+      "description": "w"
+    }
   ],
-  "proxyList": [
-  {
+  "proxyList": [{
     "httpPath": "/coredns_metrics",
     "description": "coredns metrics",
     "options": {
@@ -116,71 +114,69 @@
       "path": "/metrics",
       "method": "GET"
     }
-  }
-  ],
-  "staticFileList": [
-  {
-    "httpPath": "/style.css",
-    "filePath": "static/style.css",
-    "headers": {
-      "content-type": "text/css",
-      "cache-control": "max-age=60"
+  }],
+  "staticFileList": [{
+      "httpPath": "/style.css",
+      "filePath": "static/style.css",
+      "headers": {
+        "content-type": "text/css",
+        "cache-control": "max-age=60"
+      },
+      "includeInMainPage": false
     },
-    "includeInMainPage": false
-  },
-  {
-    "httpPath": "/vnstat/index.html",
-    "filePath": "/home/aaron/vnstat/index.html",
-    "headers": {
-      "content-type": "text/html",
-      "cache-control": "max-age=60"
+    {
+      "httpPath": "/vnstat/index.html",
+      "filePath": "/home/aaron/vnstat/index.html",
+      "headers": {
+        "content-type": "text/html",
+        "cache-control": "max-age=60"
+      },
+      "includeInMainPage": true
     },
-    "includeInMainPage": true
-  },
-  {
-    "httpPath": "/vnstat/vnstat_summary.png",
-    "filePath": "/home/aaron/vnstat/vnstat_summary.png",
-    "headers": {
-      "content-type": "image/png",
-      "cache-control": "max-age=60"
+    {
+      "httpPath": "/vnstat/vnstat_summary.png",
+      "filePath": "/home/aaron/vnstat/vnstat_summary.png",
+      "headers": {
+        "content-type": "image/png",
+        "cache-control": "max-age=60"
+      },
+      "includeInMainPage": false
     },
-    "includeInMainPage": false
-  },
-  {
-    "httpPath": "/vnstat/vnstat_hours.png",
-    "filePath": "/home/aaron/vnstat/vnstat_hours.png",
-    "headers": {
-      "content-type": "image/png",
-      "cache-control": "max-age=60"
+    {
+      "httpPath": "/vnstat/vnstat_hours.png",
+      "filePath": "/home/aaron/vnstat/vnstat_hours.png",
+      "headers": {
+        "content-type": "image/png",
+        "cache-control": "max-age=60"
+      },
+      "includeInMainPage": false
     },
-    "includeInMainPage": false
-  },
-  {
-    "httpPath": "/vnstat/vnstat_days.png",
-    "filePath": "/home/aaron/vnstat/vnstat_days.png",
-    "headers": {
-      "content-type": "image/png",
-      "cache-control": "max-age=60"
+    {
+      "httpPath": "/vnstat/vnstat_days.png",
+      "filePath": "/home/aaron/vnstat/vnstat_days.png",
+      "headers": {
+        "content-type": "image/png",
+        "cache-control": "max-age=60"
+      },
+      "includeInMainPage": false
     },
-    "includeInMainPage": false
-  },
-  {
-    "httpPath": "/vnstat/vnstat_months.png",
-    "filePath": "/home/aaron/vnstat/vnstat_months.png",
-    "headers": {
-      "content-type": "image/png",
-      "cache-control": "max-age=60"
+    {
+      "httpPath": "/vnstat/vnstat_months.png",
+      "filePath": "/home/aaron/vnstat/vnstat_months.png",
+      "headers": {
+        "content-type": "image/png",
+        "cache-control": "max-age=60"
+      },
+      "includeInMainPage": false
     },
-    "includeInMainPage": false
-  },
-  {
-    "httpPath": "/vnstat/vnstat_top10.png",
-    "filePath": "/home/aaron/vnstat/vnstat_top10.png",
-    "headers": {
-      "content-type": "image/png",
-      "cache-control": "max-age=60"
-    },
-    "includeInMainPage": false
-  }
+    {
+      "httpPath": "/vnstat/vnstat_top10.png",
+      "filePath": "/home/aaron/vnstat/vnstat_top10.png",
+      "headers": {
+        "content-type": "image/png",
+        "cache-control": "max-age=60"
+      },
+      "includeInMainPage": false
+    }
   ]
 }

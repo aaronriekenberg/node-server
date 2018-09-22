@@ -4,124 +4,122 @@
   "listenAddress": "0.0.0.0",
   "listenPort": "8000",
   "mainPageTitle": "Aaron's Raspberry Pi",
-  "commandList": [
-  {
-    "httpPath": "/arp",
-    "command": "/usr/sbin/arp -an",
-    "description": "arp"
-  },
-  {
-    "httpPath": "/df",
-    "command": "df -h",
-    "description": "df"
-  },
-  {
-    "httpPath": "/dmesg",
-    "command": "dmesg",
-    "description": "dmesg"
-  },
-  {
-    "httpPath": "/ifconfig",
-    "command": "/sbin/ifconfig",
-    "description": "ifconfig"
-  },
-  {
-    "httpPath": "/iwconfig",
-    "command": "/sbin/iwconfig",
-    "description": "iwconfig"
-  },
-  {
-    "httpPath": "/log_ls",
-    "command": "ls -latrh ~/node-server/logs",
-    "description": "log ls"
-  },
-  {
-    "httpPath": "/log_tail",
-    "command": "tail -n30 ~/node-server/logs/current",
-    "description": "log tail"
-  },
-  {
-    "httpPath": "/lscpu",
-    "command": "lscpu",
-    "description": "lscpu"
-  },
-  {
-    "httpPath": "/ncal",
-    "command": "ncal -h -y",
-    "description": "ncal"
-  },
-  {
-    "httpPath": "/netstat_an",
-    "command": "netstat -an",
-    "description": "netstat -an"
-  },
-  {
-    "httpPath": "/netstat_s",
-    "command": "netstat -s",
-    "description": "netstat -s"
-  },
-  {
-    "httpPath": "/ntpq",
-    "command": "ntpq -p",
-    "description": "ntpq"
-  },
-  {
-    "httpPath": "/pitemp",
-    "command": "/home/pi/bin/pitemp.sh",
-    "description": "pitemp"
-  },
-  {
-    "httpPath": "/tc_qdisc",
-    "command": "/sbin/tc -s qdisc show",
-    "description": "tc qdisc show"
-  },
-  {
-    "httpPath": "/top",
-    "command": "top -b -n1",
-    "description": "top"
-  },
-  {
-    "httpPath": "/unbound_infra",
-    "command": "sudo unbound-control dump_infra",
-    "description": "unbound infra"
-  },
-  {
-    "httpPath": "/unbound_stats",
-    "command": "sudo unbound-control stats_noreset",
-    "description": "unbound stats"
-  },
-  {
-    "httpPath": "/uptime",
-    "command": "uptime",
-    "description": "uptime"
-  },
-  {
-    "httpPath": "/vmstat",
-    "command": "vmstat",
-    "description": "vmstat"
-  },
-  {
-    "httpPath": "/w",
-    "command": "w",
-    "description": "w"
-  }
+  "commandList": [{
+      "httpPath": "/arp",
+      "command": "/usr/sbin/arp -an",
+      "description": "arp"
+    },
+    {
+      "httpPath": "/df",
+      "command": "df -h",
+      "description": "df"
+    },
+    {
+      "httpPath": "/dmesg",
+      "command": "dmesg",
+      "description": "dmesg"
+    },
+    {
+      "httpPath": "/ifconfig",
+      "command": "/sbin/ifconfig",
+      "description": "ifconfig"
+    },
+    {
+      "httpPath": "/iwconfig",
+      "command": "/sbin/iwconfig",
+      "description": "iwconfig"
+    },
+    {
+      "httpPath": "/log_ls",
+      "command": "ls -latrh ~/node-server/logs",
+      "description": "log ls"
+    },
+    {
+      "httpPath": "/log_tail",
+      "command": "tail -n30 ~/node-server/logs/current",
+      "description": "log tail"
+    },
+    {
+      "httpPath": "/lscpu",
+      "command": "lscpu",
+      "description": "lscpu"
+    },
+    {
+      "httpPath": "/ncal",
+      "command": "ncal -h -y",
+      "description": "ncal"
+    },
+    {
+      "httpPath": "/netstat_an",
+      "command": "netstat -an",
+      "description": "netstat -an"
+    },
+    {
+      "httpPath": "/netstat_s",
+      "command": "netstat -s",
+      "description": "netstat -s"
+    },
+    {
+      "httpPath": "/ntpq",
+      "command": "ntpq -p",
+      "description": "ntpq"
+    },
+    {
+      "httpPath": "/pitemp",
+      "command": "/home/pi/bin/pitemp.sh",
+      "description": "pitemp"
+    },
+    {
+      "httpPath": "/tc_qdisc",
+      "command": "/sbin/tc -s qdisc show",
+      "description": "tc qdisc show"
+    },
+    {
+      "httpPath": "/top",
+      "command": "top -b -n1",
+      "description": "top"
+    },
+    {
+      "httpPath": "/unbound_infra",
+      "command": "sudo unbound-control dump_infra",
+      "description": "unbound infra"
+    },
+    {
+      "httpPath": "/unbound_stats",
+      "command": "sudo unbound-control stats_noreset",
+      "description": "unbound stats"
+    },
+    {
+      "httpPath": "/uptime",
+      "command": "uptime",
+      "description": "uptime"
+    },
+    {
+      "httpPath": "/vmstat",
+      "command": "vmstat",
+      "description": "vmstat"
+    },
+    {
+      "httpPath": "/w",
+      "command": "w",
+      "description": "w"
+    }
   ],
-  "staticFileList": [
-  {
-    "httpPath": "/style.css",
-    "filePath": "static/style.css",
-    "headers": {
-      "content-type": "text/css",
-      "cache-control": "max-age=60"
+  "staticFileList": [{
+      "httpPath": "/style.css",
+      "filePath": "static/style.css",
+      "headers": {
+        "content-type": "text/css",
+        "cache-control": "max-age=60"
+      }
+    },
+    {
+      "httpPath": "/favicon.ico",
+      "filePath": "static/raspberrypi-favicon.ico",
+      "headers": {
+        "content-type": "image/x-icon",
+        "cache-control": "max-age=60"
+      }
     }
-  },
-  {
-    "httpPath": "/favicon.ico",
-    "filePath": "static/raspberrypi-favicon.ico",
-    "headers": {
-      "content-type": "image/x-icon",
-      "cache-control": "max-age=60"
-    }
-  }
   ]
 }

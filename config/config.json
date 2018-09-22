@@ -4,35 +4,33 @@
   "listenAddress": "127.0.0.1",
   "listenPort": "8000",
   "mainPageTitle": "JS Server",
-  "commandList": [
-  {
-    "httpPath": "/ifconfig",
-    "command": "/sbin/ifconfig",
-    "description": "ifconfig"
-  },
-  {
-    "httpPath": "/netstat_an",
-    "command": "netstat -an",
-    "description": "netstat -an"
-  },
-  {
-    "httpPath": "/sleep",
-    "command": "sleep 5",
-    "description": "sleep"
-  },
-  {
-    "httpPath": "/uptime",
-    "command": "uptime",
-    "description": "uptime"
-  },
-  {
-    "httpPath": "/w",
-    "command": "w",
-    "description": "w"
-  }
+  "commandList": [{
+      "httpPath": "/ifconfig",
+      "command": "/sbin/ifconfig",
+      "description": "ifconfig"
+    },
+    {
+      "httpPath": "/netstat_an",
+      "command": "netstat -an",
+      "description": "netstat -an"
+    },
+    {
+      "httpPath": "/sleep",
+      "command": "sleep 5",
+      "description": "sleep"
+    },
+    {
+      "httpPath": "/uptime",
+      "command": "uptime",
+      "description": "uptime"
+    },
+    {
+      "httpPath": "/w",
+      "command": "w",
+      "description": "w"
+    }
   ],
-  "proxyList": [
-  {
+  "proxyList": [{
     "httpPath": "/test_proxy",
     "description": "test proxy",
     "options": {
@@ -41,10 +39,8 @@
       "path": "/",
       "method": "GET"
     }
-  }
-  ],
-  "staticFileList": [
-  {
+  }],
+  "staticFileList": [{
     "httpPath": "/style.css",
     "filePath": "static/style.css",
     "headers": {
@@ -52,6 +48,5 @@
       "cache-control": "max-age=60"
     },
     "includeInMainPage": false
-  }
-  ]
+  }]
 }
