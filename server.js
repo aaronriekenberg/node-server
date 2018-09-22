@@ -2,6 +2,7 @@
 
 'use strict';
 
+const agentkeepalive = require('agentkeepalive');
 const child_process = require('child_process');
 const fecha = require('fecha');
 const fs = require('fs');
@@ -43,47 +44,12 @@ const readFileAsync = async (filePath, encoding = null) => {
   }
 };
 
-class HttpKeepAliveAgent extends http.Agent {
-
-constructor() {
-  super({
-    keepAlive: true,
-    timeout: 10 * 1000
-  })
-
-  this.socketToTimeoutHandler = new Map();
-}
-
-createConnection(...args) {
-  const socket = super.createConnection(...args);
-
-  this.socketToTimeoutHandler.set(socket, () => {
-    socket.end();
+let httpAgentInstance = () => {
+  const instance = new agentkeepalive({
+    keepAlive: true
   });
-
-  socket.on('close', () => {
-    this.socketToTimeoutHandler.delete(socket);
-  });
-
-  return socket;
-}
-
-keepSocketAlive(socket) {
-  socket.on('timeout', this.socketToTimeoutHandler.get(socket));
-  return super.keepSocketAlive(socket);
-}
-
-reuseSocket(socket, req) {
-  socket.removeListener('timeout', this.socketToTimeoutHandler.get(socket));
-  return super.reuseSocket(socket, req);
-}
-
-}
-
-let httpKeepAliveAgent = () => {
-  const agent = new HttpKeepAliveAgent();
-  httpKeepAliveAgent = () => agent;
-  return agent;
+  httpAgentInstance = () => instance;
+  return instance;
 };
 
 class RequestContext {
@@ -198,6 +164,8 @@ constructor(configuration, templates) {
   (this.configuration.staticFileList || []).forEach(
     (staticFile) => setOrThrow(staticFile.httpPath, AsyncServer.buildStaticFileHandler(staticFile)));
 
+  setOrThrow('/http_agent_status', AsyncServer.buildHttpAgentStatusHandler());
+
   logger.info(`pathToHandler.size = ${this.pathToHandler.size}`);
 }
 
@@ -288,7 +256,7 @@ static buildProxyHandler(template, proxy) {
     };
 
     const requestOptions = Object.assign(
-      { agent: httpKeepAliveAgent() },
+      { agent: httpAgentInstance() },
       proxy.options);
 
     const proxyRequest = http.request(requestOptions, (proxyResponse) => {
@@ -363,6 +331,16 @@ static buildStaticFileHandler(staticFile) {
                                    responseHeaders,
                                    {statCheck, onError});
   }
+}
+
+static buildHttpAgentStatusHandler() {
+  return (requestContext) => {
+    const statusJson = JSON.stringify(httpAgentInstance().getCurrentStatus(), null, 2);
+
+    requestContext.writeResponse(
+      {':status': 200, 'content-type': 'text/plain'},
+      statusJson);
+  };
 }
 
 static serveNotFound(requestContext) {
