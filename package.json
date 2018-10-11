@@ -14,7 +14,7 @@
     "fecha": "^2.3.3",
     "js-beautify": "^1.8.6",
     "mustache": "^2.3.2",
-    "simple-git": "^1.102.0",
+    "simple-git": "^1.104.0",
     "winston": "^3.1.0"
   }
 }
