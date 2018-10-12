@@ -12,9 +12,9 @@
   "dependencies": {
     "agentkeepalive": "^3.5.1",
     "fecha": "^2.3.3",
-    "js-beautify": "^1.8.6",
+    "js-beautify": "^1.8.7",
     "mustache": "^2.3.2",
-    "simple-git": "^1.104.0",
+    "simple-git": "^1.105.0",
     "winston": "^3.1.0"
   }
 }
