@@ -379,12 +379,12 @@ class AsyncServer {
     (this.configuration.proxyList || []).forEach(
       (proxy) => setOrThrow(proxy.httpPath, Handlers.buildProxyHandler(templates.proxy, proxy)));
 
-    (this.configuration.staticFileList || []).forEach(
-      (staticFile) => setOrThrow(staticFile.httpPath, Handlers.buildStaticFileHandler(staticFile)));
-
     if (this.configuration.proxyList) {
       setOrThrow('/http_agent_status', Handlers.buildHttpAgentStatusHandler());
     }
+
+    (this.configuration.staticFileList || []).forEach(
+      (staticFile) => setOrThrow(staticFile.httpPath, Handlers.buildStaticFileHandler(staticFile)));
 
     logger.info(`pathToHandler.size = ${this.pathToHandler.size}`);
   }
