@@ -27,9 +27,10 @@ const {
 
   HTTP2_METHOD_GET,
 
-  HTTP_STATUS_OK,
+  HTTP_STATUS_INTERNAL_SERVER_ERROR,
   HTTP_STATUS_NOT_FOUND,
-  HTTP_STATUS_NOT_MODIFIED
+  HTTP_STATUS_NOT_MODIFIED,
+  HTTP_STATUS_OK
 } = http2.constants;
 
 const CONTENT_TYPE_TEXT_HTML = 'text/html';
@@ -322,7 +323,7 @@ class Handlers {
             'File not found');
         } else {
           requestContext.writeResponse({
-              [HTTP2_HEADER_STATUS]: 500,
+              [HTTP2_HEADER_STATUS]: HTTP_STATUS_INTERNAL_SERVER_ERROR,
               [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
             },
             'Error reading file');
