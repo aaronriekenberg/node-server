@@ -36,14 +36,14 @@ const {
 const CONTENT_TYPE_TEXT_HTML = 'text/html';
 const CONTENT_TYPE_TEXT_PLAIN = 'text/plain';
 
-const dateTimeFormat = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
+const DATE_TIME_FORMAT = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
 
-const formattedDateTime = () => fecha.format(new Date(), dateTimeFormat);
+const formattedDateTime = () => fecha.format(new Date(), DATE_TIME_FORMAT);
 
 const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp({
-      format: dateTimeFormat
+      format: DATE_TIME_FORMAT
     }),
     winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
   ),
