@@ -45,7 +45,7 @@
     "filePath": "static/style.css",
     "headers": {
       "content-type": "text/css",
-      "cache-control": "max-age=60"
+      "cache-control": "max-age=5"
     },
     "includeInMainPage": false
   }]

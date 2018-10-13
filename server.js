@@ -14,7 +14,26 @@ const mustache = require('mustache');
 const process = require('process');
 const util = require('util');
 const winston = require('winston');
+
 const asyncExec = util.promisify(child_process.exec);
+
+const {
+  HTTP2_HEADER_CONTENT_TYPE,
+  HTTP2_HEADER_IF_MODIFIED_SINCE,
+  HTTP2_HEADER_LAST_MODIFIED,
+  HTTP2_HEADER_METHOD,
+  HTTP2_HEADER_PATH,
+  HTTP2_HEADER_STATUS,
+
+  HTTP2_METHOD_GET,
+
+  HTTP_STATUS_OK,
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_NOT_MODIFIED
+} = http2.constants;
+
+const CONTENT_TYPE_TEXT_HTML = 'text/html';
+const CONTENT_TYPE_TEXT_PLAIN = 'text/plain';
 
 const dateTimeFormat = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
 
@@ -72,11 +91,11 @@ class RequestContext {
   }
 
   get requestMethod() {
-    return this.requestHeaders[':method'];
+    return this.requestHeaders[HTTP2_HEADER_METHOD];
   }
 
   get requestPath() {
-    return this.requestHeaders[':path'];
+    return this.requestHeaders[HTTP2_HEADER_PATH];
   }
 
   get deltaTime() {
@@ -116,7 +135,7 @@ class RequestContext {
 
       logger.info(
         `${this.streamIDString} ${this.requestMethod} ${this.requestPath} ` +
-        `status=${responseHeaders[':status']} ${this.deltaTime}s`);
+        `status=${responseHeaders[HTTP2_HEADER_STATUS]} ${this.deltaTime}s`);
     } catch (err) {
       logger.error(`writeResponse error err = ${formatError(err)}`);
       this.destroyStream();
@@ -134,7 +153,7 @@ class RequestContext {
 
       logger.info(
         `${this.streamIDString} ${this.requestMethod} ${this.requestPath} ` +
-        `respondWithFile status=${responseHeaders[':status']} ${this.deltaTime}s`);
+        `respondWithFile status=${responseHeaders[HTTP2_HEADER_STATUS]} ${this.deltaTime}s`);
     } catch (err) {
       logger.error(`respondWithFile error err = ${formatError(err)}`);
       this.destroyStream();
@@ -158,8 +177,8 @@ class Handlers {
 
     return (requestContext) => {
       requestContext.writeResponse({
-          ':status': 200,
-          'content-type': 'text/html'
+          [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+          [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML
         },
         indexHtml);
     };
@@ -197,8 +216,8 @@ class Handlers {
       const commandHtml = mustache.render(template, commandData);
 
       requestContext.writeResponse({
-          ':status': 200,
-          'content-type': 'text/html'
+          [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+          [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML
         },
         commandHtml);
     };
@@ -231,8 +250,8 @@ class Handlers {
         const proxyHtml = mustache.render(template, proxyData);
 
         requestContext.writeResponse({
-            ':status': 200,
-            'content-type': 'text/html'
+            [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+            [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML
           },
           proxyHtml);
       };
@@ -275,13 +294,13 @@ class Handlers {
           // resolution for http headers is 1 second
           stat.mtime.setMilliseconds(0);
 
-          statResponseHeaders['last-modified'] = stat.mtime.toUTCString();
+          statResponseHeaders[HTTP2_HEADER_LAST_MODIFIED] = stat.mtime.toUTCString();
 
-          const ifModifiedSinceString = requestContext.requestHeaders['if-modified-since'];
+          const ifModifiedSinceString = requestContext.requestHeaders[HTTP2_HEADER_IF_MODIFIED_SINCE];
           if (ifModifiedSinceString) {
             const ifModifiedSinceDate = new Date(ifModifiedSinceString);
-            if (stat.mtime.getTime() <= ifModifiedSinceDate.getTime()) {
-              statResponseHeaders[':status'] = 304;
+            if (stat.mtime.getTime() === ifModifiedSinceDate.getTime()) {
+              statResponseHeaders[HTTP2_HEADER_STATUS] = HTTP_STATUS_NOT_MODIFIED;
               requestContext.writeResponse(statResponseHeaders);
               return false;
             }
@@ -297,21 +316,21 @@ class Handlers {
 
         if (err.code === 'ENOENT') {
           requestContext.writeResponse({
-              ':status': 404,
-              'content-type': 'text/plain'
+              [HTTP2_HEADER_STATUS]: HTTP_STATUS_NOT_FOUND,
+              [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
             },
             'File not found');
         } else {
           requestContext.writeResponse({
-              ':status': 500,
-              'content-type': 'text/plain'
+              [HTTP2_HEADER_STATUS]: 500,
+              [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
             },
             'Error reading file');
         }
       };
 
       const responseHeaders = Object.assign({
-          ':status': 200
+          [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK
         },
         staticFile.headers);
 
@@ -328,8 +347,8 @@ class Handlers {
       const statusJson = JSON.stringify(httpAgentInstance().getCurrentStatus(), null, 2);
 
       requestContext.writeResponse({
-          ':status': 200,
-          'content-type': 'text/plain'
+          [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+          [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
         },
         statusJson);
     };
@@ -369,8 +388,8 @@ class AsyncServer {
 
   serveNotFound(requestContext) {
     requestContext.writeResponse({
-        ':status': 404,
-        'content-type': 'text/plain'
+        [HTTP2_HEADER_STATUS]: HTTP_STATUS_NOT_FOUND,
+        [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
       },
       'Unknown request');
   }
@@ -396,7 +415,7 @@ class AsyncServer {
       const requestContext = new RequestContext(stream, headers);
 
       let handled = false;
-      if (requestContext.requestMethod === 'GET') {
+      if (requestContext.requestMethod === HTTP2_METHOD_GET) {
         const handler = this.pathToHandler.get(requestContext.requestPath);
         if (handler) {
           handler(requestContext);
