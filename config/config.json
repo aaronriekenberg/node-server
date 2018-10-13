@@ -39,6 +39,16 @@
       "path": "/",
       "method": "GET"
     }
+  },
+  {
+    "httpPath": "/test_proxy2",
+    "description": "test proxy 2",
+    "options": {
+      "hostname": "www.mpr.org",
+      "port": 80,
+      "path": "/",
+      "method": "GET"
+    }
   }],
   "staticFileList": [{
     "httpPath": "/style.css",
