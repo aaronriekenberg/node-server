@@ -382,7 +382,9 @@ class AsyncServer {
     (this.configuration.staticFileList || []).forEach(
       (staticFile) => setOrThrow(staticFile.httpPath, Handlers.buildStaticFileHandler(staticFile)));
 
-    setOrThrow('/http_agent_status', Handlers.buildHttpAgentStatusHandler());
+    if (this.configuration.proxyList) {
+      setOrThrow('/http_agent_status', Handlers.buildHttpAgentStatusHandler());
+    }
 
     logger.info(`pathToHandler.size = ${this.pathToHandler.size}`);
   }
