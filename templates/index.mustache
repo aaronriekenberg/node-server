@@ -34,12 +34,13 @@
   </ul>
   {{/staticFilesInMainPage.length}}
 
-  {{#configuration.proxyList.length}}
   <h3>Debug Info:</h3>
   <ul>
+    {{#configuration.proxyList.length}}
     <li><a href="/http_agent_status">http agent status</a></li>
+    {{/configuration.proxyList.length}}
+    <li><a href="/v8_stats">v8 stats</a></li>
   </ul>
-  {{/configuration.proxyList.length}}
 
   <hr>
   <small>Page Generated: {{now}}</small>

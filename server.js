@@ -13,6 +13,7 @@ const http2 = require('http2');
 const mustache = require('mustache');
 const process = require('process');
 const util = require('util');
+const v8 = require('v8');
 const winston = require('winston');
 
 const asyncExec = util.promisify(child_process.exec);
@@ -355,6 +356,21 @@ class Handlers {
     };
   }
 
+  static buildV8StatsHander() {
+    return (requestContext) => {
+      const v8Stats = {
+        heapStatistics: v8.getHeapStatistics(),
+        heapSpaceStatistics: v8.getHeapSpaceStatistics(),
+      };
+      const statusText = JSON.stringify(v8Stats, null, 2);
+
+      requestContext.writeResponse({
+          [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+          [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
+        },
+        statusText);
+    };
+  }
 }
 
 class AsyncServer {
@@ -385,6 +401,8 @@ class AsyncServer {
 
     (this.configuration.staticFileList || []).forEach(
       (staticFile) => setOrThrow(staticFile.httpPath, Handlers.buildStaticFileHandler(staticFile)));
+
+    setOrThrow('/v8_stats', Handlers.buildV8StatsHander());
 
     logger.info(`pathToHandler.size = ${this.pathToHandler.size}`);
   }
