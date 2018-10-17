@@ -53,6 +53,9 @@ const logger = winston.createLogger({
 
 const formatError = (err) => (err.stack || err.message);
 
+const stringify = JSON.stringify;
+const stringifyPretty = (object) => stringify(object, null, 2);
+
 const readFileAsync = async (filePath, encoding = null) => {
   let fileHandle;
   try {
@@ -265,7 +268,7 @@ class Handlers {
 
       const proxyRequest = http.request(requestOptions, (proxyResponse) => {
         proxyResponseStatus = proxyResponse.statusCode;
-        proxyResponseHeaders = JSON.stringify(proxyResponse.headers, null, 2);
+        proxyResponseHeaders = stringifyPretty(proxyResponse.headers);
 
         proxyResponse.setEncoding('utf8');
 
@@ -346,7 +349,7 @@ class Handlers {
 
   static buildHttpAgentStatusHandler() {
     return (requestContext) => {
-      const statusJson = JSON.stringify(httpAgentInstance().getCurrentStatus(), null, 2);
+      const statusJson = stringifyPretty(httpAgentInstance().getCurrentStatus());
 
       requestContext.writeResponse({
           [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
@@ -362,7 +365,7 @@ class Handlers {
         heapStatistics: v8.getHeapStatistics(),
         heapSpaceStatistics: v8.getHeapSpaceStatistics(),
       };
-      const statusText = JSON.stringify(v8Stats, null, 2);
+      const statusText = stringifyPretty(v8Stats);
 
       requestContext.writeResponse({
           [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
@@ -429,7 +432,7 @@ class AsyncServer {
 
     httpServer.on('error', (err) => logger.error(`httpServer error err = ${formatError(err)}`));
 
-    httpServer.on('listening', () => logger.info(`httpServer listening on ${JSON.stringify(httpServer.address())}`));
+    httpServer.on('listening', () => logger.info(`httpServer listening on ${stringify(httpServer.address())}`));
 
     httpServer.on('stream', (stream, headers) => {
 
@@ -498,7 +501,7 @@ const main = async () => {
     readTemplates()
   ]);
 
-  logger.info(`configuration = ${JSON.stringify(configuration, null, 2)}`);
+  logger.info(`configuration = ${stringifyPretty(configuration)}`);
 
   const asyncServer = new AsyncServer(configuration, templates);
   await asyncServer.start();
