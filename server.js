@@ -81,7 +81,7 @@ let httpAgentInstance = () => {
 class RequestContext {
 
   constructor(stream, requestHeaders) {
-    this.startTime = process.hrtime();
+    this.startTime = process.hrtime.bigint();
     this.stream = stream;
     this.requestHeaders = requestHeaders;
     this.streamIDString = RequestContext.buildStreamIDString(stream);
@@ -104,8 +104,8 @@ class RequestContext {
   }
 
   get deltaTime() {
-    const delta = process.hrtime(this.startTime);
-    return (delta[0] + (delta[1] / 1e9));
+    const delta = parseInt(process.hrtime.bigint() - this.startTime);
+    return (delta / 1e9);
   }
 
   get streamDestroyed() {
