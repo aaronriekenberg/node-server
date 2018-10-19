@@ -10,9 +10,9 @@
   "author": "Aaron Riekenberg",
   "license": "ISC",
   "dependencies": {
-    "agentkeepalive": "^3.5.1",
+    "agentkeepalive": "^3.5.2",
     "fecha": "^2.3.3",
-    "js-beautify": "^1.8.7",
+    "js-beautify": "^1.8.8",
     "mustache": "^2.3.2",
     "simple-git": "^1.105.0",
     "winston": "^3.1.0"
