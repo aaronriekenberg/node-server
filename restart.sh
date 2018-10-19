@@ -11,4 +11,5 @@ if [ ! -d logs ]; then
   mkdir logs
 fi
 
+export NODE_ENV=production
 nohup ./server.js $CONFIG_FILE 2>&1 | svlogd logs &

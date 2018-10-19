@@ -496,6 +496,8 @@ const main = async () => {
     throw new Error('config json path required as command line argument');
   }
 
+  logger.info(`NODE_ENV='${process.env.NODE_ENV}'`);
+
   const [configuration, templates] = await Promise.all([
     readConfiguration(process.argv[2]),
     readTemplates()
