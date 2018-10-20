@@ -169,6 +169,16 @@ class RequestContext {
 
 class Handlers {
 
+  static buildNotFoundHander() {
+    return (requestContext) => {
+      requestContext.writeResponse({
+          [HTTP2_HEADER_STATUS]: HTTP_STATUS_NOT_FOUND,
+          [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
+        },
+        'Unknown request');
+    };
+  }
+
   static buildIndexHandler(template, configuration) {
     const staticFilesInMainPage = configuration.staticFileList.filter((sf) => sf.includeInMainPage);
 
@@ -394,6 +404,8 @@ class AsyncServer {
   constructor(configuration, templates) {
     this.configuration = configuration;
 
+    this.notFoundHandler = Handlers.buildNotFoundHander();
+
     this.pathToHandler = new Map();
 
     const setOrThrow = (key, value) => {
@@ -424,14 +436,6 @@ class AsyncServer {
     logger.info(`pathToHandler.size = ${this.pathToHandler.size}`);
   }
 
-  serveNotFound(requestContext) {
-    requestContext.writeResponse({
-        [HTTP2_HEADER_STATUS]: HTTP_STATUS_NOT_FOUND,
-        [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
-      },
-      'Unknown request');
-  }
-
   async createHttpServer() {
     const httpServerConfig = {};
     [httpServerConfig.key, httpServerConfig.cert] = await Promise.all([
@@ -452,18 +456,12 @@ class AsyncServer {
 
       const requestContext = new RequestContext(stream, headers);
 
-      let handled = false;
-      if (requestContext.requestMethod === HTTP2_METHOD_GET) {
-        const handler = this.pathToHandler.get(requestContext.requestPath);
-        if (handler) {
-          handler(requestContext);
-          handled = true;
-        }
-      }
-      if (!handled) {
-        this.serveNotFound(requestContext);
-      }
+      const handler =
+        (((requestContext.requestMethod === HTTP2_METHOD_GET) &&
+            (this.pathToHandler.get(requestContext.requestPath))) ||
+          this.notFoundHandler);
 
+      handler(requestContext);
     });
 
     httpServer.listen({
