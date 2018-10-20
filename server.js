@@ -359,6 +359,19 @@ class Handlers {
     };
   }
 
+  static buildConfigurationHandler(configuration) {
+    const configurationJson = stringifyPretty(configuration);
+
+    return (requestContext) => {
+
+      requestContext.writeResponse({
+          [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+          [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
+        },
+        configurationJson);
+    };
+  }
+
   static buildV8StatsHander() {
     return (requestContext) => {
       const v8Stats = {
@@ -405,6 +418,7 @@ class AsyncServer {
     (this.configuration.staticFileList || []).forEach(
       (staticFile) => setOrThrow(staticFile.httpPath, Handlers.buildStaticFileHandler(staticFile)));
 
+    setOrThrow('/configuration', Handlers.buildConfigurationHandler(this.configuration));
     setOrThrow('/v8_stats', Handlers.buildV8StatsHander());
 
     logger.info(`pathToHandler.size = ${this.pathToHandler.size}`);
