@@ -462,6 +462,7 @@ class AsyncServer {
           this.notFoundHandler);
 
       handler(requestContext);
+
     });
 
     httpServer.listen({
