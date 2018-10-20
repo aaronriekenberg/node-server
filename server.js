@@ -241,7 +241,7 @@ class Handlers {
   static buildProxyHandler(template, proxy) {
     return (requestContext) => {
 
-      let proxyResponseData = '';
+      let proxyResponseChunks = [];
       let proxyResponseStatus = '';
       let proxyResponseVersion = '';
       let proxyResponseHeaders = '';
@@ -258,7 +258,7 @@ class Handlers {
         const proxyData = {
           now: formattedDateTime(),
           proxy,
-          proxyResponseData: (proxyError || proxyResponseData),
+          proxyResponseData: (proxyError || Buffer.concat(proxyResponseChunks).toString()),
           proxyResponseStatus,
           proxyResponseVersion,
           proxyResponseHeaders
@@ -283,10 +283,8 @@ class Handlers {
         proxyResponseVersion = proxyResponse.httpVersion;
         proxyResponseHeaders = stringifyPretty(proxyResponse.headers);
 
-        proxyResponse.setEncoding('utf8');
-
         proxyResponse.on('data', (chunk) => {
-          proxyResponseData += chunk;
+          proxyResponseChunks.push(chunk);
         });
 
         proxyResponse.on('end', () => {
