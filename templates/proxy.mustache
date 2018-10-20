@@ -14,12 +14,12 @@
 
 {{proxy.options.method}} {{proxy.options.hostname}}:{{proxy.options.port}}{{proxy.options.path}}
 
-Response Status: {{responseStatus}}
+Response Status: HTTP/{{proxyResponseVersion}} {{proxyResponseStatus}}
 
 Response Headers:
-{{responseHeaders}}
+{{proxyResponseHeaders}}
 
-{{responseData}}
+{{proxyResponseData}}
 </pre>
 
 </body>

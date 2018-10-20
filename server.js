@@ -243,6 +243,7 @@ class Handlers {
 
       let proxyResponseData = '';
       let proxyResponseStatus = '';
+      let proxyResponseVersion = '';
       let proxyResponseHeaders = '';
       let proxyError;
 
@@ -257,9 +258,10 @@ class Handlers {
         const proxyData = {
           now: formattedDateTime(),
           proxy,
-          responseData: (proxyError || proxyResponseData),
-          responseStatus: proxyResponseStatus,
-          responseHeaders: proxyResponseHeaders
+          proxyResponseData: (proxyError || proxyResponseData),
+          proxyResponseStatus,
+          proxyResponseVersion,
+          proxyResponseHeaders
         };
 
         const proxyHtml = mustache.render(template, proxyData);
@@ -278,6 +280,7 @@ class Handlers {
 
       const proxyRequest = http.request(requestOptions, (proxyResponse) => {
         proxyResponseStatus = proxyResponse.statusCode;
+        proxyResponseVersion = proxyResponse.httpVersion;
         proxyResponseHeaders = stringifyPretty(proxyResponse.headers);
 
         proxyResponse.setEncoding('utf8');
