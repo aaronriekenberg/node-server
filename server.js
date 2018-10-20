@@ -103,9 +103,9 @@ class RequestContext {
     return this.requestHeaders[HTTP2_HEADER_PATH];
   }
 
-  get deltaTime() {
-    const delta = parseInt(process.hrtime.bigint() - this.startTime);
-    return (delta / 1e9);
+  get deltaTimeSeconds() {
+    const deltaNano = parseInt(process.hrtime.bigint() - this.startTime);
+    return (deltaNano / 1e9);
   }
 
   get streamDestroyed() {
@@ -140,7 +140,7 @@ class RequestContext {
 
       logger.info(
         `${this.streamIDString} ${this.requestMethod} ${this.requestPath} ` +
-        `status=${responseHeaders[HTTP2_HEADER_STATUS]} ${this.deltaTime}s`);
+        `status=${responseHeaders[HTTP2_HEADER_STATUS]} ${this.deltaTimeSeconds}s`);
     } catch (err) {
       logger.error(`writeResponse error err = ${formatError(err)}`);
       this.destroyStream();
@@ -158,7 +158,7 @@ class RequestContext {
 
       logger.info(
         `${this.streamIDString} ${this.requestMethod} ${this.requestPath} ` +
-        `respondWithFile status=${responseHeaders[HTTP2_HEADER_STATUS]} ${this.deltaTime}s`);
+        `respondWithFile status=${responseHeaders[HTTP2_HEADER_STATUS]} ${this.deltaTimeSeconds}s`);
     } catch (err) {
       logger.error(`respondWithFile error err = ${formatError(err)}`);
       this.destroyStream();
