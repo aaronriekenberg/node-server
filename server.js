@@ -241,7 +241,7 @@ class Handlers {
   static buildProxyHandler(template, proxy) {
     return (requestContext) => {
 
-      let proxyResponseChunks = [];
+      const proxyResponseChunks = [];
       let proxyResponseStatus = '';
       let proxyResponseVersion = '';
       let proxyResponseHeaders = '';
