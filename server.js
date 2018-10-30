@@ -4,7 +4,6 @@
 
 const agentkeepalive = require('agentkeepalive');
 const child_process = require('child_process');
-const fecha = require('fecha');
 const fs = require('fs');
 const fsPromises = fs.promises;
 const git = require('simple-git/promise');
@@ -41,7 +40,7 @@ const CONTENT_TYPE_TEXT_PLAIN = 'text/plain';
 
 const DATE_TIME_FORMAT = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
 
-const formattedDateTime = () => fecha.format(new Date(), DATE_TIME_FORMAT);
+const formattedDateTime = () => new Date().toString();
 
 const logger = winston.createLogger({
   format: winston.format.combine(

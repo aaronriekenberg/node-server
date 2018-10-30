@@ -31,6 +31,12 @@
     };
 
     const requestData = () => {
+      let preText = `Now: ${new Date()}\n\n`;
+      preText += '{{&proxy.options.method}} {{&proxy.options.hostname}}:{{&proxy.options.port}}{{&proxy.options.path}}\n\n';
+      preText += 'Response Status:\n\n';
+      preText += 'Response Headers:';
+      updatePre(preText);
+
       xRequest.open('GET', '{{&apiPath}}', true);
       xRequest.setRequestHeader('Accept', 'application/json');
       xRequest.send();

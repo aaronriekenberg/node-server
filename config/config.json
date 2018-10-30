@@ -16,7 +16,7 @@
     },
     {
       "httpPath": "/sleep",
-      "command": "sleep 5",
+      "command": "time sleep 5",
       "description": "sleep"
     },
     {
