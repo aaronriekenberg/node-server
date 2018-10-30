@@ -319,7 +319,7 @@ class Handlers {
       const proxyRequest = http.request(requestOptions, (proxyResponse) => {
         proxyResponseStatus = proxyResponse.statusCode;
         proxyResponseVersion = proxyResponse.httpVersion;
-        proxyResponseHeaders = stringifyPretty(proxyResponse.headers);
+        proxyResponseHeaders = proxyResponse.headers;
 
         proxyResponse.on('data', (chunk) => {
           proxyResponseChunks.push(chunk);

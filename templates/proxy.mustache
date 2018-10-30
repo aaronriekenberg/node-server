@@ -8,6 +8,9 @@
 
   <script>
 
+    const stringify = JSON.stringify;
+    const stringifyPretty = (object) => stringify(object, null, 2);
+
     const xRequest = new XMLHttpRequest();
 
     const updatePre = (text) => {
@@ -24,7 +27,7 @@
         let preText = `Now: ${responseObject.now}\n\n`;
         preText += `${responseObject.proxy.options.method} ${responseObject.proxy.options.hostname}:${responseObject.proxy.options.port}${responseObject.proxy.options.path}\n\n`;
         preText += `Response Status: HTTP/${responseObject.proxyResponseVersion} ${responseObject.proxyResponseStatus}\n\n`;
-        preText += `Response Headers:\n${responseObject.proxyResponseHeaders}\n\n`;
+        preText += `Response Headers:\n${stringifyPretty(responseObject.proxyResponseHeaders)}\n\n`;
         preText += responseObject.proxyResponseData;
         updatePre(preText);
       }
