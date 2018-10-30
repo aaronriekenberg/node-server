@@ -29,16 +29,16 @@
     };
 
     const requestData = () => {
-      let preText = `Now: ${new Date()}\n\n`;
-      preText += '{{&command.command}}';
-      updatePre(preText);
-
       xRequest.open('GET', '{{&apiPath}}', true);
       xRequest.setRequestHeader('Accept', 'application/json');
       xRequest.send();
     };
 
     const onload = () => {
+      let preText = `Now: ${new Date()}\n\n`;
+      preText += '{{&command.command}}';
+      updatePre(preText);
+
       requestData();
     };
 
