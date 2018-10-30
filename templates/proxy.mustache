@@ -31,7 +31,7 @@
     };
 
     const requestData = () => {
-      xRequest.open('GET', '{{&proxy.httpPath}}', true);
+      xRequest.open('GET', '{{&apiPath}}', true);
       xRequest.setRequestHeader('Accept', 'application/json');
       xRequest.send();
     };

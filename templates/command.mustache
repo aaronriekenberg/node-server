@@ -29,7 +29,7 @@
     };
 
     const requestData = () => {
-      xRequest.open('GET', '{{&command.httpPath}}', true);
+      xRequest.open('GET', '{{&apiPath}}', true);
       xRequest.setRequestHeader('Accept', 'application/json');
       xRequest.send();
     };

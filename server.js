@@ -205,134 +205,139 @@ class Handlers {
     };
   }
 
-  static buildCommandHandler(template, command) {
+  static buildCommandHTMLHandler(template, command, apiPath) {
+
+    const commandData = {
+      apiPath,
+      command
+    };
+
+    const commandHtml = mustache.render(template, commandData);
+
+    return (requestContext) => {
+      requestContext.writeResponse({
+          [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+          [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML
+        },
+        commandHtml);
+    };
+  }
+
+  static buildCommandAPIHandler(command) {
     return async (requestContext) => {
-      if (CONTENT_TYPE_APPLICATION_JSON !== requestContext.acceptHeader) {
 
-        const commandData = {
-          command
-        };
+      let childProcess;
+      let commandErr;
+      try {
+        childProcess = await asyncExec(command.command);
+      } catch (err) {
+        logger.error(`command err = ${formatError(err)}`);
+        commandErr = err;
+      }
 
-        const commandHtml = mustache.render(template, commandData);
+      if (requestContext.streamDestroyed) {
+        logger.info(`${requestContext.streamIDString} stream destroyed after command`);
+        return;
+      }
 
-        requestContext.writeResponse({
-            [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-            [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML
-          },
-          commandHtml);
-
+      let commandOutput;
+      if (commandErr) {
+        commandOutput = commandErr;
       } else {
+        commandOutput = childProcess.stderr + childProcess.stdout;
+      }
 
-        let childProcess;
-        let commandErr;
-        try {
-          childProcess = await asyncExec(command.command);
-        } catch (err) {
-          logger.error(`command err = ${formatError(err)}`);
-          commandErr = err;
-        }
+      const commandData = {
+        now: formattedDateTime(),
+        command,
+        commandOutput
+      };
+
+      requestContext.writeResponse({
+          [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+          [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_APPLICATION_JSON
+        },
+        stringify(commandData));
+    };
+  }
+
+  static buildProxyHTMLHandler(template, proxy, apiPath) {
+
+    const proxyData = {
+      apiPath,
+      proxy
+    };
+
+    const proxyHtml = mustache.render(template, proxyData);
+
+    return (requestContext) => {
+      requestContext.writeResponse({
+          [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+          [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML
+        },
+        proxyHtml);
+    };
+  }
+
+  static buildProxyAPIHandler(proxy) {
+    return (requestContext) => {
+
+      const proxyResponseChunks = [];
+      let proxyResponseStatus = '';
+      let proxyResponseVersion = '';
+      let proxyResponseHeaders = '';
+      let proxyError;
+
+      let writeProxyResponse = () => {
+        writeProxyResponse = () => {};
 
         if (requestContext.streamDestroyed) {
-          logger.info(`${requestContext.streamIDString} stream destroyed after command`);
+          logger.info(`${requestContext.streamIDString} stream destroyed after proxy`);
           return;
         }
 
-        let commandOutput;
-        if (commandErr) {
-          commandOutput = commandErr;
-        } else {
-          commandOutput = childProcess.stderr + childProcess.stdout;
-        }
-
-        const commandData = {
+        const proxyData = {
           now: formattedDateTime(),
-          command,
-          commandOutput
+          proxy,
+          proxyResponseData: (proxyError || Buffer.concat(proxyResponseChunks).toString()),
+          proxyResponseStatus,
+          proxyResponseVersion,
+          proxyResponseHeaders
         };
 
         requestContext.writeResponse({
             [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
             [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_APPLICATION_JSON
           },
-          stringify(commandData));
-      }
-    };
-  }
+          stringify(proxyData));
+      };
 
-  static buildProxyHandler(template, proxy) {
-    return (requestContext) => {
-      if (CONTENT_TYPE_APPLICATION_JSON !== requestContext.acceptHeader) {
+      const requestOptions = Object.assign({
+          agent: httpAgentInstance()
+        },
+        proxy.options);
 
-        const proxyData = {
-          proxy
-        };
-        const proxyHtml = mustache.render(template, proxyData);
+      const proxyRequest = http.request(requestOptions, (proxyResponse) => {
+        proxyResponseStatus = proxyResponse.statusCode;
+        proxyResponseVersion = proxyResponse.httpVersion;
+        proxyResponseHeaders = stringifyPretty(proxyResponse.headers);
 
-        requestContext.writeResponse({
-            [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-            [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML
-          },
-          proxyHtml);
-
-      } else {
-
-        const proxyResponseChunks = [];
-        let proxyResponseStatus = '';
-        let proxyResponseVersion = '';
-        let proxyResponseHeaders = '';
-        let proxyError;
-
-        let writeProxyResponse = () => {
-          writeProxyResponse = () => {};
-
-          if (requestContext.streamDestroyed) {
-            logger.info(`${requestContext.streamIDString} stream destroyed after proxy`);
-            return;
-          }
-
-          const proxyData = {
-            now: formattedDateTime(),
-            proxy,
-            proxyResponseData: (proxyError || Buffer.concat(proxyResponseChunks).toString()),
-            proxyResponseStatus,
-            proxyResponseVersion,
-            proxyResponseHeaders
-          };
-
-          requestContext.writeResponse({
-              [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-              [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_APPLICATION_JSON
-            },
-            stringify(proxyData));
-        };
-
-        const requestOptions = Object.assign({
-            agent: httpAgentInstance()
-          },
-          proxy.options);
-
-        const proxyRequest = http.request(requestOptions, (proxyResponse) => {
-          proxyResponseStatus = proxyResponse.statusCode;
-          proxyResponseVersion = proxyResponse.httpVersion;
-          proxyResponseHeaders = stringifyPretty(proxyResponse.headers);
-
-          proxyResponse.on('data', (chunk) => {
-            proxyResponseChunks.push(chunk);
-          });
-
-          proxyResponse.on('end', () => {
-            writeProxyResponse();
-          });
+        proxyResponse.on('data', (chunk) => {
+          proxyResponseChunks.push(chunk);
         });
 
-        proxyRequest.on('error', (err) => {
-          logger.error(`proxy err = ${formatError(err)}`);
-          proxyError = err;
+        proxyResponse.on('end', () => {
           writeProxyResponse();
         });
+      });
 
-        proxyRequest.end();
-      }
+      proxyRequest.on('error', (err) => {
+        logger.error(`proxy err = ${formatError(err)}`);
+        proxyError = err;
+        writeProxyResponse();
+      });
+
+      proxyRequest.end();
     };
   }
 
@@ -452,11 +457,17 @@ class AsyncServer {
 
     setOrThrow('/', Handlers.buildIndexHandler(templates.index, this.configuration));
 
-    (this.configuration.commandList || []).forEach(
-      (command) => setOrThrow(command.httpPath, Handlers.buildCommandHandler(templates.command, command)));
+    (this.configuration.commandList || []).forEach((command) => {
+      const apiPath = `/api/commands${command.httpPath}`;
+      setOrThrow(command.httpPath, Handlers.buildCommandHTMLHandler(templates.command, command, apiPath));
+      setOrThrow(apiPath, Handlers.buildCommandAPIHandler(command));
+    });
 
-    (this.configuration.proxyList || []).forEach(
-      (proxy) => setOrThrow(proxy.httpPath, Handlers.buildProxyHandler(templates.proxy, proxy)));
+    (this.configuration.proxyList || []).forEach((proxy) => {
+      const apiPath = `/api/proxies${proxy.httpPath}`;
+      setOrThrow(proxy.httpPath, Handlers.buildProxyHTMLHandler(templates.proxy, proxy, apiPath));
+      setOrThrow(apiPath, Handlers.buildProxyAPIHandler(proxy));
+    });
 
     if (this.configuration.proxyList) {
       setOrThrow('/http_agent_status', Handlers.buildHttpAgentStatusHandler());
