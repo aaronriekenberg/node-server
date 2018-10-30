@@ -19,6 +19,7 @@ const winston = require('winston');
 const asyncExec = util.promisify(child_process.exec);
 
 const {
+  HTTP2_HEADER_ACCEPT,
   HTTP2_HEADER_CONTENT_TYPE,
   HTTP2_HEADER_IF_MODIFIED_SINCE,
   HTTP2_HEADER_LAST_MODIFIED,
@@ -34,6 +35,7 @@ const {
   HTTP_STATUS_OK
 } = http2.constants;
 
+const CONTENT_TYPE_APPLICATION_JSON = 'application/json';
 const CONTENT_TYPE_TEXT_HTML = 'text/html';
 const CONTENT_TYPE_TEXT_PLAIN = 'text/plain';
 
@@ -93,6 +95,10 @@ class RequestContext {
     } catch (err) {
       return 'UNKNOWN';
     }
+  }
+
+  get acceptHeader() {
+    return this.requestHeaders[HTTP2_HEADER_ACCEPT];
   }
 
   get requestMethod() {
@@ -201,69 +207,65 @@ class Handlers {
 
   static buildCommandHandler(template, command) {
     return async (requestContext) => {
-      let childProcess;
-      let commandErr;
-      try {
-        childProcess = await asyncExec(command.command);
-      } catch (err) {
-        logger.error(`command err = ${formatError(err)}`);
-        commandErr = err;
-      }
+      if (CONTENT_TYPE_APPLICATION_JSON !== requestContext.acceptHeader) {
 
-      if (requestContext.streamDestroyed) {
-        logger.info(`${requestContext.streamIDString} stream destroyed after command`);
-        return;
-      }
+        const commandData = {
+          command
+        };
 
-      let commandOutput;
-      if (commandErr) {
-        commandOutput = commandErr;
+        const commandHtml = mustache.render(template, commandData);
+
+        requestContext.writeResponse({
+            [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+            [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML
+          },
+          commandHtml);
+
       } else {
-        commandOutput = childProcess.stderr + childProcess.stdout;
+
+        let childProcess;
+        let commandErr;
+        try {
+          childProcess = await asyncExec(command.command);
+        } catch (err) {
+          logger.error(`command err = ${formatError(err)}`);
+          commandErr = err;
+        }
+
+        if (requestContext.streamDestroyed) {
+          logger.info(`${requestContext.streamIDString} stream destroyed after command`);
+          return;
+        }
+
+        let commandOutput;
+        if (commandErr) {
+          commandOutput = commandErr;
+        } else {
+          commandOutput = childProcess.stderr + childProcess.stdout;
+        }
+
+        const commandData = {
+          now: formattedDateTime(),
+          command,
+          commandOutput
+        };
+
+        requestContext.writeResponse({
+            [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+            [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_APPLICATION_JSON
+          },
+          stringify(commandData));
       }
-
-      const commandData = {
-        now: formattedDateTime(),
-        command,
-        commandOutput
-      };
-
-      const commandHtml = mustache.render(template, commandData);
-
-      requestContext.writeResponse({
-          [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-          [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML
-        },
-        commandHtml);
     };
   }
 
   static buildProxyHandler(template, proxy) {
     return (requestContext) => {
-
-      const proxyResponseChunks = [];
-      let proxyResponseStatus = '';
-      let proxyResponseVersion = '';
-      let proxyResponseHeaders = '';
-      let proxyError;
-
-      let writeProxyResponse = () => {
-        writeProxyResponse = () => {};
-
-        if (requestContext.streamDestroyed) {
-          logger.info(`${requestContext.streamIDString} stream destroyed after proxy`);
-          return;
-        }
+      if (CONTENT_TYPE_APPLICATION_JSON !== requestContext.acceptHeader) {
 
         const proxyData = {
-          now: formattedDateTime(),
-          proxy,
-          proxyResponseData: (proxyError || Buffer.concat(proxyResponseChunks).toString()),
-          proxyResponseStatus,
-          proxyResponseVersion,
-          proxyResponseHeaders
+          proxy
         };
-
         const proxyHtml = mustache.render(template, proxyData);
 
         requestContext.writeResponse({
@@ -271,34 +273,66 @@ class Handlers {
             [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML
           },
           proxyHtml);
-      };
 
-      const requestOptions = Object.assign({
-          agent: httpAgentInstance()
-        },
-        proxy.options);
+      } else {
 
-      const proxyRequest = http.request(requestOptions, (proxyResponse) => {
-        proxyResponseStatus = proxyResponse.statusCode;
-        proxyResponseVersion = proxyResponse.httpVersion;
-        proxyResponseHeaders = stringifyPretty(proxyResponse.headers);
+        const proxyResponseChunks = [];
+        let proxyResponseStatus = '';
+        let proxyResponseVersion = '';
+        let proxyResponseHeaders = '';
+        let proxyError;
 
-        proxyResponse.on('data', (chunk) => {
-          proxyResponseChunks.push(chunk);
+        let writeProxyResponse = () => {
+          writeProxyResponse = () => {};
+
+          if (requestContext.streamDestroyed) {
+            logger.info(`${requestContext.streamIDString} stream destroyed after proxy`);
+            return;
+          }
+
+          const proxyData = {
+            now: formattedDateTime(),
+            proxy,
+            proxyResponseData: (proxyError || Buffer.concat(proxyResponseChunks).toString()),
+            proxyResponseStatus,
+            proxyResponseVersion,
+            proxyResponseHeaders
+          };
+
+          requestContext.writeResponse({
+              [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+              [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_APPLICATION_JSON
+            },
+            stringify(proxyData));
+        };
+
+        const requestOptions = Object.assign({
+            agent: httpAgentInstance()
+          },
+          proxy.options);
+
+        const proxyRequest = http.request(requestOptions, (proxyResponse) => {
+          proxyResponseStatus = proxyResponse.statusCode;
+          proxyResponseVersion = proxyResponse.httpVersion;
+          proxyResponseHeaders = stringifyPretty(proxyResponse.headers);
+
+          proxyResponse.on('data', (chunk) => {
+            proxyResponseChunks.push(chunk);
+          });
+
+          proxyResponse.on('end', () => {
+            writeProxyResponse();
+          });
         });
 
-        proxyResponse.on('end', () => {
+        proxyRequest.on('error', (err) => {
+          logger.error(`proxy err = ${formatError(err)}`);
+          proxyError = err;
           writeProxyResponse();
         });
-      });
 
-      proxyRequest.on('error', (err) => {
-        logger.error(`proxy err = ${formatError(err)}`);
-        proxyError = err;
-        writeProxyResponse();
-      });
-
-      proxyRequest.end();
+        proxyRequest.end();
+      }
     };
   }
 

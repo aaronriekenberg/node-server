@@ -5,17 +5,53 @@
   <title>{{command.description}}</title>
   <meta name="viewport" content="width=device, initial-scale=1" />
   <link rel="stylesheet" type="text/css" href="style.css" />
+
+  <script>
+
+    const xRequest = new XMLHttpRequest();
+
+    const updatePre = (text) => {
+      const preCollection = document.getElementsByTagName('pre');
+      for (i = 0; i < preCollection.length; ++i) {
+        preCollection[i].innerText = text;
+      }
+    };
+
+    xRequest.onreadystatechange = function() {
+      console.log(`onreadystatechange readyState = ${this.readyState}`);
+      if (this.readyState == 4 && this.status == 200) {
+        const responseObject = JSON.parse(xRequest.responseText);
+        let preText = `Now: ${responseObject.now}\n\n`;
+        preText += `${responseObject.command.command}\n\n`;
+        preText += responseObject.commandOutput;
+        updatePre(preText);
+      }
+    };
+
+    const requestData = () => {
+      xRequest.open('GET', '{{&command.httpPath}}', true);
+      xRequest.setRequestHeader('Accept', 'application/json');
+      xRequest.send();
+    };
+
+    const onload = () => {
+      requestData();
+    };
+
+  </script>
 </head>
 
-<body>
+</head>
+
+<body onload="onload()">
+
+<p>
 <a href="..">..</a>
+</p>
 
-<pre>Now: {{now}}
+<button onclick="requestData()">Refresh</button>
 
-$ {{command.command}}
-
-{{commandOutput}}
-</pre>
+<pre></pre>
 
 </body>
 
