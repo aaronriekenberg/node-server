@@ -23,12 +23,13 @@
     xRequest.onreadystatechange = function() {
       console.log(`onreadystatechange readyState = ${this.readyState}`);
       if (this.readyState == 4 && this.status == 200) {
-        const responseObject = JSON.parse(xRequest.responseText);
-        let preText = `Now: ${responseObject.now}\n\n`;
-        preText += `${responseObject.proxy.options.method} ${responseObject.proxy.options.hostname}:${responseObject.proxy.options.port}${responseObject.proxy.options.path}\n\n`;
-        preText += `Response Status: HTTP/${responseObject.proxyResponseVersion} ${responseObject.proxyResponseStatus}\n\n`;
-        preText += `Response Headers:\n${stringifyPretty(responseObject.proxyResponseHeaders)}\n\n`;
-        preText += responseObject.proxyResponseData;
+        const jsonObject = JSON.parse(xRequest.responseText);
+        const response = jsonObject.proxyResponse;
+        let preText = `Now: ${jsonObject.now}\n\n`;
+        preText += `${jsonObject.proxy.options.method} ${jsonObject.proxy.options.hostname}:${jsonObject.proxy.options.port}${jsonObject.proxy.options.path}\n\n`;
+        preText += `Response Status: HTTP/${response.version} ${response.statusCode}\n\n`;
+        preText += `Response Headers:\n${stringifyPretty(response.headers)}\n\n`;
+        preText += response.data;
         updatePre(preText);
       }
     };

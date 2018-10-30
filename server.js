@@ -282,7 +282,7 @@ class Handlers {
     return (requestContext) => {
 
       const proxyResponseChunks = [];
-      let proxyResponseStatus = '';
+      let proxyResponseStatusCode = '';
       let proxyResponseVersion = '';
       let proxyResponseHeaders = '';
       let proxyError;
@@ -298,10 +298,12 @@ class Handlers {
         const proxyData = {
           now: formattedDateTime(),
           proxy,
-          proxyResponseData: (proxyError || Buffer.concat(proxyResponseChunks).toString()),
-          proxyResponseStatus,
-          proxyResponseVersion,
-          proxyResponseHeaders
+          proxyResponse: {
+            version: proxyResponseVersion,
+            statusCode: proxyResponseStatusCode,
+            headers: proxyResponseHeaders,
+            data: (proxyError || Buffer.concat(proxyResponseChunks).toString())
+          }
         };
 
         requestContext.writeResponse({
@@ -317,7 +319,7 @@ class Handlers {
         proxy.options);
 
       const proxyRequest = http.request(requestOptions, (proxyResponse) => {
-        proxyResponseStatus = proxyResponse.statusCode;
+        proxyResponseStatusCode = proxyResponse.statusCode;
         proxyResponseVersion = proxyResponse.httpVersion;
         proxyResponseHeaders = proxyResponse.headers;
 
