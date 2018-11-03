@@ -21,7 +21,6 @@
     };
 
     xRequest.onreadystatechange = function() {
-      console.log(`onreadystatechange readyState = ${this.readyState}`);
       if (this.readyState == 4 && this.status == 200) {
         const jsonObject = JSON.parse(xRequest.responseText);
         const response = jsonObject.proxyResponse;

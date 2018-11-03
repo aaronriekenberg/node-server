@@ -18,7 +18,6 @@
     };
 
     xRequest.onreadystatechange = function() {
-      console.log(`onreadystatechange readyState = ${this.readyState}`);
       if (this.readyState == 4 && this.status == 200) {
         const responseObject = JSON.parse(xRequest.responseText);
         let preText = `Now: ${responseObject.now}\n\n`;
