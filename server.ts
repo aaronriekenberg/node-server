@@ -16,7 +16,6 @@ import * as winston from 'winston'
 const asyncExec = util.promisify(child_process.exec);
 
 const {
-  HTTP2_HEADER_ACCEPT,
   HTTP2_HEADER_CACHE_CONTROL,
   HTTP2_HEADER_CONTENT_TYPE,
   HTTP2_HEADER_IF_MODIFIED_SINCE,
@@ -97,12 +96,8 @@ class RequestContext {
     }
   }
 
-  get acceptHeader() {
-    return this.requestHeaders[HTTP2_HEADER_ACCEPT];
-  }
-
   get requestMethod() {
-    return this.requestHeaders[HTTP2_HEADER_METHOD];
+    return this.requestHeaders[HTTP2_HEADER_METHOD].toString();
   }
 
   get requestPath() {

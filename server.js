@@ -12,7 +12,7 @@ const util = require("util");
 const v8 = require("v8");
 const winston = require("winston");
 const asyncExec = util.promisify(child_process.exec);
-const { HTTP2_HEADER_ACCEPT, HTTP2_HEADER_CACHE_CONTROL, HTTP2_HEADER_CONTENT_TYPE, HTTP2_HEADER_IF_MODIFIED_SINCE, HTTP2_HEADER_LAST_MODIFIED, HTTP2_HEADER_METHOD, HTTP2_HEADER_PATH, HTTP2_HEADER_STATUS, HTTP2_METHOD_GET, HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_NOT_MODIFIED, HTTP_STATUS_OK } = http2.constants;
+const { HTTP2_HEADER_CACHE_CONTROL, HTTP2_HEADER_CONTENT_TYPE, HTTP2_HEADER_IF_MODIFIED_SINCE, HTTP2_HEADER_LAST_MODIFIED, HTTP2_HEADER_METHOD, HTTP2_HEADER_PATH, HTTP2_HEADER_STATUS, HTTP2_METHOD_GET, HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_NOT_MODIFIED, HTTP_STATUS_OK } = http2.constants;
 const CONTENT_TYPE_APPLICATION_JSON = 'application/json';
 const CONTENT_TYPE_TEXT_HTML = 'text/html';
 const CONTENT_TYPE_TEXT_PLAIN = 'text/plain';
@@ -63,11 +63,8 @@ class RequestContext {
             return 'UNKNOWN';
         }
     }
-    get acceptHeader() {
-        return this.requestHeaders[HTTP2_HEADER_ACCEPT];
-    }
     get requestMethod() {
-        return this.requestHeaders[HTTP2_HEADER_METHOD];
+        return this.requestHeaders[HTTP2_HEADER_METHOD].toString();
     }
     get requestPath() {
         return this.requestHeaders[HTTP2_HEADER_PATH].toString();
