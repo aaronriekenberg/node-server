@@ -2,16 +2,16 @@
 
 'use strict';
 
-import agentkeepalive = require('agentkeepalive')
-import child_process = require('child_process');
-import fs = require('fs');
-import git = require('simple-git/promise');
-import http = require('http');
-import http2 = require('http2');
-import mustache = require('mustache');
-import util = require('util');
-import v8 = require('v8');
-import winston = require('winston');
+import * as agentkeepalive from 'agentkeepalive'
+import * as child_process from 'child_process'
+import * as fs from 'fs'
+import * as git from 'simple-git/promise'
+import * as http from 'http'
+import * as http2 from 'http2'
+import * as mustache from 'mustache'
+import * as util from 'util'
+import * as v8 from 'v8'
+import * as winston from 'winston'
 
 const asyncExec = util.promisify(child_process.exec);
 
