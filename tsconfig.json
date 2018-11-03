@@ -1,0 +1,10 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2017"
+  },
+  "files": [
+    "server.ts"
+  ]
+}
