@@ -27,7 +27,7 @@ const logger = winston.createLogger({
 const formatError = (err) => (err.stack || err.message);
 const stringify = JSON.stringify;
 const stringifyPretty = (object) => stringify(object, null, 2);
-const readFileAsync = async (filePath, encoding = null) => {
+const readFileAsync = async (filePath, encoding) => {
     let fileHandle;
     try {
         fileHandle = await fs.promises.open(filePath, 'r');
@@ -89,7 +89,7 @@ class RequestContext {
             logger.error(`destroyStream error err = ${formatError(err)}`);
         }
     }
-    writeResponse(responseHeaders, body = null) {
+    writeResponse(responseHeaders, body) {
         try {
             if (this.streamDestroyed) {
                 logger.info(`${this.streamIDString} writeResponse stream destroyed`);

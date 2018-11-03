@@ -54,7 +54,7 @@ const formatError = (err) => (err.stack || err.message);
 const stringify = JSON.stringify;
 const stringifyPretty = (object) => stringify(object, null, 2);
 
-const readFileAsync = async (filePath: string, encoding: string = null) => {
+const readFileAsync = async (filePath: string, encoding?: string) => {
   let fileHandle: fs.promises.FileHandle;
   try {
     fileHandle = await fs.promises.open(filePath, 'r');
@@ -128,7 +128,7 @@ class RequestContext {
     }
   }
 
-  writeResponse(responseHeaders, body: string = null) {
+  writeResponse(responseHeaders, body?: string) {
     try {
       if (this.streamDestroyed) {
         logger.info(`${this.streamIDString} writeResponse stream destroyed`);
