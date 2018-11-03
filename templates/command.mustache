@@ -22,7 +22,7 @@
       if (this.readyState == 4 && this.status == 200) {
         const responseObject = JSON.parse(xRequest.responseText);
         let preText = `Now: ${responseObject.now}\n\n`;
-        preText += `${responseObject.command.command}\n\n`;
+        preText += `$ ${responseObject.command.command}\n\n`;
         preText += responseObject.commandOutput;
         updatePre(preText);
       }
@@ -46,7 +46,7 @@
 
     const onload = () => {
       let preText = `Now: ${new Date()}\n\n`;
-      preText += '{{&command.command}}';
+      preText += '$ {{&command.command}}';
       updatePre(preText);
 
       requestData();
