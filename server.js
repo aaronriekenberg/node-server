@@ -10,7 +10,6 @@ const git = require('simple-git/promise');
 const http = require('http');
 const http2 = require('http2');
 const mustache = require('mustache');
-const process = require('process');
 const util = require('util');
 const v8 = require('v8');
 const winston = require('winston');
