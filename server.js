@@ -19,6 +19,7 @@ const asyncExec = util.promisify(child_process.exec);
 
 const {
   HTTP2_HEADER_ACCEPT,
+  HTTP2_HEADER_CACHE_CONTROL,
   HTTP2_HEADER_CONTENT_TYPE,
   HTTP2_HEADER_IF_MODIFIED_SINCE,
   HTTP2_HEADER_LAST_MODIFIED,
@@ -185,6 +186,7 @@ class Handlers {
   }
 
   static buildIndexHandler(template, configuration) {
+
     const staticFilesInMainPage = configuration.staticFileList.filter((sf) => sf.includeInMainPage);
 
     const indexData = {
@@ -195,10 +197,15 @@ class Handlers {
 
     const indexHtml = mustache.render(template, indexData);
 
+    const lastModifiedValue = new Date().toUTCString();
+    const cacheControlValue = 'max-age=60';
+
     return (requestContext) => {
       requestContext.writeResponse({
           [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-          [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML
+          [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML,
+          [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue,
+          [HTTP2_HEADER_CACHE_CONTROL]: cacheControlValue
         },
         indexHtml);
     };
@@ -213,10 +220,15 @@ class Handlers {
 
     const commandHtml = mustache.render(template, commandData);
 
+    const lastModifiedValue = new Date().toUTCString();
+    const cacheControlValue = 'max-age=60';
+
     return (requestContext) => {
       requestContext.writeResponse({
           [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-          [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML
+          [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML,
+          [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue,
+          [HTTP2_HEADER_CACHE_CONTROL]: cacheControlValue
         },
         commandHtml);
     };
@@ -269,10 +281,15 @@ class Handlers {
 
     const proxyHtml = mustache.render(template, proxyData);
 
+    const lastModifiedValue = new Date().toUTCString();
+    const cacheControlValue = 'max-age=60';
+
     return (requestContext) => {
       requestContext.writeResponse({
           [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-          [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML
+          [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML,
+          [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue,
+          [HTTP2_HEADER_CACHE_CONTROL]: cacheControlValue
         },
         proxyHtml);
     };
