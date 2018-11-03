@@ -70,7 +70,7 @@ class RequestContext {
         return this.requestHeaders[HTTP2_HEADER_METHOD];
     }
     get requestPath() {
-        return this.requestHeaders[HTTP2_HEADER_PATH];
+        return this.requestHeaders[HTTP2_HEADER_PATH].toString();
     }
     get deltaTimeSeconds() {
         const delta = process.hrtime(this.startTime);

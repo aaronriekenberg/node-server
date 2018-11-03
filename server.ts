@@ -106,7 +106,7 @@ class RequestContext {
   }
 
   get requestPath() {
-    return this.requestHeaders[HTTP2_HEADER_PATH];
+    return this.requestHeaders[HTTP2_HEADER_PATH].toString();
   }
 
   get deltaTimeSeconds() {
@@ -173,9 +173,11 @@ class RequestContext {
 
 }
 
+type RequestHandler = (requestContext: RequestContext) => void;
+
 class Handlers {
 
-  static buildNotFoundHander() {
+  static buildNotFoundHander(): RequestHandler {
     return (requestContext: RequestContext) => {
       requestContext.writeResponse({
         [HTTP2_HEADER_STATUS]: HTTP_STATUS_NOT_FOUND,
@@ -185,7 +187,7 @@ class Handlers {
     };
   }
 
-  static buildIndexHandler(template: string, configuration) {
+  static buildIndexHandler(template: string, configuration): RequestHandler {
 
     const staticFilesInMainPage = configuration.staticFileList.filter((sf) => sf.includeInMainPage);
 
@@ -211,7 +213,7 @@ class Handlers {
     };
   }
 
-  static buildCommandHTMLHandler(template: string, command, apiPath: string) {
+  static buildCommandHTMLHandler(template: string, command, apiPath: string): RequestHandler {
 
     const commandData = {
       apiPath,
@@ -234,7 +236,7 @@ class Handlers {
     };
   }
 
-  static buildCommandAPIHandler(command) {
+  static buildCommandAPIHandler(command): RequestHandler {
     return async (requestContext: RequestContext) => {
 
       let childProcess;
@@ -272,7 +274,7 @@ class Handlers {
     };
   }
 
-  static buildProxyHTMLHandler(template: string, proxy, apiPath: string) {
+  static buildProxyHTMLHandler(template: string, proxy, apiPath: string): RequestHandler {
 
     const proxyData = {
       apiPath,
@@ -295,7 +297,7 @@ class Handlers {
     };
   }
 
-  static buildProxyAPIHandler(proxy) {
+  static buildProxyAPIHandler(proxy): RequestHandler {
     return (requestContext: RequestContext) => {
 
       const proxyResponseChunks = [];
@@ -358,7 +360,7 @@ class Handlers {
     };
   }
 
-  static buildStaticFileHandler(staticFile) {
+  static buildStaticFileHandler(staticFile): RequestHandler {
     return (requestContext: RequestContext) => {
 
       const statCheck = (stat, statResponseHeaders) => {
@@ -414,7 +416,7 @@ class Handlers {
     }
   }
 
-  static buildHttpAgentStatusHandler() {
+  static buildHttpAgentStatusHandler(): RequestHandler {
     return (requestContext: RequestContext) => {
       const statusJson = stringifyPretty(httpAgentInstance().getCurrentStatus());
 
@@ -426,7 +428,7 @@ class Handlers {
     };
   }
 
-  static buildConfigurationHandler(configuration) {
+  static buildConfigurationHandler(configuration): RequestHandler {
     const configurationJson = stringifyPretty(configuration);
 
     return (requestContext: RequestContext) => {
@@ -439,7 +441,7 @@ class Handlers {
     };
   }
 
-  static buildV8StatsHander() {
+  static buildV8StatsHander(): RequestHandler {
     return (requestContext: RequestContext) => {
       const v8Stats = {
         heapStatistics: v8.getHeapStatistics(),
@@ -458,8 +460,8 @@ class Handlers {
 
 class AsyncServer {
   private configuration: any;
-  private notFoundHandler: (requestContext: RequestContext) => void;
-  private pathToHandler: Map<string | string[], (requestContext: RequestContext) => void>;
+  private notFoundHandler: RequestHandler;
+  private pathToHandler: Map<string, RequestHandler>;
 
   constructor(configuration, templates) {
     this.configuration = configuration;
