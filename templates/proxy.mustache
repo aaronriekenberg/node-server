@@ -40,6 +40,16 @@
       xRequest.send();
     };
 
+    const setTimer = () => {
+      const checkbox = document.getElementById('autoRefresh');
+
+      setInterval(() => {
+        if (checkbox.checked) {
+          requestData();
+        }
+      }, 1000);
+    };
+
     const onload = () => {
       let preText = `Now: ${new Date()}\n\n`;
       preText += '{{&proxy.options.method}} {{&proxy.options.hostname}}:{{&proxy.options.port}}{{&proxy.options.path}}\n\n';
@@ -48,6 +58,8 @@
       updatePre(preText);
 
       requestData();
+
+      setTimer();
     };
 
   </script>
@@ -55,11 +67,12 @@
 
 <body onload="onload()">
 
-<p>
-<a href="..">..</a>
-</p>
+<div>
+  <a href="..">..</a>
 
-<button onclick="requestData()">Refresh</button>
+  <input type="checkbox" id="autoRefresh">
+  <label for="autoRefresh">Auto Refresh</label>
+</div>
 
 <pre></pre>
 
