@@ -555,7 +555,7 @@ const readConfiguration = async (configFilePath: string) => {
     getGitHash()
   ]);
 
-  const configuration = JSON.parse(fileContent);
+  const configuration = JSON.parse(fileContent.toString());
   configuration.gitHash = gitHash;
   configuration.NODE_ENV = process.env.NODE_ENV;
 

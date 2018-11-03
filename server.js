@@ -420,7 +420,7 @@ const readConfiguration = async (configFilePath) => {
         readFileAsync(configFilePath, 'utf8'),
         getGitHash()
     ]);
-    const configuration = JSON.parse(fileContent);
+    const configuration = JSON.parse(fileContent.toString());
     configuration.gitHash = gitHash;
     configuration.NODE_ENV = process.env.NODE_ENV;
     return configuration;
