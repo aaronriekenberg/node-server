@@ -57,9 +57,10 @@ const readFileAsync = async (filePath: string, encoding?: string) => {
   let fileHandle: fs.promises.FileHandle;
   try {
     fileHandle = await fs.promises.open(filePath, 'r');
-    return await fileHandle.readFile({
+    const fileContent = await fileHandle.readFile({
       encoding
     });
+    return fileContent.toString();
   } finally {
     if (fileHandle) {
       await fileHandle.close();
@@ -76,10 +77,10 @@ let httpAgentInstance = () => {
 };
 
 class RequestContext {
-  private startTime: [number, number];
-  private stream: http2.ServerHttp2Stream;
-  requestHeaders: http2.IncomingHttpHeaders;
-  streamIDString: string;
+  private readonly startTime: [number, number];
+  private readonly stream: http2.ServerHttp2Stream;
+  readonly requestHeaders: http2.IncomingHttpHeaders;
+  readonly streamIDString: string;
 
   constructor(stream: http2.ServerHttp2Stream, requestHeaders: http2.IncomingHttpHeaders) {
     this.startTime = process.hrtime();
@@ -88,9 +89,10 @@ class RequestContext {
     this.streamIDString = RequestContext.buildStreamIDString(stream);
   }
 
-  static buildStreamIDString(stream: any) {
+  static buildStreamIDString(stream: http2.ServerHttp2Stream) {
     try {
-      return `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}/${stream.id}`;
+      // XXX id is not part of ServerHttp2Stream
+      return `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}/${(stream as any).id}`;
     } catch (err) {
       return 'UNKNOWN';
     }
@@ -123,7 +125,7 @@ class RequestContext {
     }
   }
 
-  writeResponse(responseHeaders, body?: string) {
+  writeResponse(responseHeaders: http2.OutgoingHttpHeaders, body?: string) {
     try {
       if (this.streamDestroyed) {
         logger.info(`${this.streamIDString} writeResponse stream destroyed`);
@@ -148,7 +150,7 @@ class RequestContext {
     }
   }
 
-  respondWithFile(path: string, responseHeaders, options) {
+  respondWithFile(path: string, responseHeaders: http2.OutgoingHttpHeaders, options: http2.ServerStreamFileResponseOptionsWithError) {
     try {
       if (this.streamDestroyed) {
         logger.info(`${this.streamIDString} respondWithFile stream destroyed`);
@@ -169,42 +171,49 @@ class RequestContext {
 }
 
 interface Command {
-  httpPath: string,
-  command: string,
-  description: string
+  httpPath: string;
+  command: string;
+  description: string;
 }
 
 interface ProxyOptions {
-  hostname: string,
-  port: string,
-  path: string,
-  method: string
+  hostname: string;
+  port: string;
+  path: string;
+  method: string;
 }
 
 interface Proxy {
-  httpPath: string,
-  description: string,
-  options: ProxyOptions
+  httpPath: string;
+  description: string;
+  options: ProxyOptions;
 }
 
 interface StaticFile {
-  httpPath: string,
-  filePath: string,
-  headers: any,
-  includeInMainPage: boolean
+  httpPath: string;
+  filePath: string;
+  headers: any;
+  includeInMainPage: boolean;
 }
 
 interface Configuration {
-  tlsKeyFile: string,
-  tlsCertFile: string,
-  listenAddress: string,
-  listenPort: string,
-  mainPageTitle: string,
-  commandList: Command[],
-  proxyList: Proxy[],
-  staticFileList: StaticFile[],
-  gitHash: string,
-  NODE_ENV: string
+  tlsKeyFile: string;
+  tlsCertFile: string;
+  listenAddress: string;
+  listenPort: string;
+  mainPageTitle: string;
+  commandList: Command[];
+  proxyList: Proxy[];
+  staticFileList: StaticFile[];
+  gitHash: string;
+  NODE_ENV: string;
+}
+
+class Templates {
+  constructor(
+    readonly indexTemplate: string,
+    readonly commandTemplate: string,
+    readonly proxyTemplate: string) { }
 }
 
 type RequestHandler = (requestContext: RequestContext) => void;
@@ -221,7 +230,7 @@ class Handlers {
     };
   }
 
-  static buildIndexHandler(template: string, configuration: Configuration): RequestHandler {
+  static buildIndexHandler(indexTemplate: string, configuration: Configuration): RequestHandler {
 
     const staticFilesInMainPage = configuration.staticFileList.filter((sf) => sf.includeInMainPage);
 
@@ -231,7 +240,7 @@ class Handlers {
       configuration
     };
 
-    const indexHtml = mustache.render(template, indexData);
+    const indexHtml = mustache.render(indexTemplate, indexData);
 
     const lastModifiedValue = new Date().toUTCString();
     const cacheControlValue = 'max-age=60';
@@ -247,14 +256,14 @@ class Handlers {
     };
   }
 
-  static buildCommandHTMLHandler(template: string, command: Command, apiPath: string): RequestHandler {
+  static buildCommandHTMLHandler(commandTemplate: string, command: Command, apiPath: string): RequestHandler {
 
     const commandData = {
       apiPath,
       command
     };
 
-    const commandHtml = mustache.render(template, commandData);
+    const commandHtml = mustache.render(commandTemplate, commandData);
 
     const lastModifiedValue = new Date().toUTCString();
     const cacheControlValue = 'max-age=60';
@@ -308,14 +317,14 @@ class Handlers {
     };
   }
 
-  static buildProxyHTMLHandler(template: string, proxy: Proxy, apiPath: string): RequestHandler {
+  static buildProxyHTMLHandler(proxyTemplate: string, proxy: Proxy, apiPath: string): RequestHandler {
 
     const proxyData = {
       apiPath,
       proxy
     };
 
-    const proxyHtml = mustache.render(template, proxyData);
+    const proxyHtml = mustache.render(proxyTemplate, proxyData);
 
     const lastModifiedValue = new Date().toUTCString();
     const cacheControlValue = 'max-age=60';
@@ -493,11 +502,11 @@ class Handlers {
 }
 
 class AsyncServer {
-  private configuration: Configuration;
-  private notFoundHandler: RequestHandler;
-  private pathToHandler: Map<string, RequestHandler>;
+  private readonly configuration: Configuration;
+  private readonly notFoundHandler: RequestHandler;
+  private readonly pathToHandler: Map<string, RequestHandler>;
 
-  constructor(configuration: Configuration, templates) {
+  constructor(configuration: Configuration, templates: Templates) {
     this.configuration = configuration;
 
     this.notFoundHandler = Handlers.buildNotFoundHander();
@@ -511,17 +520,17 @@ class AsyncServer {
       this.pathToHandler.set(key, value);
     };
 
-    setOrThrow('/', Handlers.buildIndexHandler(templates.index, this.configuration));
+    setOrThrow('/', Handlers.buildIndexHandler(templates.indexTemplate, this.configuration));
 
     (this.configuration.commandList || []).forEach((command) => {
       const apiPath = `/api/commands${command.httpPath}`;
-      setOrThrow(command.httpPath, Handlers.buildCommandHTMLHandler(templates.command, command, apiPath));
+      setOrThrow(command.httpPath, Handlers.buildCommandHTMLHandler(templates.commandTemplate, command, apiPath));
       setOrThrow(apiPath, Handlers.buildCommandAPIHandler(command));
     });
 
     (this.configuration.proxyList || []).forEach((proxy) => {
       const apiPath = `/api/proxies${proxy.httpPath}`;
-      setOrThrow(proxy.httpPath, Handlers.buildProxyHTMLHandler(templates.proxy, proxy, apiPath));
+      setOrThrow(proxy.httpPath, Handlers.buildProxyHTMLHandler(templates.proxyTemplate, proxy, apiPath));
       setOrThrow(apiPath, Handlers.buildProxyAPIHandler(proxy));
     });
 
@@ -600,18 +609,18 @@ const readConfiguration = async (configFilePath: string) => {
 
 const readTemplates = async () => {
   logger.info('readTemplates');
-  const templates = {
-    command: null,
-    index: null,
-    proxy: null
-  };
-  [templates.command, templates.index, templates.proxy] = await Promise.all([
-    readFileAsync('templates/command.mustache', 'utf8'),
+  let indexTemplate: string;
+  let commandTemplate: string;
+  let proxyTemplate: string;
+  [indexTemplate, commandTemplate, proxyTemplate] = await Promise.all([
     readFileAsync('templates/index.mustache', 'utf8'),
+    readFileAsync('templates/command.mustache', 'utf8'),
     readFileAsync('templates/proxy.mustache', 'utf8')
   ]);
-  Object.values(templates).forEach((v) => mustache.parse(v));
-  return templates;
+  mustache.parse(indexTemplate);
+  mustache.parse(commandTemplate);
+  mustache.parse(proxyTemplate);
+  return new Templates(indexTemplate, commandTemplate, proxyTemplate);
 };
 
 const main = async () => {

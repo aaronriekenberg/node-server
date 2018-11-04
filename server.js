@@ -31,9 +31,10 @@ const readFileAsync = async (filePath, encoding) => {
     let fileHandle;
     try {
         fileHandle = await fs.promises.open(filePath, 'r');
-        return await fileHandle.readFile({
+        const fileContent = await fileHandle.readFile({
             encoding
         });
+        return fileContent.toString();
     }
     finally {
         if (fileHandle) {
@@ -57,6 +58,7 @@ class RequestContext {
     }
     static buildStreamIDString(stream) {
         try {
+            // XXX id is not part of ServerHttp2Stream
             return `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}/${stream.id}`;
         }
         catch (err) {
@@ -125,6 +127,13 @@ class RequestContext {
         }
     }
 }
+class Templates {
+    constructor(indexTemplate, commandTemplate, proxyTemplate) {
+        this.indexTemplate = indexTemplate;
+        this.commandTemplate = commandTemplate;
+        this.proxyTemplate = proxyTemplate;
+    }
+}
 class Handlers {
     static buildNotFoundHander() {
         return (requestContext) => {
@@ -134,14 +143,14 @@ class Handlers {
             }, 'Unknown request');
         };
     }
-    static buildIndexHandler(template, configuration) {
+    static buildIndexHandler(indexTemplate, configuration) {
         const staticFilesInMainPage = configuration.staticFileList.filter((sf) => sf.includeInMainPage);
         const indexData = {
             now: formattedDateTime(),
             staticFilesInMainPage,
             configuration
         };
-        const indexHtml = mustache.render(template, indexData);
+        const indexHtml = mustache.render(indexTemplate, indexData);
         const lastModifiedValue = new Date().toUTCString();
         const cacheControlValue = 'max-age=60';
         return (requestContext) => {
@@ -153,12 +162,12 @@ class Handlers {
             }, indexHtml);
         };
     }
-    static buildCommandHTMLHandler(template, command, apiPath) {
+    static buildCommandHTMLHandler(commandTemplate, command, apiPath) {
         const commandData = {
             apiPath,
             command
         };
-        const commandHtml = mustache.render(template, commandData);
+        const commandHtml = mustache.render(commandTemplate, commandData);
         const lastModifiedValue = new Date().toUTCString();
         const cacheControlValue = 'max-age=60';
         return (requestContext) => {
@@ -203,12 +212,12 @@ class Handlers {
             }, stringify(commandData));
         };
     }
-    static buildProxyHTMLHandler(template, proxy, apiPath) {
+    static buildProxyHTMLHandler(proxyTemplate, proxy, apiPath) {
         const proxyData = {
             apiPath,
             proxy
         };
-        const proxyHtml = mustache.render(template, proxyData);
+        const proxyHtml = mustache.render(proxyTemplate, proxyData);
         const lastModifiedValue = new Date().toUTCString();
         const cacheControlValue = 'max-age=60';
         return (requestContext) => {
@@ -359,15 +368,15 @@ class AsyncServer {
             }
             this.pathToHandler.set(key, value);
         };
-        setOrThrow('/', Handlers.buildIndexHandler(templates.index, this.configuration));
+        setOrThrow('/', Handlers.buildIndexHandler(templates.indexTemplate, this.configuration));
         (this.configuration.commandList || []).forEach((command) => {
             const apiPath = `/api/commands${command.httpPath}`;
-            setOrThrow(command.httpPath, Handlers.buildCommandHTMLHandler(templates.command, command, apiPath));
+            setOrThrow(command.httpPath, Handlers.buildCommandHTMLHandler(templates.commandTemplate, command, apiPath));
             setOrThrow(apiPath, Handlers.buildCommandAPIHandler(command));
         });
         (this.configuration.proxyList || []).forEach((proxy) => {
             const apiPath = `/api/proxies${proxy.httpPath}`;
-            setOrThrow(proxy.httpPath, Handlers.buildProxyHTMLHandler(templates.proxy, proxy, apiPath));
+            setOrThrow(proxy.httpPath, Handlers.buildProxyHTMLHandler(templates.proxyTemplate, proxy, apiPath));
             setOrThrow(apiPath, Handlers.buildProxyAPIHandler(proxy));
         });
         if (this.configuration.proxyList) {
@@ -424,18 +433,18 @@ const readConfiguration = async (configFilePath) => {
 };
 const readTemplates = async () => {
     logger.info('readTemplates');
-    const templates = {
-        command: null,
-        index: null,
-        proxy: null
-    };
-    [templates.command, templates.index, templates.proxy] = await Promise.all([
-        readFileAsync('templates/command.mustache', 'utf8'),
+    let indexTemplate;
+    let commandTemplate;
+    let proxyTemplate;
+    [indexTemplate, commandTemplate, proxyTemplate] = await Promise.all([
         readFileAsync('templates/index.mustache', 'utf8'),
+        readFileAsync('templates/command.mustache', 'utf8'),
         readFileAsync('templates/proxy.mustache', 'utf8')
     ]);
-    Object.values(templates).forEach((v) => mustache.parse(v));
-    return templates;
+    mustache.parse(indexTemplate);
+    mustache.parse(commandTemplate);
+    mustache.parse(proxyTemplate);
+    return new Templates(indexTemplate, commandTemplate, proxyTemplate);
 };
 const main = async () => {
     if (process.argv.length !== 3) {
