@@ -435,10 +435,7 @@ const readConfiguration = async (configFilePath) => {
 };
 const readTemplates = async () => {
     logger.info('readTemplates');
-    let indexTemplate;
-    let commandTemplate;
-    let proxyTemplate;
-    [indexTemplate, commandTemplate, proxyTemplate] = await Promise.all([
+    const [indexTemplate, commandTemplate, proxyTemplate] = await Promise.all([
         readFileAsync('templates/index.mustache', 'utf8'),
         readFileAsync('templates/command.mustache', 'utf8'),
         readFileAsync('templates/proxy.mustache', 'utf8')
