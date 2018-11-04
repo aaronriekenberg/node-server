@@ -351,9 +351,9 @@ class Handlers {
 
       const proxyResponseChunks: any[] = [];
       let proxyResponseStatusCode: number | undefined;
-      let proxyResponseVersion: string;
-      let proxyResponseHeaders: http.IncomingHttpHeaders;
-      let proxyError: Error;
+      let proxyResponseVersion: string | undefined;
+      let proxyResponseHeaders: http.IncomingHttpHeaders | undefined;
+      let proxyError: Error | undefined;
 
       let writeProxyResponse = () => {
         writeProxyResponse = () => { };
