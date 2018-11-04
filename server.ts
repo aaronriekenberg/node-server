@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-'use strict';
-
 import * as agentkeepalive from 'agentkeepalive'
 import * as child_process from 'child_process'
 import * as fs from 'fs'
@@ -51,7 +49,7 @@ const logger = winston.createLogger({
 const formatError = (err: Error) => (err.stack || err.message);
 
 const stringify = JSON.stringify;
-const stringifyPretty = (object) => stringify(object, null, 2);
+const stringifyPretty = (object: any) => stringify(object, null, 2);
 
 const readFileAsync = async (filePath: string, encoding?: string) => {
   let fileHandle: fs.promises.FileHandle | undefined;
@@ -516,7 +514,7 @@ class AsyncServer {
 
     this.pathToHandler = new Map();
 
-    const setOrThrow = (key, value) => {
+    const setOrThrow = (key: string | undefined, value: RequestHandler) => {
       if (this.pathToHandler.has(key)) {
         throw new Error(`duplicate path key ${key}`);
       }

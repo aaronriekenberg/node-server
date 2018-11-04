@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-'use strict';
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const agentkeepalive = require("agentkeepalive");
 const child_process = require("child_process");
