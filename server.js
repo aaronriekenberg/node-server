@@ -234,9 +234,9 @@ class Handlers {
     static buildProxyAPIHandler(proxy) {
         return (requestContext) => {
             const proxyResponseChunks = [];
-            let proxyResponseStatusCode = null;
-            let proxyResponseVersion = null;
-            let proxyResponseHeaders = null;
+            let proxyResponseStatusCode;
+            let proxyResponseVersion;
+            let proxyResponseHeaders;
             let proxyError;
             let writeProxyResponse = () => {
                 writeProxyResponse = () => { };

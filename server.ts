@@ -347,10 +347,10 @@ class Handlers {
     return (requestContext: RequestContext) => {
 
       const proxyResponseChunks = [];
-      let proxyResponseStatusCode = null;
-      let proxyResponseVersion = null;
-      let proxyResponseHeaders = null;
-      let proxyError;
+      let proxyResponseStatusCode: number;
+      let proxyResponseVersion: string;
+      let proxyResponseHeaders: http.IncomingHttpHeaders;
+      let proxyError: Error;
 
       let writeProxyResponse = () => {
         writeProxyResponse = () => { };
