@@ -77,11 +77,11 @@ let httpAgentInstance = () => {
 
 class RequestContext {
   private startTime: [number, number];
-  private stream: any;
+  private stream: http2.ServerHttp2Stream;
   requestHeaders: http2.IncomingHttpHeaders;
   streamIDString: string;
 
-  constructor(stream: http2.Http2Stream, requestHeaders: http2.IncomingHttpHeaders) {
+  constructor(stream: http2.ServerHttp2Stream, requestHeaders: http2.IncomingHttpHeaders) {
     this.startTime = process.hrtime();
     this.stream = stream;
     this.requestHeaders = requestHeaders;
