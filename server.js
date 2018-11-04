@@ -48,6 +48,16 @@ let httpAgentInstance = () => {
     httpAgentInstance = () => instance;
     return instance;
 };
+const headerToString = (header) => {
+    let retVal;
+    if (typeof header === 'string') {
+        retVal = header;
+    }
+    else if ((Array.isArray(header)) && (header.length > 0)) {
+        retVal = header[0];
+    }
+    return retVal;
+};
 class RequestContext {
     constructor(stream, requestHeaders) {
         this.stream = stream;
@@ -65,10 +75,10 @@ class RequestContext {
         }
     }
     get requestMethod() {
-        return this.requestHeaders[HTTP2_HEADER_METHOD].toString();
+        return headerToString(this.requestHeaders[HTTP2_HEADER_METHOD]);
     }
     get requestPath() {
-        return this.requestHeaders[HTTP2_HEADER_PATH].toString();
+        return headerToString(this.requestHeaders[HTTP2_HEADER_PATH]);
     }
     get deltaTimeSeconds() {
         const delta = process.hrtime(this.startTime);
@@ -146,7 +156,7 @@ class Handlers {
         };
     }
     static buildIndexHandler(indexTemplate, configuration) {
-        const staticFilesInMainPage = configuration.staticFileList.filter((sf) => sf.includeInMainPage);
+        const staticFilesInMainPage = (configuration.staticFileList || []).filter((sf) => sf.includeInMainPage);
         const indexData = {
             now: formattedDateTime(),
             staticFilesInMainPage,
@@ -196,11 +206,11 @@ class Handlers {
                 logger.info(`${requestContext.streamIDString} stream destroyed after command`);
                 return;
             }
-            let commandOutput;
+            let commandOutput = '';
             if (commandErr) {
                 commandOutput = commandErr.toString();
             }
-            else {
+            else if (childProcess) {
                 commandOutput = childProcess.stderr + childProcess.stdout;
             }
             const commandData = {
@@ -288,7 +298,7 @@ class Handlers {
                     // resolution for http headers is 1 second
                     stat.mtime.setMilliseconds(0);
                     statResponseHeaders[HTTP2_HEADER_LAST_MODIFIED] = stat.mtime.toUTCString();
-                    const ifModifiedSinceString = requestContext.requestHeaders[HTTP2_HEADER_IF_MODIFIED_SINCE];
+                    const ifModifiedSinceString = headerToString(requestContext.requestHeaders[HTTP2_HEADER_IF_MODIFIED_SINCE]);
                     if (ifModifiedSinceString) {
                         const ifModifiedSinceDate = new Date(ifModifiedSinceString);
                         if (stat.mtime.getTime() === ifModifiedSinceDate.getTime()) {

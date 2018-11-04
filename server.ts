@@ -54,7 +54,7 @@ const stringify = JSON.stringify;
 const stringifyPretty = (object) => stringify(object, null, 2);
 
 const readFileAsync = async (filePath: string, encoding?: string) => {
-  let fileHandle: fs.promises.FileHandle;
+  let fileHandle: fs.promises.FileHandle | undefined;
   try {
     fileHandle = await fs.promises.open(filePath, 'r');
     return await fileHandle.readFile({
@@ -74,6 +74,16 @@ let httpAgentInstance = () => {
   httpAgentInstance = () => instance;
   return instance;
 };
+
+const headerToString = (header: string | string[] | undefined) => {
+  let retVal: string | undefined;
+  if (typeof header === 'string') {
+    retVal = header;
+  } else if ((Array.isArray(header)) && (header.length > 0)) {
+    retVal = header[0];
+  }
+  return retVal;
+}
 
 class RequestContext {
   private readonly startTime: [number, number];
@@ -96,11 +106,11 @@ class RequestContext {
   }
 
   get requestMethod() {
-    return this.requestHeaders[HTTP2_HEADER_METHOD].toString();
+    return headerToString(this.requestHeaders[HTTP2_HEADER_METHOD]);
   }
 
   get requestPath() {
-    return this.requestHeaders[HTTP2_HEADER_PATH].toString();
+    return headerToString(this.requestHeaders[HTTP2_HEADER_PATH]);
   }
 
   get deltaTimeSeconds() {
@@ -228,7 +238,7 @@ class Handlers {
 
   static buildIndexHandler(indexTemplate: string, configuration: Configuration): RequestHandler {
 
-    const staticFilesInMainPage = configuration.staticFileList.filter((sf) => sf.includeInMainPage);
+    const staticFilesInMainPage = (configuration.staticFileList || []).filter((sf) => sf.includeInMainPage);
 
     const indexData = {
       now: formattedDateTime(),
@@ -278,8 +288,8 @@ class Handlers {
   static buildCommandAPIHandler(command: Command): RequestHandler {
     return async (requestContext: RequestContext) => {
 
-      let childProcess: { stdout: string, stderr: string };
-      let commandErr: Error;
+      let childProcess: { stdout: string, stderr: string } | undefined;
+      let commandErr: Error | undefined;
       try {
         childProcess = await asyncExec(command.command);
       } catch (err) {
@@ -292,10 +302,10 @@ class Handlers {
         return;
       }
 
-      let commandOutput: string;
+      let commandOutput: string = '';
       if (commandErr) {
         commandOutput = commandErr.toString();
-      } else {
+      } else if (childProcess) {
         commandOutput = childProcess.stderr + childProcess.stdout;
       }
 
@@ -339,8 +349,8 @@ class Handlers {
   static buildProxyAPIHandler(proxy: Proxy): RequestHandler {
     return (requestContext: RequestContext) => {
 
-      const proxyResponseChunks = [];
-      let proxyResponseStatusCode: number;
+      const proxyResponseChunks: any[] = [];
+      let proxyResponseStatusCode: number | undefined;
       let proxyResponseVersion: string;
       let proxyResponseHeaders: http.IncomingHttpHeaders;
       let proxyError: Error;
@@ -409,7 +419,7 @@ class Handlers {
 
           statResponseHeaders[HTTP2_HEADER_LAST_MODIFIED] = stat.mtime.toUTCString();
 
-          const ifModifiedSinceString = requestContext.requestHeaders[HTTP2_HEADER_IF_MODIFIED_SINCE] as string;
+          const ifModifiedSinceString = headerToString(requestContext.requestHeaders[HTTP2_HEADER_IF_MODIFIED_SINCE]);
           if (ifModifiedSinceString) {
             const ifModifiedSinceDate = new Date(ifModifiedSinceString);
             if (stat.mtime.getTime() === ifModifiedSinceDate.getTime()) {
@@ -499,7 +509,7 @@ class Handlers {
 
 class AsyncServer {
   private readonly notFoundHandler: RequestHandler;
-  private readonly pathToHandler: Map<string, RequestHandler>;
+  private readonly pathToHandler: Map<string | undefined, RequestHandler>;
 
   constructor(private readonly configuration: Configuration, templates: Templates) {
     this.notFoundHandler = Handlers.buildNotFoundHander();
