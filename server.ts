@@ -77,14 +77,12 @@ let httpAgentInstance = () => {
 
 class RequestContext {
   private readonly startTime: [number, number];
-  private readonly stream: http2.ServerHttp2Stream;
-  readonly requestHeaders: http2.IncomingHttpHeaders;
   readonly streamIDString: string;
 
-  constructor(stream: http2.ServerHttp2Stream, requestHeaders: http2.IncomingHttpHeaders) {
+  constructor(
+    private readonly stream: http2.ServerHttp2Stream,
+    readonly requestHeaders: http2.IncomingHttpHeaders) {
     this.startTime = process.hrtime();
-    this.stream = stream;
-    this.requestHeaders = requestHeaders;
     this.streamIDString = RequestContext.buildStreamIDString(stream);
   }
 
@@ -507,13 +505,10 @@ class Handlers {
 }
 
 class AsyncServer {
-  private readonly configuration: Configuration;
   private readonly notFoundHandler: RequestHandler;
   private readonly pathToHandler: Map<string, RequestHandler>;
 
-  constructor(configuration: Configuration, templates: Templates) {
-    this.configuration = configuration;
-
+  constructor(private readonly configuration: Configuration, templates: Templates) {
     this.notFoundHandler = Handlers.buildNotFoundHander();
 
     this.pathToHandler = new Map();

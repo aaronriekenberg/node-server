@@ -50,9 +50,9 @@ let httpAgentInstance = () => {
 };
 class RequestContext {
     constructor(stream, requestHeaders) {
-        this.startTime = process.hrtime();
         this.stream = stream;
         this.requestHeaders = requestHeaders;
+        this.startTime = process.hrtime();
         this.streamIDString = RequestContext.buildStreamIDString(stream);
     }
     static buildStreamIDString(stream) {
