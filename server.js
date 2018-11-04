@@ -132,6 +132,9 @@ class Templates {
         this.commandTemplate = commandTemplate;
         this.proxyTemplate = proxyTemplate;
     }
+    get allTemplates() {
+        return [this.indexTemplate, this.commandTemplate, this.proxyTemplate];
+    }
 }
 class Handlers {
     static buildNotFoundHander() {
@@ -441,9 +444,7 @@ const readTemplates = async () => {
         readFileAsync('templates/proxy.mustache', 'utf8')
     ]);
     const templates = new Templates(indexTemplate.toString(), commandTemplate.toString(), proxyTemplate.toString());
-    mustache.parse(templates.indexTemplate);
-    mustache.parse(templates.commandTemplate);
-    mustache.parse(templates.proxyTemplate);
+    templates.allTemplates.forEach((t) => mustache.parse(t));
     return templates;
 };
 const main = async () => {

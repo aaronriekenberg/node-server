@@ -212,7 +212,13 @@ class Templates {
   constructor(
     readonly indexTemplate: string,
     readonly commandTemplate: string,
-    readonly proxyTemplate: string) { }
+    readonly proxyTemplate: string) {
+
+  }
+
+  get allTemplates() {
+    return [this.indexTemplate, this.commandTemplate, this.proxyTemplate];
+  }
 }
 
 type RequestHandler = (requestContext: RequestContext) => void;
@@ -621,9 +627,7 @@ const readTemplates = async () => {
     commandTemplate.toString(),
     proxyTemplate.toString()
   )
-  mustache.parse(templates.indexTemplate);
-  mustache.parse(templates.commandTemplate);
-  mustache.parse(templates.proxyTemplate);
+  templates.allTemplates.forEach((t) => mustache.parse(t))
   return templates;
 };
 
