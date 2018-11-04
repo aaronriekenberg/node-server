@@ -168,6 +168,45 @@ class RequestContext {
 
 }
 
+interface Command {
+  httpPath: string,
+  command: string,
+  description: string
+}
+
+interface ProxyOptions {
+  hostname: string,
+  port: string,
+  path: string,
+  method: string
+}
+
+interface Proxy {
+  httpPath: string,
+  description: string,
+  options: ProxyOptions
+}
+
+interface StaticFile {
+  httpPath: string,
+  filePath: string,
+  headers: any,
+  includeInMainPage: boolean
+}
+
+interface Configuration {
+  tlsKeyFile: string,
+  tlsCertFile: string,
+  listenAddress: string,
+  listenPort: string,
+  mainPageTitle: string,
+  commandList: Command[],
+  proxyList: Proxy[],
+  staticFileList: StaticFile[],
+  gitHash: string,
+  NODE_ENV: string
+}
+
 type RequestHandler = (requestContext: RequestContext) => void;
 
 class Handlers {
@@ -182,7 +221,7 @@ class Handlers {
     };
   }
 
-  static buildIndexHandler(template: string, configuration): RequestHandler {
+  static buildIndexHandler(template: string, configuration: Configuration): RequestHandler {
 
     const staticFilesInMainPage = configuration.staticFileList.filter((sf) => sf.includeInMainPage);
 
@@ -208,7 +247,7 @@ class Handlers {
     };
   }
 
-  static buildCommandHTMLHandler(template: string, command, apiPath: string): RequestHandler {
+  static buildCommandHTMLHandler(template: string, command: Command, apiPath: string): RequestHandler {
 
     const commandData = {
       apiPath,
@@ -231,7 +270,7 @@ class Handlers {
     };
   }
 
-  static buildCommandAPIHandler(command): RequestHandler {
+  static buildCommandAPIHandler(command: Command): RequestHandler {
     return async (requestContext: RequestContext) => {
 
       let childProcess;
@@ -269,7 +308,7 @@ class Handlers {
     };
   }
 
-  static buildProxyHTMLHandler(template: string, proxy, apiPath: string): RequestHandler {
+  static buildProxyHTMLHandler(template: string, proxy: Proxy, apiPath: string): RequestHandler {
 
     const proxyData = {
       apiPath,
@@ -292,7 +331,7 @@ class Handlers {
     };
   }
 
-  static buildProxyAPIHandler(proxy): RequestHandler {
+  static buildProxyAPIHandler(proxy: Proxy): RequestHandler {
     return (requestContext: RequestContext) => {
 
       const proxyResponseChunks = [];
@@ -355,7 +394,7 @@ class Handlers {
     };
   }
 
-  static buildStaticFileHandler(staticFile): RequestHandler {
+  static buildStaticFileHandler(staticFile: StaticFile): RequestHandler {
     return (requestContext: RequestContext) => {
 
       const statCheck = (stat, statResponseHeaders) => {
@@ -423,7 +462,7 @@ class Handlers {
     };
   }
 
-  static buildConfigurationHandler(configuration): RequestHandler {
+  static buildConfigurationHandler(configuration: Configuration): RequestHandler {
     const configurationJson = stringifyPretty(configuration);
 
     return (requestContext: RequestContext) => {
@@ -454,11 +493,11 @@ class Handlers {
 }
 
 class AsyncServer {
-  private configuration: any;
+  private configuration: Configuration;
   private notFoundHandler: RequestHandler;
   private pathToHandler: Map<string, RequestHandler>;
 
-  constructor(configuration, templates) {
+  constructor(configuration: Configuration, templates) {
     this.configuration = configuration;
 
     this.notFoundHandler = Handlers.buildNotFoundHander();
@@ -552,7 +591,7 @@ const readConfiguration = async (configFilePath: string) => {
     getGitHash()
   ]);
 
-  const configuration = JSON.parse(fileContent.toString());
+  const configuration = JSON.parse(fileContent.toString()) as Configuration;
   configuration.gitHash = gitHash;
   configuration.NODE_ENV = process.env.NODE_ENV;
 
