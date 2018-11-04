@@ -173,13 +173,6 @@ interface Command {
   description: string;
 }
 
-interface ProxyOptions {
-  hostname: string;
-  port: string;
-  path: string;
-  method: string;
-}
-
 interface Proxy {
   httpPath: string;
   description: string;
