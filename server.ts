@@ -451,7 +451,7 @@ class Handlers {
 
       const responseHeaders = Object.assign({
         [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK
-      } as http2.OutgoingHttpHeaders,
+      },
         staticFile.headers);
 
       requestContext.respondWithFile(staticFile.filePath,
