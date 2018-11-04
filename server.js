@@ -198,7 +198,7 @@ class Handlers {
             }
             let commandOutput;
             if (commandErr) {
-                commandOutput = commandErr;
+                commandOutput = commandErr.toString();
             }
             else {
                 commandOutput = childProcess.stderr + childProcess.stdout;

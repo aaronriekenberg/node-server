@@ -48,7 +48,7 @@ const logger = winston.createLogger({
   transports: [new winston.transports.Console()]
 });
 
-const formatError = (err) => (err.stack || err.message);
+const formatError = (err: Error) => (err.stack || err.message);
 
 const stringify = JSON.stringify;
 const stringifyPretty = (object) => stringify(object, null, 2);
@@ -183,13 +183,13 @@ interface ProxyOptions {
 interface Proxy {
   httpPath: string;
   description: string;
-  options: ProxyOptions;
+  options: http.RequestOptions;
 }
 
 interface StaticFile {
   httpPath: string;
   filePath: string;
-  headers: any;
+  headers: http2.OutgoingHttpHeaders;
   includeInMainPage: boolean;
 }
 
@@ -199,11 +199,11 @@ interface Configuration {
   listenAddress: string;
   listenPort: string;
   mainPageTitle: string;
-  commandList: Command[];
-  proxyList: Proxy[];
-  staticFileList: StaticFile[];
+  commandList?: Command[];
+  proxyList?: Proxy[];
+  staticFileList?: StaticFile[];
   gitHash: string;
-  NODE_ENV: string;
+  NODE_ENV?: string;
 }
 
 class Templates {
@@ -285,8 +285,8 @@ class Handlers {
   static buildCommandAPIHandler(command: Command): RequestHandler {
     return async (requestContext: RequestContext) => {
 
-      let childProcess;
-      let commandErr;
+      let childProcess: { stdout: string, stderr: string };
+      let commandErr: Error;
       try {
         childProcess = await asyncExec(command.command);
       } catch (err) {
@@ -299,9 +299,9 @@ class Handlers {
         return;
       }
 
-      let commandOutput;
+      let commandOutput: string;
       if (commandErr) {
-        commandOutput = commandErr;
+        commandOutput = commandErr.toString();
       } else {
         commandOutput = childProcess.stderr + childProcess.stdout;
       }
@@ -396,7 +396,7 @@ class Handlers {
         });
       });
 
-      proxyRequest.on('error', (err) => {
+      proxyRequest.on('error', (err: Error) => {
         logger.error(`proxy err = ${formatError(err)}`);
         proxyError = err;
         writeProxyResponse();
@@ -409,7 +409,7 @@ class Handlers {
   static buildStaticFileHandler(staticFile: StaticFile): RequestHandler {
     return (requestContext: RequestContext) => {
 
-      const statCheck = (stat, statResponseHeaders) => {
+      const statCheck = (stat: fs.Stats, statResponseHeaders: http2.OutgoingHttpHeaders) => {
         try {
           // resolution for http headers is 1 second
           stat.mtime.setMilliseconds(0);
@@ -431,7 +431,7 @@ class Handlers {
         return true;
       };
 
-      const onError = (err) => {
+      const onError = (err: NodeJS.ErrnoException) => {
         logger.error(`file onError err = ${formatError(err)}`);
 
         if (err.code === 'ENOENT') {
@@ -451,7 +451,7 @@ class Handlers {
 
       const responseHeaders = Object.assign({
         [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK
-      },
+      } as http2.OutgoingHttpHeaders,
         staticFile.headers);
 
       requestContext.respondWithFile(staticFile.filePath,
