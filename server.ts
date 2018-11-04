@@ -34,14 +34,14 @@ const CONTENT_TYPE_APPLICATION_JSON = 'application/json';
 const CONTENT_TYPE_TEXT_HTML = 'text/html';
 const CONTENT_TYPE_TEXT_PLAIN = 'text/plain';
 
-const DATE_TIME_FORMAT = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
-
 const formattedDateTime = () => new Date().toString();
+
+const LOG_DATE_TIME_FORMAT = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
 
 const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp({
-      format: DATE_TIME_FORMAT
+      format: LOG_DATE_TIME_FORMAT
     }),
     winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
   ),
@@ -57,10 +57,9 @@ const readFileAsync = async (filePath: string, encoding?: string) => {
   let fileHandle: fs.promises.FileHandle;
   try {
     fileHandle = await fs.promises.open(filePath, 'r');
-    const fileContent = await fileHandle.readFile({
+    return await fileHandle.readFile({
       encoding
     });
-    return fileContent.toString();
   } finally {
     if (fileHandle) {
       await fileHandle.close();
@@ -548,14 +547,14 @@ class AsyncServer {
   }
 
   async createHttpServer() {
-    const httpServerConfig = {
-      key: null,
-      cert: null
-    };
-    [httpServerConfig.key, httpServerConfig.cert] = await Promise.all([
+    const [key, cert] = await Promise.all([
       readFileAsync(this.configuration.tlsKeyFile),
       readFileAsync(this.configuration.tlsCertFile)
     ]);
+    const httpServerConfig = {
+      key,
+      cert
+    };
     return http2.createSecureServer(httpServerConfig);
   }
 
@@ -609,18 +608,23 @@ const readConfiguration = async (configFilePath: string) => {
 
 const readTemplates = async () => {
   logger.info('readTemplates');
-  let indexTemplate: string;
-  let commandTemplate: string;
-  let proxyTemplate: string;
+  let indexTemplate: string | Buffer;
+  let commandTemplate: string | Buffer;
+  let proxyTemplate: string | Buffer;
   [indexTemplate, commandTemplate, proxyTemplate] = await Promise.all([
     readFileAsync('templates/index.mustache', 'utf8'),
     readFileAsync('templates/command.mustache', 'utf8'),
     readFileAsync('templates/proxy.mustache', 'utf8')
   ]);
-  mustache.parse(indexTemplate);
-  mustache.parse(commandTemplate);
-  mustache.parse(proxyTemplate);
-  return new Templates(indexTemplate, commandTemplate, proxyTemplate);
+  const templates = new Templates(
+    indexTemplate.toString(),
+    commandTemplate.toString(),
+    proxyTemplate.toString()
+  )
+  mustache.parse(templates.indexTemplate);
+  mustache.parse(templates.commandTemplate);
+  mustache.parse(templates.proxyTemplate);
+  return templates;
 };
 
 const main = async () => {

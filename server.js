@@ -16,11 +16,11 @@ const { HTTP2_HEADER_CACHE_CONTROL, HTTP2_HEADER_CONTENT_TYPE, HTTP2_HEADER_IF_M
 const CONTENT_TYPE_APPLICATION_JSON = 'application/json';
 const CONTENT_TYPE_TEXT_HTML = 'text/html';
 const CONTENT_TYPE_TEXT_PLAIN = 'text/plain';
-const DATE_TIME_FORMAT = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
 const formattedDateTime = () => new Date().toString();
+const LOG_DATE_TIME_FORMAT = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
 const logger = winston.createLogger({
     format: winston.format.combine(winston.format.timestamp({
-        format: DATE_TIME_FORMAT
+        format: LOG_DATE_TIME_FORMAT
     }), winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)),
     transports: [new winston.transports.Console()]
 });
@@ -31,10 +31,9 @@ const readFileAsync = async (filePath, encoding) => {
     let fileHandle;
     try {
         fileHandle = await fs.promises.open(filePath, 'r');
-        const fileContent = await fileHandle.readFile({
+        return await fileHandle.readFile({
             encoding
         });
-        return fileContent.toString();
     }
     finally {
         if (fileHandle) {
@@ -388,14 +387,14 @@ class AsyncServer {
         logger.info(`pathToHandler.size = ${this.pathToHandler.size}`);
     }
     async createHttpServer() {
-        const httpServerConfig = {
-            key: null,
-            cert: null
-        };
-        [httpServerConfig.key, httpServerConfig.cert] = await Promise.all([
+        const [key, cert] = await Promise.all([
             readFileAsync(this.configuration.tlsKeyFile),
             readFileAsync(this.configuration.tlsCertFile)
         ]);
+        const httpServerConfig = {
+            key,
+            cert
+        };
         return http2.createSecureServer(httpServerConfig);
     }
     async start() {
@@ -441,10 +440,11 @@ const readTemplates = async () => {
         readFileAsync('templates/command.mustache', 'utf8'),
         readFileAsync('templates/proxy.mustache', 'utf8')
     ]);
-    mustache.parse(indexTemplate);
-    mustache.parse(commandTemplate);
-    mustache.parse(proxyTemplate);
-    return new Templates(indexTemplate, commandTemplate, proxyTemplate);
+    const templates = new Templates(indexTemplate.toString(), commandTemplate.toString(), proxyTemplate.toString());
+    mustache.parse(templates.indexTemplate);
+    mustache.parse(templates.commandTemplate);
+    mustache.parse(templates.proxyTemplate);
+    return templates;
 };
 const main = async () => {
     if (process.argv.length !== 3) {
