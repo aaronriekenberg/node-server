@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/mustache": "^0.8.32",
-    "@types/node": "^10.12.2",
+    "@types/node": "^10.12.3",
     "agentkeepalive": "^3.5.2",
     "fecha": "^2.3.3",
     "mustache": "^2.3.2",
