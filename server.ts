@@ -195,7 +195,7 @@ interface StaticFile {
   readonly includeInMainPage: boolean;
 }
 
-interface RuntimeConfiguration {
+interface Environment {
   readonly gitCommit: gitResponseTypes.DefaultLogFields;
   readonly NODE_ENV?: string;
   readonly arch: string;
@@ -212,7 +212,6 @@ interface Configuration {
   readonly commandList?: Command[];
   readonly proxyList?: Proxy[];
   readonly staticFileList?: StaticFile[];
-  readonly runtimeConfiguration: RuntimeConfiguration;
 }
 
 class Templates {
@@ -240,14 +239,18 @@ class Handlers {
     };
   }
 
-  static buildIndexHandler(indexTemplate: string, configuration: Configuration): RequestHandler {
+  static buildIndexHandler(
+    indexTemplate: string,
+    configuration: Configuration,
+    environment: Environment): RequestHandler {
 
     const staticFilesInMainPage = (configuration.staticFileList || []).filter((sf) => sf.includeInMainPage);
 
     const indexData = {
       now: formattedDateTime(),
       staticFilesInMainPage,
-      configuration
+      configuration,
+      environment
     };
 
     const indexHtml = mustache.render(indexTemplate, indexData);
@@ -494,6 +497,19 @@ class Handlers {
     };
   }
 
+  static buildEnvironmentHandler(environment: Environment): RequestHandler {
+    const environmentJson = stringifyPretty(environment);
+
+    return (requestContext: RequestContext) => {
+
+      requestContext.writeResponse({
+        [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+        [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
+      },
+        environmentJson);
+    };
+  }
+
   static buildV8StatsHander(): RequestHandler {
     return (requestContext: RequestContext) => {
       const v8Stats = {
@@ -515,7 +531,11 @@ class AsyncServer {
   private readonly notFoundHandler: RequestHandler;
   private readonly pathToHandler: Map<string | undefined, RequestHandler>;
 
-  constructor(private readonly configuration: Configuration, templates: Templates) {
+  constructor(
+    private readonly configuration: Configuration,
+    environment: Environment,
+    templates: Templates) {
+
     this.notFoundHandler = Handlers.buildNotFoundHander();
 
     this.pathToHandler = new Map();
@@ -527,7 +547,7 @@ class AsyncServer {
       this.pathToHandler.set(key, value);
     };
 
-    setOrThrow('/', Handlers.buildIndexHandler(templates.indexTemplate, this.configuration));
+    setOrThrow('/', Handlers.buildIndexHandler(templates.indexTemplate, this.configuration, environment));
 
     (this.configuration.commandList || []).forEach((command) => {
       const apiPath = `/api/commands${command.httpPath}`;
@@ -549,6 +569,7 @@ class AsyncServer {
       (staticFile) => setOrThrow(staticFile.httpPath, Handlers.buildStaticFileHandler(staticFile)));
 
     setOrThrow('/configuration', Handlers.buildConfigurationHandler(this.configuration));
+    setOrThrow('/environment', Handlers.buildEnvironmentHandler(environment));
     setOrThrow('/v8_stats', Handlers.buildV8StatsHander());
 
     logger.info(`pathToHandler.size = ${this.pathToHandler.size}`);
@@ -594,40 +615,37 @@ class AsyncServer {
 
 }
 
+const readConfiguration = async (configFilePath: string) => {
+  logger.info(`readConfiguration '${configFilePath}'`);
+
+  const fileContent = await readFileAsync(configFilePath, 'utf8');
+
+  const configuration = JSON.parse(fileContent.toString()) as Configuration;
+  return configuration;
+};
+
 const getGitCommit = async () => {
-  logger.info('getGitHash');
+  logger.info('getGitCommit');
+
   const gitLog = await git('.').log(['-1']);
+
   return gitLog.latest;
 };
 
-const getRuntimeConfiguration = async () => {
-  logger.info('getRuntimeConfiguration');
+const getEnvironment = async () => {
+  logger.info('getEnvironment');
 
   const gitCommit = await getGitCommit();
 
-  const runtimeConfiguration: RuntimeConfiguration = {
+  const environment: Environment = {
     gitCommit,
     NODE_ENV: process.env.NODE_ENV,
     arch: process.arch,
     platform: process.platform,
     versions: process.versions
   };
-  return runtimeConfiguration;
+  return environment;
 }
-
-const readConfiguration = async (configFilePath: string) => {
-  logger.info(`readConfiguration '${configFilePath}'`);
-
-  const [fileContent, runtimeConfiguration] = await Promise.all([
-    readFileAsync(configFilePath, 'utf8'),
-    getRuntimeConfiguration()
-  ]);
-
-  const configuration = JSON.parse(fileContent.toString());
-  configuration.runtimeConfiguration = runtimeConfiguration;
-
-  return configuration as Configuration;
-};
 
 const readTemplates = async () => {
   logger.info('readTemplates');
@@ -652,14 +670,15 @@ const main = async () => {
     throw new Error('config json path required as command line argument');
   }
 
-  const [configuration, templates] = await Promise.all([
+  const [configuration, environment, templates] = await Promise.all([
     readConfiguration(process.argv[2]),
+    getEnvironment(),
     readTemplates()
   ]);
 
   logger.info(`configuration = ${stringifyPretty(configuration)}`);
 
-  const asyncServer = new AsyncServer(configuration, templates);
+  const asyncServer = new AsyncServer(configuration, environment, templates);
   await asyncServer.start();
 };
 

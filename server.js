@@ -155,12 +155,13 @@ class Handlers {
             }, 'Unknown request');
         };
     }
-    static buildIndexHandler(indexTemplate, configuration) {
+    static buildIndexHandler(indexTemplate, configuration, environment) {
         const staticFilesInMainPage = (configuration.staticFileList || []).filter((sf) => sf.includeInMainPage);
         const indexData = {
             now: formattedDateTime(),
             staticFilesInMainPage,
-            configuration
+            configuration,
+            environment
         };
         const indexHtml = mustache.render(indexTemplate, indexData);
         const lastModifiedValue = new Date().toUTCString();
@@ -355,6 +356,15 @@ class Handlers {
             }, configurationJson);
         };
     }
+    static buildEnvironmentHandler(environment) {
+        const environmentJson = stringifyPretty(environment);
+        return (requestContext) => {
+            requestContext.writeResponse({
+                [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+                [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
+            }, environmentJson);
+        };
+    }
     static buildV8StatsHander() {
         return (requestContext) => {
             const v8Stats = {
@@ -370,7 +380,7 @@ class Handlers {
     }
 }
 class AsyncServer {
-    constructor(configuration, templates) {
+    constructor(configuration, environment, templates) {
         this.configuration = configuration;
         this.notFoundHandler = Handlers.buildNotFoundHander();
         this.pathToHandler = new Map();
@@ -380,7 +390,7 @@ class AsyncServer {
             }
             this.pathToHandler.set(key, value);
         };
-        setOrThrow('/', Handlers.buildIndexHandler(templates.indexTemplate, this.configuration));
+        setOrThrow('/', Handlers.buildIndexHandler(templates.indexTemplate, this.configuration, environment));
         (this.configuration.commandList || []).forEach((command) => {
             const apiPath = `/api/commands${command.httpPath}`;
             setOrThrow(command.httpPath, Handlers.buildCommandHTMLHandler(templates.commandTemplate, command, apiPath));
@@ -396,6 +406,7 @@ class AsyncServer {
         }
         (this.configuration.staticFileList || []).forEach((staticFile) => setOrThrow(staticFile.httpPath, Handlers.buildStaticFileHandler(staticFile)));
         setOrThrow('/configuration', Handlers.buildConfigurationHandler(this.configuration));
+        setOrThrow('/environment', Handlers.buildEnvironmentHandler(environment));
         setOrThrow('/v8_stats', Handlers.buildV8StatsHander());
         logger.info(`pathToHandler.size = ${this.pathToHandler.size}`);
     }
@@ -427,32 +438,28 @@ class AsyncServer {
         });
     }
 }
+const readConfiguration = async (configFilePath) => {
+    logger.info(`readConfiguration '${configFilePath}'`);
+    const fileContent = await readFileAsync(configFilePath, 'utf8');
+    const configuration = JSON.parse(fileContent.toString());
+    return configuration;
+};
 const getGitCommit = async () => {
-    logger.info('getGitHash');
+    logger.info('getGitCommit');
     const gitLog = await git('.').log(['-1']);
     return gitLog.latest;
 };
-const getRuntimeConfiguration = async () => {
-    logger.info('getRuntimeConfiguration');
+const getEnvironment = async () => {
+    logger.info('getEnvironment');
     const gitCommit = await getGitCommit();
-    const runtimeConfiguration = {
+    const environment = {
         gitCommit,
         NODE_ENV: process.env.NODE_ENV,
         arch: process.arch,
         platform: process.platform,
         versions: process.versions
     };
-    return runtimeConfiguration;
-};
-const readConfiguration = async (configFilePath) => {
-    logger.info(`readConfiguration '${configFilePath}'`);
-    const [fileContent, runtimeConfiguration] = await Promise.all([
-        readFileAsync(configFilePath, 'utf8'),
-        getRuntimeConfiguration()
-    ]);
-    const configuration = JSON.parse(fileContent.toString());
-    configuration.runtimeConfiguration = runtimeConfiguration;
-    return configuration;
+    return environment;
 };
 const readTemplates = async () => {
     logger.info('readTemplates');
@@ -469,12 +476,13 @@ const main = async () => {
     if (process.argv.length !== 3) {
         throw new Error('config json path required as command line argument');
     }
-    const [configuration, templates] = await Promise.all([
+    const [configuration, environment, templates] = await Promise.all([
         readConfiguration(process.argv[2]),
+        getEnvironment(),
         readTemplates()
     ]);
     logger.info(`configuration = ${stringifyPretty(configuration)}`);
-    const asyncServer = new AsyncServer(configuration, templates);
+    const asyncServer = new AsyncServer(configuration, environment, templates);
     await asyncServer.start();
 };
 main().catch((err) => {
