@@ -454,7 +454,7 @@ const getEnvironment = async () => {
     const gitCommit = await getGitCommit();
     const environment = {
         gitCommit,
-        NODE_ENV: process.env.NODE_ENV,
+        env: process.env,
         arch: process.arch,
         platform: process.platform,
         versions: process.versions
