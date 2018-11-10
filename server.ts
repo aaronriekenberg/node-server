@@ -611,7 +611,7 @@ const getRuntimeConfiguration = async () => {
     arch: process.arch,
     platform: process.platform,
     versions: process.versions
-  }
+  };
   return runtimeConfiguration;
 }
 
