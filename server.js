@@ -163,12 +163,11 @@ class Handlers {
             environment
         };
         const indexHtml = mustache.render(indexTemplate, indexData);
-        const lastModifiedValue = new Date().toUTCString();
+        const headers = Object.assign({
+            [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+            [HTTP2_HEADER_LAST_MODIFIED]: new Date().toUTCString()
+        }, configuration.templatePageHeaders);
         return (requestContext) => {
-            const headers = Object.assign({
-                [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-                [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue
-            }, configuration.templatePageHeaders);
             requestContext.writeResponse(headers, indexHtml);
         };
     }
@@ -178,12 +177,11 @@ class Handlers {
             command
         };
         const commandHtml = mustache.render(commandTemplate, commandData);
-        const lastModifiedValue = new Date().toUTCString();
+        const headers = Object.assign({
+            [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+            [HTTP2_HEADER_LAST_MODIFIED]: new Date().toUTCString()
+        }, configuration.templatePageHeaders);
         return (requestContext) => {
-            const headers = Object.assign({
-                [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-                [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue
-            }, configuration.templatePageHeaders);
             requestContext.writeResponse(headers, commandHtml);
         };
     }
@@ -226,12 +224,11 @@ class Handlers {
             proxy
         };
         const proxyHtml = mustache.render(proxyTemplate, proxyData);
-        const lastModifiedValue = new Date().toUTCString();
+        const headers = Object.assign({
+            [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+            [HTTP2_HEADER_LAST_MODIFIED]: new Date().toUTCString()
+        }, configuration.templatePageHeaders);
         return (requestContext) => {
-            const headers = Object.assign({
-                [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-                [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue
-            }, configuration.templatePageHeaders);
             requestContext.writeResponse(headers, proxyHtml);
         };
     }
