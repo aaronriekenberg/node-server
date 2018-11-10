@@ -176,6 +176,14 @@ class RequestContext {
 
 }
 
+interface Environment {
+  readonly gitCommit: gitResponseTypes.DefaultLogFields;
+  readonly NODE_ENV?: string;
+  readonly arch: string;
+  readonly platform: NodeJS.Platform;
+  readonly versions: NodeJS.ProcessVersions;
+}
+
 interface Command {
   readonly httpPath: string;
   readonly command: string;
@@ -193,14 +201,6 @@ interface StaticFile {
   readonly filePath: string;
   readonly headers: http2.OutgoingHttpHeaders;
   readonly includeInMainPage: boolean;
-}
-
-interface Environment {
-  readonly gitCommit: gitResponseTypes.DefaultLogFields;
-  readonly NODE_ENV?: string;
-  readonly arch: string;
-  readonly platform: NodeJS.Platform;
-  readonly versions: NodeJS.ProcessVersions;
 }
 
 interface Configuration {
