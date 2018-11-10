@@ -198,6 +198,9 @@ interface StaticFile {
 interface RuntimeConfiguration {
   readonly gitCommit: gitResponseTypes.DefaultLogFields;
   readonly NODE_ENV?: string;
+  readonly arch: string;
+  readonly platform: NodeJS.Platform;
+  readonly versions: NodeJS.ProcessVersions;
 }
 
 interface Configuration {
@@ -604,7 +607,10 @@ const getRuntimeConfiguration = async () => {
 
   const runtimeConfiguration: RuntimeConfiguration = {
     gitCommit,
-    NODE_ENV: process.env.NODE_ENV
+    NODE_ENV: process.env.NODE_ENV,
+    arch: process.arch,
+    platform: process.platform,
+    versions: process.versions
   }
   return runtimeConfiguration;
 }

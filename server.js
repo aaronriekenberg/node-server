@@ -437,7 +437,10 @@ const getRuntimeConfiguration = async () => {
     const gitCommit = await getGitCommit();
     const runtimeConfiguration = {
         gitCommit,
-        NODE_ENV: process.env.NODE_ENV
+        NODE_ENV: process.env.NODE_ENV,
+        arch: process.arch,
+        platform: process.platform,
+        versions: process.versions
     };
     return runtimeConfiguration;
 };
