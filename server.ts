@@ -176,44 +176,46 @@ class RequestContext {
 }
 
 interface Command {
-  httpPath: string;
-  command: string;
-  description: string;
+  readonly httpPath: string;
+  readonly command: string;
+  readonly description: string;
 }
 
 interface Proxy {
-  httpPath: string;
-  description: string;
-  options: http.RequestOptions;
+  readonly httpPath: string;
+  readonly description: string;
+  readonly options: http.RequestOptions;
 }
 
 interface StaticFile {
-  httpPath: string;
-  filePath: string;
-  headers: http2.OutgoingHttpHeaders;
-  includeInMainPage: boolean;
+  readonly httpPath: string;
+  readonly filePath: string;
+  readonly headers: http2.OutgoingHttpHeaders;
+  readonly includeInMainPage: boolean;
+}
+
+interface RuntimeConfiguration {
+  readonly gitHash: string;
+  readonly NODE_ENV?: string;
 }
 
 interface Configuration {
-  tlsKeyFile: string;
-  tlsCertFile: string;
-  listenAddress: string;
-  listenPort: string;
-  mainPageTitle: string;
-  commandList?: Command[];
-  proxyList?: Proxy[];
-  staticFileList?: StaticFile[];
-  gitHash: string;
-  NODE_ENV?: string;
+  readonly tlsKeyFile: string;
+  readonly tlsCertFile: string;
+  readonly listenAddress: string;
+  readonly listenPort: string;
+  readonly mainPageTitle: string;
+  readonly commandList?: Command[];
+  readonly proxyList?: Proxy[];
+  readonly staticFileList?: StaticFile[];
+  readonly runtimeConfiguration: RuntimeConfiguration;
 }
 
 class Templates {
   constructor(
     readonly indexTemplate: string,
     readonly commandTemplate: string,
-    readonly proxyTemplate: string) {
-
-  }
+    readonly proxyTemplate: string) { }
 
   get allTemplates() {
     return [this.indexTemplate, this.commandTemplate, this.proxyTemplate];
@@ -601,11 +603,16 @@ const readConfiguration = async (configFilePath: string) => {
     getGitHash()
   ]);
 
-  const configuration = JSON.parse(fileContent.toString()) as Configuration;
-  configuration.gitHash = gitHash;
-  configuration.NODE_ENV = process.env.NODE_ENV;
+  const configuration = JSON.parse(fileContent.toString());
 
-  return configuration;
+  const runtimeConfiguration: RuntimeConfiguration = {
+    gitHash,
+    NODE_ENV: process.env.NODE_ENV
+  }
+
+  configuration.runtimeConfiguration = runtimeConfiguration;
+
+  return configuration as Configuration;
 };
 
 const readTemplates = async () => {

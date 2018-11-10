@@ -439,8 +439,11 @@ const readConfiguration = async (configFilePath) => {
         getGitHash()
     ]);
     const configuration = JSON.parse(fileContent.toString());
-    configuration.gitHash = gitHash;
-    configuration.NODE_ENV = process.env.NODE_ENV;
+    const runtimeConfiguration = {
+        gitHash,
+        NODE_ENV: process.env.NODE_ENV
+    };
+    configuration.runtimeConfiguration = runtimeConfiguration;
     return configuration;
 };
 const readTemplates = async () => {
