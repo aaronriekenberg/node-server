@@ -432,17 +432,22 @@ const getGitHash = async () => {
     const gitLog = await git('.').log(['-1']);
     return gitLog.latest.hash;
 };
-const readConfiguration = async (configFilePath) => {
-    logger.info(`readConfiguration '${configFilePath}'`);
-    const [fileContent, gitHash] = await Promise.all([
-        readFileAsync(configFilePath, 'utf8'),
-        getGitHash()
-    ]);
-    const configuration = JSON.parse(fileContent.toString());
+const getRuntimeConfiguration = async () => {
+    logger.info('getRuntimeConfiguration');
+    const gitHash = await getGitHash();
     const runtimeConfiguration = {
         gitHash,
         NODE_ENV: process.env.NODE_ENV
     };
+    return runtimeConfiguration;
+};
+const readConfiguration = async (configFilePath) => {
+    logger.info(`readConfiguration '${configFilePath}'`);
+    const [fileContent, runtimeConfiguration] = await Promise.all([
+        readFileAsync(configFilePath, 'utf8'),
+        getRuntimeConfiguration()
+    ]);
+    const configuration = JSON.parse(fileContent.toString());
     configuration.runtimeConfiguration = runtimeConfiguration;
     return configuration;
 };

@@ -596,20 +596,27 @@ const getGitHash = async () => {
   return gitLog.latest.hash;
 };
 
-const readConfiguration = async (configFilePath: string) => {
-  logger.info(`readConfiguration '${configFilePath}'`);
-  const [fileContent, gitHash] = await Promise.all([
-    readFileAsync(configFilePath, 'utf8'),
-    getGitHash()
-  ]);
+const getRuntimeConfiguration = async () => {
+  logger.info('getRuntimeConfiguration');
 
-  const configuration = JSON.parse(fileContent.toString());
+  const gitHash = await getGitHash();
 
   const runtimeConfiguration: RuntimeConfiguration = {
     gitHash,
     NODE_ENV: process.env.NODE_ENV
   }
+  return runtimeConfiguration;
+}
 
+const readConfiguration = async (configFilePath: string) => {
+  logger.info(`readConfiguration '${configFilePath}'`);
+
+  const [fileContent, runtimeConfiguration] = await Promise.all([
+    readFileAsync(configFilePath, 'utf8'),
+    getRuntimeConfiguration()
+  ]);
+
+  const configuration = JSON.parse(fileContent.toString());
   configuration.runtimeConfiguration = runtimeConfiguration;
 
   return configuration as Configuration;
@@ -617,11 +624,13 @@ const readConfiguration = async (configFilePath: string) => {
 
 const readTemplates = async () => {
   logger.info('readTemplates');
+
   const [indexTemplate, commandTemplate, proxyTemplate] = await Promise.all([
     readFileAsync('templates/index.mustache', 'utf8'),
     readFileAsync('templates/command.mustache', 'utf8'),
     readFileAsync('templates/proxy.mustache', 'utf8')
   ]);
+
   const templates = new Templates(
     indexTemplate.toString(),
     commandTemplate.toString(),
