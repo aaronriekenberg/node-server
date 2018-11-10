@@ -427,16 +427,16 @@ class AsyncServer {
         });
     }
 }
-const getGitHash = async () => {
+const getGitCommit = async () => {
     logger.info('getGitHash');
     const gitLog = await git('.').log(['-1']);
-    return gitLog.latest.hash;
+    return gitLog.latest;
 };
 const getRuntimeConfiguration = async () => {
     logger.info('getRuntimeConfiguration');
-    const gitHash = await getGitHash();
+    const gitCommit = await getGitCommit();
     const runtimeConfiguration = {
-        gitHash,
+        gitCommit,
         NODE_ENV: process.env.NODE_ENV
     };
     return runtimeConfiguration;

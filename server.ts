@@ -4,6 +4,7 @@ import * as agentkeepalive from 'agentkeepalive'
 import * as child_process from 'child_process'
 import * as fs from 'fs'
 import * as git from 'simple-git/promise'
+import * as gitResponseTypes from 'simple-git/typings/response';
 import * as http from 'http'
 import * as http2 from 'http2'
 import * as mustache from 'mustache'
@@ -195,7 +196,7 @@ interface StaticFile {
 }
 
 interface RuntimeConfiguration {
-  readonly gitHash: string;
+  readonly gitCommit: gitResponseTypes.DefaultLogFields;
   readonly NODE_ENV?: string;
 }
 
@@ -590,19 +591,19 @@ class AsyncServer {
 
 }
 
-const getGitHash = async () => {
+const getGitCommit = async () => {
   logger.info('getGitHash');
   const gitLog = await git('.').log(['-1']);
-  return gitLog.latest.hash;
+  return gitLog.latest;
 };
 
 const getRuntimeConfiguration = async () => {
   logger.info('getRuntimeConfiguration');
 
-  const gitHash = await getGitHash();
+  const gitCommit = await getGitCommit();
 
   const runtimeConfiguration: RuntimeConfiguration = {
-    gitHash,
+    gitCommit,
     NODE_ENV: process.env.NODE_ENV
   }
   return runtimeConfiguration;
