@@ -5,6 +5,7 @@
   "listenPort": "8000",
   "mainPageTitle": "Aaron's Raspberry Pi",
   "templatePageHeaders": {
+    "content-type": "text/html",
     "cache-control": "max-age=60"
   },
   "commandList": [

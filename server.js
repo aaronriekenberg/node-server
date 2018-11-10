@@ -14,7 +14,6 @@ const winston = require("winston");
 const asyncExec = util.promisify(child_process.exec);
 const { HTTP2_HEADER_CONTENT_TYPE, HTTP2_HEADER_IF_MODIFIED_SINCE, HTTP2_HEADER_LAST_MODIFIED, HTTP2_HEADER_METHOD, HTTP2_HEADER_PATH, HTTP2_HEADER_STATUS, HTTP2_METHOD_GET, HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_NOT_MODIFIED, HTTP_STATUS_OK } = http2.constants;
 const CONTENT_TYPE_APPLICATION_JSON = 'application/json';
-const CONTENT_TYPE_TEXT_HTML = 'text/html';
 const CONTENT_TYPE_TEXT_PLAIN = 'text/plain';
 const formattedDateTime = () => new Date().toString();
 const LOG_DATE_TIME_FORMAT = 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ';
@@ -168,7 +167,6 @@ class Handlers {
         return (requestContext) => {
             const headers = Object.assign({
                 [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-                [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML,
                 [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue
             }, configuration.templatePageHeaders);
             requestContext.writeResponse(headers, indexHtml);
@@ -184,7 +182,6 @@ class Handlers {
         return (requestContext) => {
             const headers = Object.assign({
                 [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-                [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML,
                 [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue
             }, configuration.templatePageHeaders);
             requestContext.writeResponse(headers, commandHtml);
@@ -233,7 +230,6 @@ class Handlers {
         return (requestContext) => {
             const headers = Object.assign({
                 [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-                [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML,
                 [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue
             }, configuration.templatePageHeaders);
             requestContext.writeResponse(headers, proxyHtml);

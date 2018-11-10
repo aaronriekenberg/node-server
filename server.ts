@@ -29,7 +29,6 @@ const {
 } = http2.constants;
 
 const CONTENT_TYPE_APPLICATION_JSON = 'application/json';
-const CONTENT_TYPE_TEXT_HTML = 'text/html';
 const CONTENT_TYPE_TEXT_PLAIN = 'text/plain';
 
 const formattedDateTime = () => new Date().toString();
@@ -260,7 +259,6 @@ class Handlers {
     return (requestContext: RequestContext) => {
       const headers = Object.assign({
         [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-        [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML,
         [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue
       },
         configuration.templatePageHeaders)
@@ -289,7 +287,6 @@ class Handlers {
     return (requestContext: RequestContext) => {
       const headers = Object.assign({
         [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-        [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML,
         [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue
       },
         configuration.templatePageHeaders)
@@ -356,7 +353,6 @@ class Handlers {
     return (requestContext: RequestContext) => {
       const headers = Object.assign({
         [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-        [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML,
         [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue
       },
         configuration.templatePageHeaders)
