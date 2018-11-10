@@ -7,7 +7,8 @@
   "templatePageHeaders": {
     "cache-control": "max-age=60"
   },
-  "commandList": [{
+  "commandList": [
+    {
       "httpPath": "/arp",
       "command": "/usr/sbin/arp -an",
       "description": "arp"
@@ -103,7 +104,8 @@
       "description": "w"
     }
   ],
-  "staticFileList": [{
+  "staticFileList": [
+    {
       "httpPath": "/style.css",
       "filePath": "static/style.css",
       "headers": {

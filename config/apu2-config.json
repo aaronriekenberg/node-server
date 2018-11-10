@@ -7,7 +7,8 @@
   "templatePageHeaders": {
     "cache-control": "max-age=60"
   },
-  "commandList": [{
+  "commandList": [
+    {
       "httpPath": "/arp",
       "command": "/usr/sbin/arp -an",
       "description": "arp"
@@ -108,17 +109,20 @@
       "description": "w"
     }
   ],
-  "proxyList": [{
-    "httpPath": "/coredns_metrics",
-    "description": "coredns metrics",
-    "options": {
-      "hostname": "localhost",
-      "port": 9153,
-      "path": "/metrics",
-      "method": "GET"
+  "proxyList": [
+    {
+      "httpPath": "/coredns_metrics",
+      "description": "coredns metrics",
+      "options": {
+        "hostname": "localhost",
+        "port": 9153,
+        "path": "/metrics",
+        "method": "GET"
+      }
     }
-  }],
-  "staticFileList": [{
+  ],
+  "staticFileList": [
+    {
       "httpPath": "/style.css",
       "filePath": "static/style.css",
       "headers": {

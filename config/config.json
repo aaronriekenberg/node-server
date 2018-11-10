@@ -7,7 +7,8 @@
   "templatePageHeaders": {
     "cache-control": "max-age=60"
   },
-  "commandList": [{
+  "commandList": [
+    {
       "httpPath": "/ifconfig",
       "command": "/sbin/ifconfig",
       "description": "ifconfig"
@@ -33,7 +34,8 @@
       "description": "w"
     }
   ],
-  "proxyList": [{
+  "proxyList": [
+    {
       "httpPath": "/test_proxy",
       "description": "test proxy",
       "options": {
@@ -54,13 +56,15 @@
       }
     }
   ],
-  "staticFileList": [{
-    "httpPath": "/style.css",
-    "filePath": "static/style.css",
-    "headers": {
-      "content-type": "text/css",
-      "cache-control": "max-age=5"
-    },
-    "includeInMainPage": false
-  }]
+  "staticFileList": [
+    {
+      "httpPath": "/style.css",
+      "filePath": "static/style.css",
+      "headers": {
+        "content-type": "text/css",
+        "cache-control": "max-age=5"
+      },
+      "includeInMainPage": false
+    }
+  ]
 }
