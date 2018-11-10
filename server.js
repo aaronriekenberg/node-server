@@ -12,7 +12,7 @@ const util = require("util");
 const v8 = require("v8");
 const winston = require("winston");
 const asyncExec = util.promisify(child_process.exec);
-const { HTTP2_HEADER_CACHE_CONTROL, HTTP2_HEADER_CONTENT_TYPE, HTTP2_HEADER_IF_MODIFIED_SINCE, HTTP2_HEADER_LAST_MODIFIED, HTTP2_HEADER_METHOD, HTTP2_HEADER_PATH, HTTP2_HEADER_STATUS, HTTP2_METHOD_GET, HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_NOT_MODIFIED, HTTP_STATUS_OK } = http2.constants;
+const { HTTP2_HEADER_CONTENT_TYPE, HTTP2_HEADER_IF_MODIFIED_SINCE, HTTP2_HEADER_LAST_MODIFIED, HTTP2_HEADER_METHOD, HTTP2_HEADER_PATH, HTTP2_HEADER_STATUS, HTTP2_METHOD_GET, HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_NOT_MODIFIED, HTTP_STATUS_OK } = http2.constants;
 const CONTENT_TYPE_APPLICATION_JSON = 'application/json';
 const CONTENT_TYPE_TEXT_HTML = 'text/html';
 const CONTENT_TYPE_TEXT_PLAIN = 'text/plain';
@@ -165,31 +165,29 @@ class Handlers {
         };
         const indexHtml = mustache.render(indexTemplate, indexData);
         const lastModifiedValue = new Date().toUTCString();
-        const cacheControlValue = 'max-age=60';
         return (requestContext) => {
-            requestContext.writeResponse({
+            const headers = Object.assign({
                 [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
                 [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML,
-                [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue,
-                [HTTP2_HEADER_CACHE_CONTROL]: cacheControlValue
-            }, indexHtml);
+                [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue
+            }, configuration.templatePageHeaders);
+            requestContext.writeResponse(headers, indexHtml);
         };
     }
-    static buildCommandHTMLHandler(commandTemplate, command, apiPath) {
+    static buildCommandHTMLHandler(commandTemplate, configuration, command, apiPath) {
         const commandData = {
             apiPath,
             command
         };
         const commandHtml = mustache.render(commandTemplate, commandData);
         const lastModifiedValue = new Date().toUTCString();
-        const cacheControlValue = 'max-age=60';
         return (requestContext) => {
-            requestContext.writeResponse({
+            const headers = Object.assign({
                 [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
                 [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML,
-                [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue,
-                [HTTP2_HEADER_CACHE_CONTROL]: cacheControlValue
-            }, commandHtml);
+                [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue
+            }, configuration.templatePageHeaders);
+            requestContext.writeResponse(headers, commandHtml);
         };
     }
     static buildCommandAPIHandler(command) {
@@ -225,21 +223,20 @@ class Handlers {
             }, stringify(commandData));
         };
     }
-    static buildProxyHTMLHandler(proxyTemplate, proxy, apiPath) {
+    static buildProxyHTMLHandler(proxyTemplate, configuration, proxy, apiPath) {
         const proxyData = {
             apiPath,
             proxy
         };
         const proxyHtml = mustache.render(proxyTemplate, proxyData);
         const lastModifiedValue = new Date().toUTCString();
-        const cacheControlValue = 'max-age=60';
         return (requestContext) => {
-            requestContext.writeResponse({
+            const headers = Object.assign({
                 [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
                 [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML,
-                [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue,
-                [HTTP2_HEADER_CACHE_CONTROL]: cacheControlValue
-            }, proxyHtml);
+                [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue
+            }, configuration.templatePageHeaders);
+            requestContext.writeResponse(headers, proxyHtml);
         };
     }
     static buildProxyAPIHandler(proxy) {
@@ -390,22 +387,22 @@ class AsyncServer {
             }
             this.pathToHandler.set(key, value);
         };
-        setOrThrow('/', Handlers.buildIndexHandler(templates.indexTemplate, this.configuration, environment));
+        setOrThrow('/', Handlers.buildIndexHandler(templates.indexTemplate, configuration, environment));
         (this.configuration.commandList || []).forEach((command) => {
             const apiPath = `/api/commands${command.httpPath}`;
-            setOrThrow(command.httpPath, Handlers.buildCommandHTMLHandler(templates.commandTemplate, command, apiPath));
+            setOrThrow(command.httpPath, Handlers.buildCommandHTMLHandler(templates.commandTemplate, configuration, command, apiPath));
             setOrThrow(apiPath, Handlers.buildCommandAPIHandler(command));
         });
         (this.configuration.proxyList || []).forEach((proxy) => {
             const apiPath = `/api/proxies${proxy.httpPath}`;
-            setOrThrow(proxy.httpPath, Handlers.buildProxyHTMLHandler(templates.proxyTemplate, proxy, apiPath));
+            setOrThrow(proxy.httpPath, Handlers.buildProxyHTMLHandler(templates.proxyTemplate, configuration, proxy, apiPath));
             setOrThrow(apiPath, Handlers.buildProxyAPIHandler(proxy));
         });
         if (this.configuration.proxyList) {
             setOrThrow('/http_agent_status', Handlers.buildHttpAgentStatusHandler());
         }
         (this.configuration.staticFileList || []).forEach((staticFile) => setOrThrow(staticFile.httpPath, Handlers.buildStaticFileHandler(staticFile)));
-        setOrThrow('/configuration', Handlers.buildConfigurationHandler(this.configuration));
+        setOrThrow('/configuration', Handlers.buildConfigurationHandler(configuration));
         setOrThrow('/environment', Handlers.buildEnvironmentHandler(environment));
         setOrThrow('/v8_stats', Handlers.buildV8StatsHander());
         logger.info(`pathToHandler.size = ${this.pathToHandler.size}`);

@@ -4,6 +4,9 @@
   "listenAddress": "127.0.0.1",
   "listenPort": "8000",
   "mainPageTitle": "JS Server",
+  "templatePageHeaders": {
+    "cache-control": "max-age=60"
+  },
   "commandList": [{
       "httpPath": "/ifconfig",
       "command": "/sbin/ifconfig",

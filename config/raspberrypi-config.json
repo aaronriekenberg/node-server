@@ -4,6 +4,9 @@
   "listenAddress": "0.0.0.0",
   "listenPort": "8000",
   "mainPageTitle": "Aaron's Raspberry Pi",
+  "templatePageHeaders": {
+    "cache-control": "max-age=60"
+  },
   "commandList": [{
       "httpPath": "/arp",
       "command": "/usr/sbin/arp -an",

@@ -4,6 +4,9 @@
   "listenAddress": "192.168.1.1",
   "listenPort": "8000",
   "mainPageTitle": "Aaron's APU2",
+  "templatePageHeaders": {
+    "cache-control": "max-age=60"
+  },
   "commandList": [{
       "httpPath": "/arp",
       "command": "/usr/sbin/arp -an",

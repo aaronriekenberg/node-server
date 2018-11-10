@@ -15,7 +15,6 @@ import * as winston from 'winston'
 const asyncExec = util.promisify(child_process.exec);
 
 const {
-  HTTP2_HEADER_CACHE_CONTROL,
   HTTP2_HEADER_CONTENT_TYPE,
   HTTP2_HEADER_IF_MODIFIED_SINCE,
   HTTP2_HEADER_LAST_MODIFIED,
@@ -209,6 +208,7 @@ interface Configuration {
   readonly listenAddress: string;
   readonly listenPort: string;
   readonly mainPageTitle: string;
+  readonly templatePageHeaders: http2.OutgoingHttpHeaders;
   readonly commandList?: Command[];
   readonly proxyList?: Proxy[];
   readonly staticFileList?: StaticFile[];
@@ -256,20 +256,26 @@ class Handlers {
     const indexHtml = mustache.render(indexTemplate, indexData);
 
     const lastModifiedValue = new Date().toUTCString();
-    const cacheControlValue = 'max-age=60';
 
     return (requestContext: RequestContext) => {
-      requestContext.writeResponse({
+      const headers = Object.assign({
         [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
         [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML,
-        [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue,
-        [HTTP2_HEADER_CACHE_CONTROL]: cacheControlValue
+        [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue
       },
+        configuration.templatePageHeaders)
+
+      requestContext.writeResponse(
+        headers,
         indexHtml);
     };
   }
 
-  static buildCommandHTMLHandler(commandTemplate: string, command: Command, apiPath: string): RequestHandler {
+  static buildCommandHTMLHandler(
+    commandTemplate: string,
+    configuration: Configuration,
+    command: Command,
+    apiPath: string): RequestHandler {
 
     const commandData = {
       apiPath,
@@ -279,15 +285,17 @@ class Handlers {
     const commandHtml = mustache.render(commandTemplate, commandData);
 
     const lastModifiedValue = new Date().toUTCString();
-    const cacheControlValue = 'max-age=60';
 
     return (requestContext: RequestContext) => {
-      requestContext.writeResponse({
+      const headers = Object.assign({
         [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
         [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML,
-        [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue,
-        [HTTP2_HEADER_CACHE_CONTROL]: cacheControlValue
+        [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue
       },
+        configuration.templatePageHeaders)
+
+      requestContext.writeResponse(
+        headers,
         commandHtml);
     };
   }
@@ -330,7 +338,11 @@ class Handlers {
     };
   }
 
-  static buildProxyHTMLHandler(proxyTemplate: string, proxy: Proxy, apiPath: string): RequestHandler {
+  static buildProxyHTMLHandler(
+    proxyTemplate: string,
+    configuration: Configuration,
+    proxy: Proxy,
+    apiPath: string): RequestHandler {
 
     const proxyData = {
       apiPath,
@@ -340,15 +352,17 @@ class Handlers {
     const proxyHtml = mustache.render(proxyTemplate, proxyData);
 
     const lastModifiedValue = new Date().toUTCString();
-    const cacheControlValue = 'max-age=60';
 
     return (requestContext: RequestContext) => {
-      requestContext.writeResponse({
+      const headers = Object.assign({
         [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
         [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_HTML,
-        [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue,
-        [HTTP2_HEADER_CACHE_CONTROL]: cacheControlValue
+        [HTTP2_HEADER_LAST_MODIFIED]: lastModifiedValue
       },
+        configuration.templatePageHeaders)
+
+      requestContext.writeResponse(
+        headers,
         proxyHtml);
     };
   }
@@ -547,17 +561,20 @@ class AsyncServer {
       this.pathToHandler.set(key, value);
     };
 
-    setOrThrow('/', Handlers.buildIndexHandler(templates.indexTemplate, this.configuration, environment));
+    setOrThrow('/', Handlers.buildIndexHandler(
+      templates.indexTemplate, configuration, environment));
 
     (this.configuration.commandList || []).forEach((command) => {
       const apiPath = `/api/commands${command.httpPath}`;
-      setOrThrow(command.httpPath, Handlers.buildCommandHTMLHandler(templates.commandTemplate, command, apiPath));
+      setOrThrow(command.httpPath, Handlers.buildCommandHTMLHandler(
+        templates.commandTemplate, configuration, command, apiPath));
       setOrThrow(apiPath, Handlers.buildCommandAPIHandler(command));
     });
 
     (this.configuration.proxyList || []).forEach((proxy) => {
       const apiPath = `/api/proxies${proxy.httpPath}`;
-      setOrThrow(proxy.httpPath, Handlers.buildProxyHTMLHandler(templates.proxyTemplate, proxy, apiPath));
+      setOrThrow(proxy.httpPath, Handlers.buildProxyHTMLHandler(
+        templates.proxyTemplate, configuration, proxy, apiPath));
       setOrThrow(apiPath, Handlers.buildProxyAPIHandler(proxy));
     });
 
@@ -568,7 +585,7 @@ class AsyncServer {
     (this.configuration.staticFileList || []).forEach(
       (staticFile) => setOrThrow(staticFile.httpPath, Handlers.buildStaticFileHandler(staticFile)));
 
-    setOrThrow('/configuration', Handlers.buildConfigurationHandler(this.configuration));
+    setOrThrow('/configuration', Handlers.buildConfigurationHandler(configuration));
     setOrThrow('/environment', Handlers.buildEnvironmentHandler(environment));
     setOrThrow('/v8_stats', Handlers.buildV8StatsHander());
 
