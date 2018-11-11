@@ -11,6 +11,7 @@ import * as mustache from 'mustache'
 import * as util from 'util'
 import * as v8 from 'v8'
 import * as winston from 'winston'
+import { ListenOptions } from 'net';
 
 const asyncExec = util.promisify(child_process.exec);
 
@@ -205,7 +206,7 @@ interface Configuration {
   readonly tlsKeyFile: string;
   readonly tlsCertFile: string;
   readonly listenAddress: string;
-  readonly listenPort: string;
+  readonly listenPort: number;
   readonly mainPageTitle: string;
   readonly templatePageHeaders: http2.OutgoingHttpHeaders;
   readonly commandList?: Command[];
@@ -617,7 +618,7 @@ class AsyncServer {
     httpServer.listen({
       host: this.configuration.listenAddress,
       port: this.configuration.listenPort
-    });
+    } as ListenOptions);
   }
 
 }
