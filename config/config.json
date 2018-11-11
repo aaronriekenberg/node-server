@@ -66,6 +66,24 @@
         "cache-control": "max-age=5"
       },
       "includeInMainPage": false
+    },
+    {
+      "httpPath": "/command.js",
+      "filePath": "static/command.js",
+      "headers": {
+        "content-type": "application/javascript",
+        "cache-control": "max-age=5"
+      },
+      "includeInMainPage": false
+    },
+    {
+      "httpPath": "/proxy.js",
+      "filePath": "static/proxy.js",
+      "headers": {
+        "content-type": "application/javascript",
+        "cache-control": "max-age=5"
+      },
+      "includeInMainPage": false
     }
   ]
 }

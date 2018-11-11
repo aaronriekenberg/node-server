@@ -4,67 +4,11 @@
 <head>
   <title>{{command.description}}</title>
   <meta name="viewport" content="width=device, initial-scale=1" />
-  <link rel="stylesheet" type="text/css" href="style.css" />
-
-  <script>
-
-    const stringify = JSON.stringify;
-    const stringifyPretty = (object) => stringify(object, null, 2);
-
-    const xRequest = new XMLHttpRequest();
-
-    const updatePre = (text) => {
-      const preCollection = document.getElementsByTagName('pre');
-      for (i = 0; i < preCollection.length; ++i) {
-        preCollection[i].innerText = text;
-      }
-    };
-
-    xRequest.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        const jsonObject = JSON.parse(xRequest.responseText);
-        const response = jsonObject.proxyResponse;
-        let preText = `Now: ${jsonObject.now}\n\n`;
-        preText += `${jsonObject.proxy.options.method} ${jsonObject.proxy.options.hostname}:${jsonObject.proxy.options.port}${jsonObject.proxy.options.path}\n\n`;
-        preText += `Response Status: HTTP/${response.version} ${response.statusCode}\n\n`;
-        preText += `Response Headers:\n${stringifyPretty(response.headers)}\n\n`;
-        preText += response.data;
-        updatePre(preText);
-      }
-    };
-
-    const requestData = () => {
-      xRequest.open('GET', '{{&apiPath}}', true);
-      xRequest.setRequestHeader('Accept', 'application/json');
-      xRequest.send();
-    };
-
-    const setTimer = () => {
-      const checkbox = document.getElementById('autoRefresh');
-
-      setInterval(() => {
-        if (checkbox.checked) {
-          requestData();
-        }
-      }, 1000);
-    };
-
-    const onload = () => {
-      let preText = `Now: ${new Date()}\n\n`;
-      preText += '{{&proxy.options.method}} {{&proxy.options.hostname}}:{{&proxy.options.port}}{{&proxy.options.path}}\n\n';
-      preText += 'Response Status:\n\n';
-      preText += 'Response Headers:';
-      updatePre(preText);
-
-      requestData();
-
-      setTimer();
-    };
-
-  </script>
+  <link rel="stylesheet" type="text/css" href="/style.css" />
+  <script src="/proxy.js"></script>
 </head>
 
-<body onload="onload()">
+<body onload="onload('{{&proxy.options.method}} {{&proxy.options.hostname}}:{{&proxy.options.port}}{{&proxy.options.path}}', '{{&apiPath}}')">
 
 <div>
   <a href="..">..</a>

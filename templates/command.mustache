@@ -4,61 +4,11 @@
 <head>
   <title>{{command.description}}</title>
   <meta name="viewport" content="width=device, initial-scale=1" />
-  <link rel="stylesheet" type="text/css" href="style.css" />
-
-  <script>
-
-    const xRequest = new XMLHttpRequest();
-
-    const updatePre = (text) => {
-      const preCollection = document.getElementsByTagName('pre');
-      for (i = 0; i < preCollection.length; ++i) {
-        preCollection[i].innerText = text;
-      }
-    };
-
-    xRequest.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        const responseObject = JSON.parse(xRequest.responseText);
-        let preText = `Now: ${responseObject.now}\n\n`;
-        preText += `$ ${responseObject.command.command}\n\n`;
-        preText += responseObject.commandOutput;
-        updatePre(preText);
-      }
-    };
-
-    const requestData = () => {
-      xRequest.open('GET', '{{&apiPath}}', true);
-      xRequest.setRequestHeader('Accept', 'application/json');
-      xRequest.send();
-    };
-
-    const setTimer = () => {
-      const checkbox = document.getElementById('autoRefresh');
-
-      setInterval(() => {
-        if (checkbox.checked) {
-          requestData();
-        }
-      }, 1000);
-    };
-
-    const onload = () => {
-      let preText = `Now: ${new Date()}\n\n`;
-      preText += '$ {{&command.command}}';
-      updatePre(preText);
-
-      requestData();
-
-      setTimer();
-    };
-
-  </script>
+  <link rel="stylesheet" type="text/css" href="/style.css" />
+  <script src="/command.js"></script>
 </head>
 
-</head>
-
-<body onload="onload()">
+<body onload="onload('{{&command.command}}', '{{&apiPath}}')">
 
 <div>
   <a href="..">..</a>
