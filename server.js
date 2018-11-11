@@ -422,10 +422,11 @@ class AsyncServer {
                 this.notFoundHandler);
             handler(requestContext);
         });
-        httpServer.listen({
+        const listenOptions = {
             host: this.configuration.listenAddress,
             port: this.configuration.listenPort
-        });
+        };
+        httpServer.listen(listenOptions);
     }
 }
 const readConfiguration = async (configFilePath) => {

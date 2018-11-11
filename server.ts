@@ -588,7 +588,7 @@ class AsyncServer {
       readFileAsync(this.configuration.tlsKeyFile),
       readFileAsync(this.configuration.tlsCertFile)
     ]);
-    const httpServerConfig = {
+    const httpServerConfig: http2.SecureServerOptions = {
       key,
       cert
     };
@@ -615,10 +615,11 @@ class AsyncServer {
 
     });
 
-    httpServer.listen({
+    const listenOptions: ListenOptions = {
       host: this.configuration.listenAddress,
       port: this.configuration.listenPort
-    } as ListenOptions);
+    };
+    httpServer.listen(listenOptions);
   }
 
 }
