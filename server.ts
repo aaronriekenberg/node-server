@@ -230,11 +230,15 @@ type RequestHandler = (requestContext: RequestContext) => void;
 class Handlers {
 
   static buildNotFoundHander(): RequestHandler {
+
+    const headers = {
+      [HTTP2_HEADER_STATUS]: HTTP_STATUS_NOT_FOUND,
+      [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
+    };
+
     return (requestContext: RequestContext) => {
-      requestContext.writeResponse({
-        [HTTP2_HEADER_STATUS]: HTTP_STATUS_NOT_FOUND,
-        [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
-      },
+      requestContext.writeResponse(
+        headers,
         'Unknown request');
     };
   }

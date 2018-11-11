@@ -147,11 +147,12 @@ class Templates {
 }
 class Handlers {
     static buildNotFoundHander() {
+        const headers = {
+            [HTTP2_HEADER_STATUS]: HTTP_STATUS_NOT_FOUND,
+            [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
+        };
         return (requestContext) => {
-            requestContext.writeResponse({
-                [HTTP2_HEADER_STATUS]: HTTP_STATUS_NOT_FOUND,
-                [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
-            }, 'Unknown request');
+            requestContext.writeResponse(headers, 'Unknown request');
         };
     }
     static buildIndexHandler(indexTemplate, configuration, environment) {
