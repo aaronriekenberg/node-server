@@ -177,6 +177,7 @@ class RequestContext {
 
 interface Environment {
   readonly gitCommit: gitResponseTypes.DefaultLogFields;
+  readonly argv: string[],
   readonly env: NodeJS.ProcessEnv;
   readonly arch: string;
   readonly platform: NodeJS.Platform;
@@ -652,6 +653,7 @@ const getEnvironment = async () => {
 
   const environment: Environment = {
     gitCommit,
+    argv: process.argv,
     env: process.env,
     arch: process.arch,
     platform: process.platform,
