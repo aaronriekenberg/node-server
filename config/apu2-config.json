@@ -151,6 +151,15 @@
       "includeInMainPage": false
     },
     {
+      "httpPath": "/favicon.ico",
+      "filePath": "static/debian-favicon.ico",
+      "headers": {
+        "content-type": "image/x-icon",
+        "cache-control": "public, max-age=60"
+      },
+      "includeInMainPage": false
+    },
+    {
       "httpPath": "/vnstat/index.html",
       "filePath": "/home/aaron/vnstat/index.html",
       "headers": {

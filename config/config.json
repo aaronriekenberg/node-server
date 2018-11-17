@@ -84,6 +84,15 @@
         "cache-control": "public, max-age=5"
       },
       "includeInMainPage": false
+    },
+    {
+      "httpPath": "/favicon.ico",
+      "filePath": "static/node-favicon.ico",
+      "headers": {
+        "content-type": "image/x-icon",
+        "cache-control": "public, max-age=60"
+      },
+      "includeInMainPage": false
     }
   ]
 }
