@@ -8,10 +8,10 @@ import * as gitResponseTypes from 'simple-git/typings/response';
 import * as http from 'http'
 import * as http2 from 'http2'
 import * as mustache from 'mustache'
+import * as net from 'net'
 import * as util from 'util'
 import * as v8 from 'v8'
 import * as winston from 'winston'
-import { ListenOptions } from 'net';
 
 const asyncExec = util.promisify(child_process.exec);
 
@@ -619,7 +619,7 @@ class AsyncServer {
 
     });
 
-    const listenOptions: ListenOptions = {
+    const listenOptions: net.ListenOptions = {
       host: this.configuration.listenAddress,
       port: this.configuration.listenPort
     };
