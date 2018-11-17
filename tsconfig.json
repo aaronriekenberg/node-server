@@ -3,9 +3,10 @@
   "compilerOptions": {
     "module": "commonjs",
     "strict": true,
-    "target": "es2017"
+    "target": "es2017",
+    "outDir": "./built"
   },
-  "files": [
-    "server.ts"
+  "include": [
+    "./src/**/*"
   ]
 }
