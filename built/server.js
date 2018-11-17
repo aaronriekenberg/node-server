@@ -474,7 +474,6 @@ const main = async () => {
         getEnvironment(),
         readTemplates()
     ]);
-    logger.info(`configuration = ${stringifyPretty(configuration)}`);
     const asyncServer = new AsyncServer(configuration, environment, templates);
     await asyncServer.start();
 };
