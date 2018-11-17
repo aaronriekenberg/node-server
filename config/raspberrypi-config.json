@@ -6,7 +6,7 @@
   "mainPageTitle": "Aaron's Raspberry Pi",
   "templatePageHeaders": {
     "content-type": "text/html",
-    "cache-control": "max-age=60"
+    "cache-control": "public, max-age=60"
   },
   "commandList": [
     {
@@ -111,7 +111,7 @@
       "filePath": "static/style.css",
       "headers": {
         "content-type": "text/css",
-        "cache-control": "max-age=60"
+        "cache-control": "public, max-age=60"
       },
       "includeInMainPage": false
     },
@@ -120,7 +120,7 @@
       "filePath": "static/command.js",
       "headers": {
         "content-type": "application/javascript",
-        "cache-control": "max-age=60"
+        "cache-control": "public, max-age=60"
       },
       "includeInMainPage": false
     },
@@ -129,7 +129,7 @@
       "filePath": "static/proxy.js",
       "headers": {
         "content-type": "application/javascript",
-        "cache-control": "max-age=60"
+        "cache-control": "public, max-age=60"
       },
       "includeInMainPage": false
     },
@@ -138,7 +138,7 @@
       "filePath": "static/raspberrypi-favicon.ico",
       "headers": {
         "content-type": "image/x-icon",
-        "cache-control": "max-age=60"
+        "cache-control": "public, max-age=60"
       },
       "includeInMainPage": false
     }

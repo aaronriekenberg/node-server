@@ -6,7 +6,7 @@
   "mainPageTitle": "Aaron's APU2",
   "templatePageHeaders": {
     "content-type": "text/html",
-    "cache-control": "max-age=60"
+    "cache-control": "public, max-age=60"
   },
   "commandList": [
     {
@@ -128,7 +128,7 @@
       "filePath": "static/style.css",
       "headers": {
         "content-type": "text/css",
-        "cache-control": "max-age=60"
+        "cache-control": "public, max-age=60"
       },
       "includeInMainPage": false
     },
@@ -137,7 +137,7 @@
       "filePath": "static/command.js",
       "headers": {
         "content-type": "application/javascript",
-        "cache-control": "max-age=60"
+        "cache-control": "public, max-age=60"
       },
       "includeInMainPage": false
     },
@@ -146,7 +146,7 @@
       "filePath": "static/proxy.js",
       "headers": {
         "content-type": "application/javascript",
-        "cache-control": "max-age=60"
+        "cache-control": "public, max-age=60"
       },
       "includeInMainPage": false
     },
@@ -155,7 +155,7 @@
       "filePath": "/home/aaron/vnstat/index.html",
       "headers": {
         "content-type": "text/html",
-        "cache-control": "max-age=60"
+        "cache-control": "public, max-age=60"
       },
       "includeInMainPage": true
     },
@@ -164,7 +164,7 @@
       "filePath": "/home/aaron/vnstat/vnstat_summary.png",
       "headers": {
         "content-type": "image/png",
-        "cache-control": "max-age=60"
+        "cache-control": "public, max-age=60"
       },
       "includeInMainPage": false
     },
@@ -173,7 +173,7 @@
       "filePath": "/home/aaron/vnstat/vnstat_hours.png",
       "headers": {
         "content-type": "image/png",
-        "cache-control": "max-age=60"
+        "cache-control": "public, max-age=60"
       },
       "includeInMainPage": false
     },
@@ -182,7 +182,7 @@
       "filePath": "/home/aaron/vnstat/vnstat_days.png",
       "headers": {
         "content-type": "image/png",
-        "cache-control": "max-age=60"
+        "cache-control": "public, max-age=60"
       },
       "includeInMainPage": false
     },
@@ -191,7 +191,7 @@
       "filePath": "/home/aaron/vnstat/vnstat_months.png",
       "headers": {
         "content-type": "image/png",
-        "cache-control": "max-age=60"
+        "cache-control": "public, max-age=60"
       },
       "includeInMainPage": false
     },
@@ -200,7 +200,7 @@
       "filePath": "/home/aaron/vnstat/vnstat_top10.png",
       "headers": {
         "content-type": "image/png",
-        "cache-control": "max-age=60"
+        "cache-control": "public, max-age=60"
       },
       "includeInMainPage": false
     }
