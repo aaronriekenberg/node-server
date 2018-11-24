@@ -10,97 +10,97 @@
   },
   "commandList": [
     {
-      "httpPath": "/arp",
+      "id": "arp",
       "command": "/usr/sbin/arp -an",
       "description": "arp"
     },
     {
-      "httpPath": "/df",
+      "id": "df",
       "command": "df -h",
       "description": "df"
     },
     {
-      "httpPath": "/dmesg",
+      "id": "dmesg",
       "command": "dmesg",
       "description": "dmesg"
     },
     {
-      "httpPath": "/ifconfig",
+      "id": "ifconfig",
       "command": "/sbin/ifconfig",
       "description": "ifconfig"
     },
     {
-      "httpPath": "/iwconfig",
+      "id": "iwconfig",
       "command": "/sbin/iwconfig",
       "description": "iwconfig"
     },
     {
-      "httpPath": "/log_ls",
+      "id": "log_ls",
       "command": "ls -latrh ~/node-server/logs",
       "description": "log ls"
     },
     {
-      "httpPath": "/log_tail",
+      "id": "log_tail",
       "command": "tail -n30 ~/node-server/logs/current",
       "description": "log tail"
     },
     {
-      "httpPath": "/lscpu",
+      "id": "lscpu",
       "command": "lscpu",
       "description": "lscpu"
     },
     {
-      "httpPath": "/ncal",
+      "id": "ncal",
       "command": "ncal -h -y",
       "description": "ncal"
     },
     {
-      "httpPath": "/netstat_an",
+      "id": "netstat_an",
       "command": "netstat -an",
       "description": "netstat -an"
     },
     {
-      "httpPath": "/netstat_s",
+      "id": "netstat_s",
       "command": "netstat -s",
       "description": "netstat -s"
     },
     {
-      "httpPath": "/ntpq",
+      "id": "ntpq",
       "command": "ntpq -p",
       "description": "ntpq"
     },
     {
-      "httpPath": "/pitemp",
+      "id": "pitemp",
       "command": "/home/pi/bin/pitemp.sh",
       "description": "pitemp"
     },
     {
-      "httpPath": "/tc_qdisc",
+      "id": "tc_qdisc",
       "command": "/sbin/tc -s qdisc show",
       "description": "tc qdisc show"
     },
     {
-      "httpPath": "/top",
+      "id": "top",
       "command": "top -b -n1",
       "description": "top"
     },
     {
-      "httpPath": "/unifi_log",
+      "id": "unifi_log",
       "command": "sudo tail -n30 /var/log/unifi/server.log",
       "description": "unifi log"
     },
     {
-      "httpPath": "/uptime",
+      "id": "uptime",
       "command": "uptime",
       "description": "uptime"
     },
     {
-      "httpPath": "/vmstat",
+      "id": "vmstat",
       "command": "vmstat",
       "description": "vmstat"
     },
     {
-      "httpPath": "/w",
+      "id": "w",
       "command": "w",
       "description": "w"
     }

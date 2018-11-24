@@ -12,7 +12,7 @@
   <h3>Commands:</h3>
   <ul>
     {{#configuration.commandList}}
-      <li><a href="{{httpPath}}">{{description}}</a></li>
+      <li><a href="/commands/{{id}}.html">{{description}}</a></li>
     {{/configuration.commandList}}
   </ul>
 
@@ -20,7 +20,7 @@
   <h3>Proxy Paths:</h3>
   <ul>
     {{#configuration.proxyList}}
-      <li><a href="{{httpPath}}">{{description}}</a></li>
+      <li><a href="/proxies/{{id}}.html">{{description}}</a></li>
     {{/configuration.proxyList}}
   </ul>
   {{/configuration.proxyList.length}}

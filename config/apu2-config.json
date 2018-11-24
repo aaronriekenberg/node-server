@@ -10,109 +10,109 @@
   },
   "commandList": [
     {
-      "httpPath": "/arp",
+      "id": "arp",
       "command": "/usr/sbin/arp -an",
       "description": "arp"
     },
     {
-      "httpPath": "/coredns_log_tail",
+      "id": "coredns_log_tail",
       "command": "tail -n30 /home/aaron/coredns-run/logs/current",
       "description": "coredns log tail"
     },
     {
-      "httpPath": "/cpu_vulnerabilities",
+      "id": "cpu_vulnerabilities",
       "command": "grep . /sys/devices/system/cpu/vulnerabilities/*",
       "description": "cpu vulnerabilities"
     },
     {
-      "httpPath": "/df",
+      "id": "df",
       "command": "df -h",
       "description": "df"
     },
     {
-      "httpPath": "/dhcp-lease-list",
+      "id": "dhcp-lease-list",
       "command": "/home/aaron/rust-dhcp-leases/target/release/rust-dhcp-leases",
       "description": "dhcp lease list"
     },
     {
-      "httpPath": "/dmesg",
+      "id": "dmesg",
       "command": "sudo dmesg",
       "description": "dmesg"
     },
     {
-      "httpPath": "/ifconfig",
+      "id": "ifconfig",
       "command": "/sbin/ifconfig",
       "description": "ifconfig"
     },
     {
-      "httpPath": "/log_ls",
+      "id": "log_ls",
       "command": "ls -latrh ~/node-server/logs",
       "description": "log ls"
     },
     {
-      "httpPath": "/log_tail",
+      "id": "log_tail",
       "command": "tail -n30 ~/node-server/logs/current",
       "description": "log tail"
     },
     {
-      "httpPath": "/lscpu",
+      "id": "lscpu",
       "command": "lscpu",
       "description": "lscpu"
     },
     {
-      "httpPath": "/ncal",
+      "id": "ncal",
       "command": "ncal -h -y",
       "description": "ncal"
     },
     {
-      "httpPath": "/netstat_an",
+      "id": "netstat_an",
       "command": "netstat -an",
       "description": "netstat -an"
     },
     {
-      "httpPath": "/netstat_s",
+      "id": "netstat_s",
       "command": "netstat -s",
       "description": "netstat -s"
     },
     {
-      "httpPath": "/ntpq",
+      "id": "ntpq",
       "command": "ntpq -p",
       "description": "ntpq"
     },
     {
-      "httpPath": "/sensors",
+      "id": "sensors",
       "command": "sensors",
       "description": "sensors"
     },
     {
-      "httpPath": "/tc_qdisc",
+      "id": "tc_qdisc",
       "command": "/sbin/tc -s qdisc show",
       "description": "tc qdisc show"
     },
     {
-      "httpPath": "/top",
+      "id": "top",
       "command": "top -b -n1",
       "description": "top"
     },
     {
-      "httpPath": "/uptime",
+      "id": "uptime",
       "command": "uptime",
       "description": "uptime"
     },
     {
-      "httpPath": "/vmstat",
+      "id": "vmstat",
       "command": "vmstat",
       "description": "vmstat"
     },
     {
-      "httpPath": "/w",
+      "id": "w",
       "command": "w",
       "description": "w"
     }
   ],
   "proxyList": [
     {
-      "httpPath": "/coredns_metrics",
+      "id": "coredns_metrics",
       "description": "coredns metrics",
       "options": {
         "hostname": "localhost",

@@ -10,34 +10,34 @@
   },
   "commandList": [
     {
-      "httpPath": "/ifconfig",
+      "id": "ifconfig",
       "command": "/sbin/ifconfig",
       "description": "ifconfig"
     },
     {
-      "httpPath": "/netstat_an",
+      "id": "netstat_an",
       "command": "netstat -an",
       "description": "netstat -an"
     },
     {
-      "httpPath": "/sleep",
+      "id": "sleep",
       "command": "time sleep 5",
       "description": "sleep"
     },
     {
-      "httpPath": "/uptime",
+      "id": "uptime",
       "command": "uptime",
       "description": "uptime"
     },
     {
-      "httpPath": "/w",
+      "id": "w",
       "command": "w",
       "description": "w"
     }
   ],
   "proxyList": [
     {
-      "httpPath": "/test_proxy",
+      "id": "test_proxy",
       "description": "test proxy",
       "options": {
         "hostname": "www.google.com",
@@ -47,7 +47,7 @@
       }
     },
     {
-      "httpPath": "/test_proxy2",
+      "id": "test_proxy2",
       "description": "test proxy 2",
       "options": {
         "hostname": "www.mpr.org",

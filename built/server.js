@@ -379,13 +379,15 @@ class AsyncServer {
         };
         setOrThrow('/', Handlers.buildIndexHandler(templates.indexTemplate, configuration, environment));
         (this.configuration.commandList || []).forEach((command) => {
-            const apiPath = `/api/commands${command.httpPath}`;
-            setOrThrow(command.httpPath, Handlers.buildCommandHTMLHandler(templates.commandTemplate, configuration, command, apiPath));
+            const apiPath = `/api/commands/${command.id}`;
+            const htmlPath = `/commands/${command.id}.html`;
+            setOrThrow(htmlPath, Handlers.buildCommandHTMLHandler(templates.commandTemplate, configuration, command, apiPath));
             setOrThrow(apiPath, Handlers.buildCommandAPIHandler(command));
         });
         (this.configuration.proxyList || []).forEach((proxy) => {
-            const apiPath = `/api/proxies${proxy.httpPath}`;
-            setOrThrow(proxy.httpPath, Handlers.buildProxyHTMLHandler(templates.proxyTemplate, configuration, proxy, apiPath));
+            const apiPath = `/api/proxies/${proxy.id}`;
+            const htmlPath = `/proxies/${proxy.id}.html`;
+            setOrThrow(htmlPath, Handlers.buildProxyHTMLHandler(templates.proxyTemplate, configuration, proxy, apiPath));
             setOrThrow(apiPath, Handlers.buildProxyAPIHandler(proxy));
         });
         if (this.configuration.proxyList) {
