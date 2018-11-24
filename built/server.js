@@ -63,6 +63,8 @@ class RequestContext {
         this.requestHeaders = requestHeaders;
         this.startTime = process.hrtime();
         this.streamIDString = RequestContext.buildStreamIDString(stream);
+        this.requestMethod = headerToString(this.requestHeaders[HTTP2_HEADER_METHOD]);
+        this.requestPath = headerToString(this.requestHeaders[HTTP2_HEADER_PATH]);
     }
     static buildStreamIDString(stream) {
         try {
@@ -72,12 +74,6 @@ class RequestContext {
         catch (err) {
             return 'UNKNOWN';
         }
-    }
-    get requestMethod() {
-        return headerToString(this.requestHeaders[HTTP2_HEADER_METHOD]);
-    }
-    get requestPath() {
-        return headerToString(this.requestHeaders[HTTP2_HEADER_PATH]);
     }
     get deltaTimeSeconds() {
         const delta = process.hrtime(this.startTime);

@@ -86,12 +86,16 @@ const headerToString = (header: string | string[] | undefined) => {
 class RequestContext {
   private readonly startTime: [number, number];
   readonly streamIDString: string;
+  readonly requestMethod: string | undefined;
+  readonly requestPath: string | undefined;
 
   constructor(
     private readonly stream: http2.ServerHttp2Stream,
     readonly requestHeaders: http2.IncomingHttpHeaders) {
     this.startTime = process.hrtime();
     this.streamIDString = RequestContext.buildStreamIDString(stream);
+    this.requestMethod = headerToString(this.requestHeaders[HTTP2_HEADER_METHOD]);
+    this.requestPath = headerToString(this.requestHeaders[HTTP2_HEADER_PATH]);
   }
 
   static buildStreamIDString(stream: http2.ServerHttp2Stream) {
@@ -101,14 +105,6 @@ class RequestContext {
     } catch (err) {
       return 'UNKNOWN';
     }
-  }
-
-  get requestMethod() {
-    return headerToString(this.requestHeaders[HTTP2_HEADER_METHOD]);
-  }
-
-  get requestPath() {
-    return headerToString(this.requestHeaders[HTTP2_HEADER_PATH]);
   }
 
   get deltaTimeSeconds() {
