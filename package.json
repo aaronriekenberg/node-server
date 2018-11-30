@@ -16,7 +16,7 @@
     "fecha": "^2.3.3",
     "mustache": "^2.3.2",
     "simple-git": "^1.107.0",
-    "typescript": "^3.1.6",
+    "typescript": "^3.2.1",
     "winston": "^3.1.0"
   }
 }
