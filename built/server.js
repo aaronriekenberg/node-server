@@ -65,6 +65,10 @@ class RequestContext {
         this.streamIDString = RequestContext.buildStreamIDString(stream);
         this.requestMethod = headerToString(this.requestHeaders[HTTP2_HEADER_METHOD]);
         this.requestPath = headerToString(this.requestHeaders[HTTP2_HEADER_PATH]);
+        stream.on('error', (err) => {
+            logger.error(`${this.streamIDString} stream error event err = ${formatError(err)}`);
+            this.destroyStream();
+        });
     }
     static buildStreamIDString(stream) {
         try {
