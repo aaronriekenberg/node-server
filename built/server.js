@@ -417,6 +417,7 @@ class AsyncServer {
     async start() {
         const httpServer = await this.createHttpServer();
         httpServer.on('error', (err) => logger.error(`httpServer error err = ${formatError(err)}`));
+        httpServer.on('sessionError', (err) => logger.error(`httpServer session error err = ${formatError(err)}`));
         httpServer.on('listening', () => logger.info(`httpServer listening on ${stringify(httpServer.address())}`));
         httpServer.on('stream', (stream, headers) => {
             const requestContext = new RequestContext(stream, headers);
