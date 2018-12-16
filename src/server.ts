@@ -46,8 +46,8 @@ const logger = winston.createLogger({
   transports: [new winston.transports.Console()]
 });
 
-const formatError = (err: Error, logStack: boolean = true) => {
-  return ((logStack && err.stack) || err.message);
+const formatError = (err: Error, includeStack: boolean = true) => {
+  return ((includeStack && err.stack) || err.message);
 };
 
 const stringify = JSON.stringify;

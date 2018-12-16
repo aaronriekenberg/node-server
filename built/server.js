@@ -23,8 +23,8 @@ const logger = winston.createLogger({
     }), winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)),
     transports: [new winston.transports.Console()]
 });
-const formatError = (err, logStack = true) => {
-    return ((logStack && err.stack) || err.message);
+const formatError = (err, includeStack = true) => {
+    return ((includeStack && err.stack) || err.message);
 };
 const stringify = JSON.stringify;
 const stringifyPretty = (object) => stringify(object, null, 2);
