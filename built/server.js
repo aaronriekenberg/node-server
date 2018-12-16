@@ -23,7 +23,9 @@ const logger = winston.createLogger({
     }), winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)),
     transports: [new winston.transports.Console()]
 });
-const formatError = (err) => (err.stack || err.message);
+const formatError = (err, logStack = true) => {
+    return ((logStack && err.stack) || err.message);
+};
 const stringify = JSON.stringify;
 const stringifyPretty = (object) => stringify(object, null, 2);
 const readFileAsync = async (filePath, encoding) => {
@@ -417,7 +419,7 @@ class AsyncServer {
     async start() {
         const httpServer = await this.createHttpServer();
         httpServer.on('error', (err) => logger.error(`httpServer error err = ${formatError(err)}`));
-        httpServer.on('sessionError', (err) => logger.error(`httpServer session error err = ${formatError(err)}`));
+        httpServer.on('sessionError', (err) => logger.error(`httpServer session error err = ${formatError(err, false)}`));
         httpServer.on('listening', () => logger.info(`httpServer listening on ${stringify(httpServer.address())}`));
         httpServer.on('stream', (stream, headers) => {
             const requestContext = new RequestContext(stream, headers);

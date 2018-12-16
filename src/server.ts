@@ -46,7 +46,9 @@ const logger = winston.createLogger({
   transports: [new winston.transports.Console()]
 });
 
-const formatError = (err: Error) => (err.stack || err.message);
+const formatError = (err: Error, logStack: boolean = true) => {
+  return ((logStack && err.stack) || err.message);
+};
 
 const stringify = JSON.stringify;
 const stringifyPretty = (object: any) => stringify(object, null, 2);
@@ -608,7 +610,7 @@ class AsyncServer {
 
     httpServer.on('error', (err) => logger.error(`httpServer error err = ${formatError(err)}`));
 
-    httpServer.on('sessionError', (err) => logger.error(`httpServer session error err = ${formatError(err)}`));
+    httpServer.on('sessionError', (err) => logger.error(`httpServer session error err = ${formatError(err, false)}`));
 
     httpServer.on('listening', () => logger.info(`httpServer listening on ${stringify(httpServer.address())}`));
 
