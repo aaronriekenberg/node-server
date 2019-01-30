@@ -4,7 +4,7 @@
     "moduleResolution": "Node",
     "outDir": "./built",
     "strict": true,
-    "target": "ES2017"
+    "target": "ESNEXT"
   },
   "include": [
     "./src/**/*"
