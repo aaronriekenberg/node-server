@@ -490,44 +490,63 @@ class Handlers {
   }
 
   static buildHttpAgentStatusHandler(): RequestHandler {
+
+    const headers = {
+      [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+      [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
+    };
+
     return (requestContext: RequestContext) => {
+
       const statusJson = stringifyPretty(httpAgentInstance().getCurrentStatus());
 
-      requestContext.writeResponse({
-        [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-        [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
-      },
+      requestContext.writeResponse(
+        cloneHeaders(headers),
         statusJson);
     };
   }
 
   static buildConfigurationHandler(configuration: Configuration): RequestHandler {
+
     const configurationJson = stringifyPretty(configuration);
+
+    const headers = {
+      [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+      [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
+    };
 
     return (requestContext: RequestContext) => {
 
-      requestContext.writeResponse({
-        [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-        [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
-      },
+      requestContext.writeResponse(
+        cloneHeaders(headers),
         configurationJson);
     };
   }
 
   static buildEnvironmentHandler(environment: Environment): RequestHandler {
+
     const environmentJson = stringifyPretty(environment);
+
+    const headers = {
+      [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+      [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
+    };
 
     return (requestContext: RequestContext) => {
 
-      requestContext.writeResponse({
-        [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-        [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
-      },
+      requestContext.writeResponse(
+        cloneHeaders(headers),
         environmentJson);
     };
   }
 
   static buildV8StatsHander(): RequestHandler {
+
+    const headers = {
+      [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
+      [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
+    };
+
     return (requestContext: RequestContext) => {
       const v8Stats = {
         heapStatistics: v8.getHeapStatistics(),
@@ -535,10 +554,8 @@ class Handlers {
       };
       const statusText = stringifyPretty(v8Stats);
 
-      requestContext.writeResponse({
-        [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
-        [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
-      },
+      requestContext.writeResponse(
+        cloneHeaders(headers),
         statusText);
     };
   }
