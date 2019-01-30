@@ -83,7 +83,11 @@ const headerToString = (header: string | string[] | undefined) => {
     retVal = header[0];
   }
   return retVal;
-}
+};
+
+const cloneHeaders = (headers: http2.OutgoingHttpHeaders) => {
+  return Object.assign({}, headers);
+};
 
 class RequestContext {
   private readonly startTime: [number, number];
@@ -242,7 +246,7 @@ class Handlers {
 
     return (requestContext: RequestContext) => {
       requestContext.writeResponse(
-        headers,
+        cloneHeaders(headers),
         'Unknown request');
     };
   }
@@ -271,7 +275,7 @@ class Handlers {
 
     return (requestContext: RequestContext) => {
       requestContext.writeResponse(
-        headers,
+        cloneHeaders(headers),
         indexHtml);
     };
   }
@@ -297,7 +301,7 @@ class Handlers {
 
     return (requestContext: RequestContext) => {
       requestContext.writeResponse(
-        headers,
+        cloneHeaders(headers),
         commandHtml);
     };
   }
@@ -361,7 +365,7 @@ class Handlers {
 
     return (requestContext: RequestContext) => {
       requestContext.writeResponse(
-        headers,
+        cloneHeaders(headers),
         proxyHtml);
     };
   }

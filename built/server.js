@@ -59,6 +59,9 @@ const headerToString = (header) => {
     }
     return retVal;
 };
+const cloneHeaders = (headers) => {
+    return Object.assign({}, headers);
+};
 class RequestContext {
     constructor(stream, requestHeaders) {
         this.stream = stream;
@@ -154,7 +157,7 @@ class Handlers {
             [HTTP2_HEADER_CONTENT_TYPE]: CONTENT_TYPE_TEXT_PLAIN
         };
         return (requestContext) => {
-            requestContext.writeResponse(headers, 'Unknown request');
+            requestContext.writeResponse(cloneHeaders(headers), 'Unknown request');
         };
     }
     static buildIndexHandler(indexTemplate, configuration, environment) {
@@ -171,7 +174,7 @@ class Handlers {
             [HTTP2_HEADER_LAST_MODIFIED]: new Date().toUTCString()
         }, configuration.templatePageHeaders);
         return (requestContext) => {
-            requestContext.writeResponse(headers, indexHtml);
+            requestContext.writeResponse(cloneHeaders(headers), indexHtml);
         };
     }
     static buildCommandHTMLHandler(commandTemplate, configuration, command, apiPath) {
@@ -185,7 +188,7 @@ class Handlers {
             [HTTP2_HEADER_LAST_MODIFIED]: new Date().toUTCString()
         }, configuration.templatePageHeaders);
         return (requestContext) => {
-            requestContext.writeResponse(headers, commandHtml);
+            requestContext.writeResponse(cloneHeaders(headers), commandHtml);
         };
     }
     static buildCommandAPIHandler(command) {
@@ -232,7 +235,7 @@ class Handlers {
             [HTTP2_HEADER_LAST_MODIFIED]: new Date().toUTCString()
         }, configuration.templatePageHeaders);
         return (requestContext) => {
-            requestContext.writeResponse(headers, proxyHtml);
+            requestContext.writeResponse(cloneHeaders(headers), proxyHtml);
         };
     }
     static buildProxyAPIHandler(proxy) {
