@@ -140,16 +140,6 @@ class RequestContext {
         }
     }
 }
-class Templates {
-    constructor(indexTemplate, commandTemplate, proxyTemplate) {
-        this.indexTemplate = indexTemplate;
-        this.commandTemplate = commandTemplate;
-        this.proxyTemplate = proxyTemplate;
-    }
-    get allTemplates() {
-        return [this.indexTemplate, this.commandTemplate, this.proxyTemplate];
-    }
-}
 class Handlers {
     static buildNotFoundHander() {
         const headers = {
@@ -473,8 +463,12 @@ const readTemplates = async () => {
         readFileAsync('templates/command.mustache', 'utf8'),
         readFileAsync('templates/proxy.mustache', 'utf8')
     ]);
-    const templates = new Templates(indexTemplate.toString(), commandTemplate.toString(), proxyTemplate.toString());
-    templates.allTemplates.forEach((t) => mustache.parse(t));
+    const templates = {
+        indexTemplate: indexTemplate.toString(),
+        commandTemplate: commandTemplate.toString(),
+        proxyTemplate: proxyTemplate.toString()
+    };
+    Object.values(templates).forEach((t) => mustache.parse(t));
     return templates;
 };
 const main = async () => {

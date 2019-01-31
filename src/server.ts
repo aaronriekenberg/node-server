@@ -222,15 +222,10 @@ interface Configuration {
   readonly staticFileList?: StaticFile[];
 }
 
-class Templates {
-  constructor(
-    readonly indexTemplate: string,
-    readonly commandTemplate: string,
-    readonly proxyTemplate: string) { }
-
-  get allTemplates() {
-    return [this.indexTemplate, this.commandTemplate, this.proxyTemplate];
-  }
+interface Templates {
+  readonly indexTemplate: string;
+  readonly commandTemplate: string;
+  readonly proxyTemplate: string;
 }
 
 type RequestHandler = (requestContext: RequestContext) => void;
@@ -699,12 +694,13 @@ const readTemplates = async () => {
     readFileAsync('templates/proxy.mustache', 'utf8')
   ]);
 
-  const templates = new Templates(
-    indexTemplate.toString(),
-    commandTemplate.toString(),
-    proxyTemplate.toString()
-  )
-  templates.allTemplates.forEach((t) => mustache.parse(t))
+  const templates: Templates = {
+    indexTemplate: indexTemplate.toString(),
+    commandTemplate: commandTemplate.toString(),
+    proxyTemplate: proxyTemplate.toString()
+  };
+
+  Object.values(templates).forEach((t) => mustache.parse(t))
   return templates;
 };
 
