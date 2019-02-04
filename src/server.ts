@@ -109,7 +109,7 @@ class RequestContext {
     });
   }
 
-  static buildStreamIDString(stream: http2.ServerHttp2Stream) {
+  static buildStreamIDString(stream: http2.ServerHttp2Stream): string {
     try {
       // XXX id is not part of ServerHttp2Stream
       return `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}/${(stream as any).id}`;
@@ -127,7 +127,7 @@ class RequestContext {
     return this.stream.destroyed;
   }
 
-  destroyStream() {
+  destroyStream(): void {
     try {
       if (!this.stream.destroyed) {
         this.stream.destroy();
@@ -137,7 +137,7 @@ class RequestContext {
     }
   }
 
-  writeResponse(responseHeaders: http2.OutgoingHttpHeaders, body?: string) {
+  writeResponse(responseHeaders: http2.OutgoingHttpHeaders, body?: string): void {
     try {
       if (this.streamDestroyed) {
         logger.info(`${this.streamIDString} writeResponse stream destroyed`);
@@ -162,7 +162,7 @@ class RequestContext {
     }
   }
 
-  respondWithFile(path: string, responseHeaders: http2.OutgoingHttpHeaders, options: http2.ServerStreamFileResponseOptionsWithError) {
+  respondWithFile(path: string, responseHeaders: http2.OutgoingHttpHeaders, options: http2.ServerStreamFileResponseOptionsWithError): void {
     try {
       if (this.streamDestroyed) {
         logger.info(`${this.streamIDString} respondWithFile stream destroyed`);
