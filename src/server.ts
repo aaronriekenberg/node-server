@@ -118,12 +118,12 @@ class RequestContext {
     }
   }
 
-  get deltaTimeSeconds() {
+  get deltaTimeSeconds(): number {
     const delta = process.hrtime(this.startTime);
     return delta[0] + (delta[1] / 1e9);
   }
 
-  get streamDestroyed() {
+  get streamDestroyed(): boolean {
     return this.stream.destroyed;
   }
 
