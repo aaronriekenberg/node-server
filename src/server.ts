@@ -15,6 +15,8 @@ import * as winston from 'winston'
 
 const asyncExec = util.promisify(child_process.exec);
 
+const UTF8 = 'utf8';
+
 const {
   HTTP2_HEADER_CONTENT_TYPE,
   HTTP2_HEADER_IF_MODIFIED_SINCE,
@@ -655,7 +657,7 @@ class AsyncServer {
 const readConfiguration = async (configFilePath: string) => {
   logger.info(`readConfiguration '${configFilePath}'`);
 
-  const fileContent = await readFileAsync(configFilePath, 'utf8');
+  const fileContent = await readFileAsync(configFilePath, UTF8);
 
   const configuration = JSON.parse(fileContent.toString()) as Configuration;
   return configuration;
@@ -689,9 +691,9 @@ const readTemplates = async () => {
   logger.info('readTemplates');
 
   const [indexTemplate, commandTemplate, proxyTemplate] = await Promise.all([
-    readFileAsync('templates/index.mustache', 'utf8'),
-    readFileAsync('templates/command.mustache', 'utf8'),
-    readFileAsync('templates/proxy.mustache', 'utf8')
+    readFileAsync('templates/index.mustache', UTF8),
+    readFileAsync('templates/command.mustache', UTF8),
+    readFileAsync('templates/proxy.mustache', UTF8)
   ]);
 
   const templates: Templates = {

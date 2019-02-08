@@ -12,6 +12,7 @@ const util = require("util");
 const v8 = require("v8");
 const winston = require("winston");
 const asyncExec = util.promisify(child_process.exec);
+const UTF8 = 'utf8';
 const { HTTP2_HEADER_CONTENT_TYPE, HTTP2_HEADER_IF_MODIFIED_SINCE, HTTP2_HEADER_LAST_MODIFIED, HTTP2_HEADER_METHOD, HTTP2_HEADER_PATH, HTTP2_HEADER_STATUS, HTTP2_METHOD_GET, HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_NOT_MODIFIED, HTTP_STATUS_OK } = http2.constants;
 const CONTENT_TYPE_APPLICATION_JSON = 'application/json';
 const CONTENT_TYPE_TEXT_PLAIN = 'text/plain';
@@ -434,7 +435,7 @@ class AsyncServer {
 }
 const readConfiguration = async (configFilePath) => {
     logger.info(`readConfiguration '${configFilePath}'`);
-    const fileContent = await readFileAsync(configFilePath, 'utf8');
+    const fileContent = await readFileAsync(configFilePath, UTF8);
     const configuration = JSON.parse(fileContent.toString());
     return configuration;
 };
@@ -459,9 +460,9 @@ const getEnvironment = async () => {
 const readTemplates = async () => {
     logger.info('readTemplates');
     const [indexTemplate, commandTemplate, proxyTemplate] = await Promise.all([
-        readFileAsync('templates/index.mustache', 'utf8'),
-        readFileAsync('templates/command.mustache', 'utf8'),
-        readFileAsync('templates/proxy.mustache', 'utf8')
+        readFileAsync('templates/index.mustache', UTF8),
+        readFileAsync('templates/command.mustache', UTF8),
+        readFileAsync('templates/proxy.mustache', UTF8)
     ]);
     const templates = {
         indexTemplate: indexTemplate.toString(),
