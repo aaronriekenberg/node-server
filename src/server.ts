@@ -14,6 +14,7 @@ import * as v8 from 'v8'
 import * as winston from 'winston'
 
 const asyncExec = util.promisify(child_process.exec);
+const asyncReadFile = util.promisify(fs.readFile);
 
 const UTF8 = 'utf8';
 
@@ -55,19 +56,7 @@ const formatError = (err: Error, includeStack: boolean = true) => {
 const stringify = JSON.stringify;
 const stringifyPretty = (object: any) => stringify(object, null, 2);
 
-const readFileAsync = async (filePath: string, encoding?: string) => {
-  let fileHandle: fs.promises.FileHandle | undefined;
-  try {
-    fileHandle = await fs.promises.open(filePath, 'r');
-    return await fileHandle.readFile({
-      encoding
-    });
-  } finally {
-    if (fileHandle) {
-      await fileHandle.close();
-    }
-  }
-};
+
 
 let httpAgentInstance = () => {
   const instance = new agentkeepalive({
@@ -613,8 +602,8 @@ class AsyncServer {
 
   async createHttpServer() {
     const [key, cert] = await Promise.all([
-      readFileAsync(this.configuration.tlsKeyFile),
-      readFileAsync(this.configuration.tlsCertFile)
+      asyncReadFile(this.configuration.tlsKeyFile),
+      asyncReadFile(this.configuration.tlsCertFile)
     ]);
     const httpServerConfig: http2.SecureServerOptions = {
       key,
@@ -657,7 +646,7 @@ class AsyncServer {
 const readConfiguration = async (configFilePath: string) => {
   logger.info(`readConfiguration '${configFilePath}'`);
 
-  const fileContent = await readFileAsync(configFilePath, UTF8);
+  const fileContent = await asyncReadFile(configFilePath, UTF8);
 
   const configuration = JSON.parse(fileContent.toString()) as Configuration;
   return configuration;
@@ -691,9 +680,9 @@ const readTemplates = async () => {
   logger.info('readTemplates');
 
   const [indexTemplate, commandTemplate, proxyTemplate] = await Promise.all([
-    readFileAsync('templates/index.mustache', UTF8),
-    readFileAsync('templates/command.mustache', UTF8),
-    readFileAsync('templates/proxy.mustache', UTF8)
+    asyncReadFile('templates/index.mustache', UTF8),
+    asyncReadFile('templates/command.mustache', UTF8),
+    asyncReadFile('templates/proxy.mustache', UTF8)
   ]);
 
   const templates: Templates = {

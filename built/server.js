@@ -12,6 +12,7 @@ const util = require("util");
 const v8 = require("v8");
 const winston = require("winston");
 const asyncExec = util.promisify(child_process.exec);
+const asyncReadFile = util.promisify(fs.readFile);
 const UTF8 = 'utf8';
 const { HTTP2_HEADER_CONTENT_TYPE, HTTP2_HEADER_IF_MODIFIED_SINCE, HTTP2_HEADER_LAST_MODIFIED, HTTP2_HEADER_METHOD, HTTP2_HEADER_PATH, HTTP2_HEADER_STATUS, HTTP2_METHOD_GET, HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_NOT_MODIFIED, HTTP_STATUS_OK } = http2.constants;
 const CONTENT_TYPE_APPLICATION_JSON = 'application/json';
@@ -29,20 +30,6 @@ const formatError = (err, includeStack = true) => {
 };
 const stringify = JSON.stringify;
 const stringifyPretty = (object) => stringify(object, null, 2);
-const readFileAsync = async (filePath, encoding) => {
-    let fileHandle;
-    try {
-        fileHandle = await fs.promises.open(filePath, 'r');
-        return await fileHandle.readFile({
-            encoding
-        });
-    }
-    finally {
-        if (fileHandle) {
-            await fileHandle.close();
-        }
-    }
-};
 let httpAgentInstance = () => {
     const instance = new agentkeepalive({
         keepAlive: true
@@ -405,8 +392,8 @@ class AsyncServer {
     }
     async createHttpServer() {
         const [key, cert] = await Promise.all([
-            readFileAsync(this.configuration.tlsKeyFile),
-            readFileAsync(this.configuration.tlsCertFile)
+            asyncReadFile(this.configuration.tlsKeyFile),
+            asyncReadFile(this.configuration.tlsCertFile)
         ]);
         const httpServerConfig = {
             key,
@@ -435,7 +422,7 @@ class AsyncServer {
 }
 const readConfiguration = async (configFilePath) => {
     logger.info(`readConfiguration '${configFilePath}'`);
-    const fileContent = await readFileAsync(configFilePath, UTF8);
+    const fileContent = await asyncReadFile(configFilePath, UTF8);
     const configuration = JSON.parse(fileContent.toString());
     return configuration;
 };
@@ -460,9 +447,9 @@ const getEnvironment = async () => {
 const readTemplates = async () => {
     logger.info('readTemplates');
     const [indexTemplate, commandTemplate, proxyTemplate] = await Promise.all([
-        readFileAsync('templates/index.mustache', UTF8),
-        readFileAsync('templates/command.mustache', UTF8),
-        readFileAsync('templates/proxy.mustache', UTF8)
+        asyncReadFile('templates/index.mustache', UTF8),
+        asyncReadFile('templates/command.mustache', UTF8),
+        asyncReadFile('templates/proxy.mustache', UTF8)
     ]);
     const templates = {
         indexTemplate: indexTemplate.toString(),
