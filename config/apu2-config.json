@@ -62,7 +62,7 @@
     {
       "id": "sysctl_hw",
       "command": "sysctl hw",
-      "description": "sysctl_hw"
+      "description": "sysctl hw"
     },
     {
       "id": "top",
