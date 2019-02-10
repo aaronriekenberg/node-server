@@ -15,28 +15,18 @@
       "description": "arp"
     },
     {
-      "id": "coredns_log_tail",
-      "command": "tail -n30 /home/aaron/coredns-run/logs/current",
-      "description": "coredns log tail"
-    },
-    {
-      "id": "cpu_vulnerabilities",
-      "command": "grep . /sys/devices/system/cpu/vulnerabilities/*",
-      "description": "cpu vulnerabilities"
-    },
-    {
       "id": "df",
       "command": "df -h",
       "description": "df"
     },
     {
       "id": "dhcp-lease-list",
-      "command": "/home/aaron/rust-dhcp-leases/target/release/rust-dhcp-leases",
+      "command": "/home/aaron/dhcp-leases/show-leases.sh",
       "description": "dhcp lease list"
     },
     {
       "id": "dmesg",
-      "command": "sudo dmesg",
+      "command": "dmesg",
       "description": "dmesg"
     },
     {
@@ -55,16 +45,6 @@
       "description": "log tail"
     },
     {
-      "id": "lscpu",
-      "command": "lscpu",
-      "description": "lscpu"
-    },
-    {
-      "id": "ncal",
-      "command": "ncal -h -y",
-      "description": "ncal"
-    },
-    {
       "id": "netstat_an",
       "command": "netstat -an",
       "description": "netstat -an"
@@ -75,23 +55,18 @@
       "description": "netstat -s"
     },
     {
-      "id": "ntpq",
-      "command": "ntpq -p",
-      "description": "ntpq"
+      "id": "ntpctl",
+      "command": "ntpctl -sa",
+      "description": "ntpctl"
     },
     {
-      "id": "sensors",
-      "command": "sensors",
-      "description": "sensors"
-    },
-    {
-      "id": "tc_qdisc",
-      "command": "/sbin/tc -s qdisc show",
-      "description": "tc qdisc show"
+      "id": "sysctl_hw",
+      "command": "sysctl hw",
+      "description": "sysctl_hw"
     },
     {
       "id": "top",
-      "command": "top -b -n1",
+      "command": "top -b",
       "description": "top"
     },
     {
@@ -110,18 +85,7 @@
       "description": "w"
     }
   ],
-  "proxyList": [
-    {
-      "id": "coredns_metrics",
-      "description": "coredns metrics",
-      "options": {
-        "hostname": "localhost",
-        "port": 9153,
-        "path": "/metrics",
-        "method": "GET"
-      }
-    }
-  ],
+  "proxyList": [],
   "staticFileList": [
     {
       "httpPath": "/style.css",
@@ -152,7 +116,7 @@
     },
     {
       "httpPath": "/favicon.ico",
-      "filePath": "static/debian-favicon.ico",
+      "filePath": "static/node-favicon.ico",
       "headers": {
         "content-type": "image/x-icon",
         "cache-control": "public, max-age=60"
@@ -160,8 +124,8 @@
       "includeInMainPage": false
     },
     {
-      "httpPath": "/vnstat/index.html",
-      "filePath": "/home/aaron/vnstat/index.html",
+      "httpPath": "/pfstat/index.html",
+      "filePath": "/var/www/htdocs/pfstat/index.html",
       "headers": {
         "content-type": "text/html",
         "cache-control": "public, max-age=60"
@@ -169,8 +133,8 @@
       "includeInMainPage": true
     },
     {
-      "httpPath": "/vnstat/vnstat_summary.png",
-      "filePath": "/home/aaron/vnstat/vnstat_summary.png",
+      "httpPath": "/pfstat/pfstat-packets-v4-1day.png",
+      "filePath": "/var/www/htdocs/pfstat/pfstat-packets-v4-1day.png",
       "headers": {
         "content-type": "image/png",
         "cache-control": "public, max-age=60"
@@ -178,8 +142,8 @@
       "includeInMainPage": false
     },
     {
-      "httpPath": "/vnstat/vnstat_hours.png",
-      "filePath": "/home/aaron/vnstat/vnstat_hours.png",
+      "httpPath": "/pfstat/pfstat-packets-v4-1hour.png",
+      "filePath": "/var/www/htdocs/pfstat/pfstat-packets-v4-1hour.png",
       "headers": {
         "content-type": "image/png",
         "cache-control": "public, max-age=60"
@@ -187,8 +151,8 @@
       "includeInMainPage": false
     },
     {
-      "httpPath": "/vnstat/vnstat_days.png",
-      "filePath": "/home/aaron/vnstat/vnstat_days.png",
+      "httpPath": "/pfstat/pfstat-packets-v4-7days.png",
+      "filePath": "/var/www/htdocs/pfstat/pfstat-packets-v4-7days.png",
       "headers": {
         "content-type": "image/png",
         "cache-control": "public, max-age=60"
@@ -196,8 +160,8 @@
       "includeInMainPage": false
     },
     {
-      "httpPath": "/vnstat/vnstat_months.png",
-      "filePath": "/home/aaron/vnstat/vnstat_months.png",
+      "httpPath": "/pfstat/pfstat-states-1day.png",
+      "filePath": "/var/www/htdocs/pfstat/pfstat-states-1day.png",
       "headers": {
         "content-type": "image/png",
         "cache-control": "public, max-age=60"
@@ -205,8 +169,26 @@
       "includeInMainPage": false
     },
     {
-      "httpPath": "/vnstat/vnstat_top10.png",
-      "filePath": "/home/aaron/vnstat/vnstat_top10.png",
+      "httpPath": "/pfstat/pfstat-v4-1day.png",
+      "filePath": "/var/www/htdocs/pfstat/pfstat-v4-1day.png",
+      "headers": {
+        "content-type": "image/png",
+        "cache-control": "public, max-age=60"
+      },
+      "includeInMainPage": false
+    },
+    {
+      "httpPath": "/pfstat/pfstat-v4-1hour.png",
+      "filePath": "/var/www/htdocs/pfstat/pfstat-v4-1hour.png",
+      "headers": {
+        "content-type": "image/png",
+        "cache-control": "public, max-age=60"
+      },
+      "includeInMainPage": false
+    },
+    {
+      "httpPath": "/pfstat/pfstat-v4-7days.png",
+      "filePath": "/var/www/htdocs/pfstat/pfstat-v4-7days.png",
       "headers": {
         "content-type": "image/png",
         "cache-control": "public, max-age=60"
