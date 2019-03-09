@@ -56,8 +56,6 @@ const formatError = (err: Error, includeStack: boolean = true) => {
 const stringify = JSON.stringify;
 const stringifyPretty = (object: any) => stringify(object, null, 2);
 
-
-
 let httpAgentInstance = () => {
   const instance = new agentkeepalive({
     keepAlive: true
