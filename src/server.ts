@@ -14,9 +14,6 @@ import * as v8 from 'v8'
 import * as winston from 'winston'
 
 const asyncExec = util.promisify(child_process.exec);
-const asyncReadFile = util.promisify(fs.readFile);
-
-const UTF8 = 'utf8';
 
 const {
   HTTP2_HEADER_CONTENT_TYPE,
@@ -55,6 +52,22 @@ const formatError = (err: Error, includeStack: boolean = true) => {
 
 const stringify = JSON.stringify;
 const stringifyPretty = (object: any) => stringify(object, null, 2);
+
+const UTF8 = 'utf8';
+
+const asyncReadFile = async (filePath: string, encoding?: string) => {
+  let fileHandle: fs.promises.FileHandle | undefined;
+  try {
+    fileHandle = await fs.promises.open(filePath, 'r');
+    return await fileHandle.readFile({
+      encoding
+    });
+  } finally {
+    if (fileHandle) {
+      await fileHandle.close();
+    }
+  }
+};
 
 let httpAgentInstance = () => {
   const instance = new agentkeepalive({
