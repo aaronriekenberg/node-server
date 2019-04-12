@@ -15,7 +15,7 @@
     "agentkeepalive": "^3.5.2",
     "fecha": "^2.3.3",
     "mustache": "^2.3.2",
-    "simple-git": "^1.107.0",
+    "simple-git": "^1.110.0",
     "typescript": "^3.3.3333",
     "winston": "^3.2.1"
   }
