@@ -443,7 +443,7 @@ class Handlers {
           const ifModifiedSinceString = headerToString(requestContext.requestHeaders[HTTP2_HEADER_IF_MODIFIED_SINCE]);
           if (ifModifiedSinceString) {
             const ifModifiedSinceDate = new Date(ifModifiedSinceString);
-            if (stat.mtime.getTime() <= ifModifiedSinceDate.getTime()) {
+            if (stat.mtime.getTime() === ifModifiedSinceDate.getTime()) {
               statResponseHeaders[HTTP2_HEADER_STATUS] = HTTP_STATUS_NOT_MODIFIED;
               requestContext.writeResponse(statResponseHeaders);
               return false;

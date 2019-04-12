@@ -59,6 +59,15 @@
   ],
   "staticFileList": [
     {
+      "httpPath": "/google.png",
+      "filePath": "/Users/z001jy9/google.png",
+      "headers": {
+        "content-type": "image/png",
+        "cache-control": "public, max-age=10"
+      },
+      "includeInMainPage": true
+    },
+    {
       "httpPath": "/style.css",
       "filePath": "static/style.css",
       "headers": {
