@@ -309,7 +309,7 @@ class Handlers {
       let childProcess: { stdout: string, stderr: string } | undefined;
       let commandErr: Error | undefined;
       try {
-        childProcess = await asyncExec(command.command);
+        childProcess = await asyncExec(command.command, { 'timeout': 2000 });
       } catch (err) {
         logger.error(`command err = ${formatError(err)}`);
         commandErr = err;
