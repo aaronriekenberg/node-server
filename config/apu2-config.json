@@ -8,6 +8,9 @@
     "content-type": "text/html",
     "cache-control": "public, max-age=60"
   },
+  "commandConfiguration": {
+    "timeoutMilliseconds": 2000
+  },
   "commandList": [
     {
       "id": "arp",

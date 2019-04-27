@@ -182,12 +182,12 @@ class Handlers {
             requestContext.writeResponse(cloneHeaders(headers), commandHtml);
         };
     }
-    static buildCommandAPIHandler(command) {
+    static buildCommandAPIHandler(command, commandConfiguration) {
         return async (requestContext) => {
             let childProcess;
             let commandErr;
             try {
-                childProcess = await asyncExec(command.command, { 'timeout': 2000 });
+                childProcess = await asyncExec(command.command, { 'timeout': commandConfiguration.timeoutMilliseconds });
             }
             catch (err) {
                 logger.error(`command err = ${formatError(err)}`);
@@ -386,7 +386,7 @@ class AsyncServer {
             const apiPath = `/api/commands/${command.id}`;
             const htmlPath = `/commands/${command.id}.html`;
             setOrThrow(htmlPath, Handlers.buildCommandHTMLHandler(templates.commandTemplate, configuration, command, apiPath));
-            setOrThrow(apiPath, Handlers.buildCommandAPIHandler(command));
+            setOrThrow(apiPath, Handlers.buildCommandAPIHandler(command, this.configuration.commandConfiguration));
         });
         (this.configuration.proxyList || []).forEach((proxy) => {
             const apiPath = `/api/proxies/${proxy.id}`;

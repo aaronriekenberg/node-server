@@ -193,6 +193,10 @@ interface Environment {
   readonly versions: NodeJS.ProcessVersions;
 }
 
+interface CommandConfiguration {
+  readonly timeoutMilliseconds: number
+}
+
 interface Command {
   readonly id: string;
   readonly command: string;
@@ -219,6 +223,7 @@ interface Configuration {
   readonly listenPort: number;
   readonly mainPageTitle: string;
   readonly templatePageHeaders: http2.OutgoingHttpHeaders;
+  readonly commandConfiguration: CommandConfiguration;
   readonly commandList?: Command[];
   readonly proxyList?: Proxy[];
   readonly staticFileList?: StaticFile[];
@@ -303,13 +308,13 @@ class Handlers {
     };
   }
 
-  static buildCommandAPIHandler(command: Command): RequestHandler {
+  static buildCommandAPIHandler(command: Command, commandConfiguration: CommandConfiguration): RequestHandler {
     return async (requestContext: RequestContext) => {
 
       let childProcess: { stdout: string, stderr: string } | undefined;
       let commandErr: Error | undefined;
       try {
-        childProcess = await asyncExec(command.command, { 'timeout': 2000 });
+        childProcess = await asyncExec(command.command, { 'timeout': commandConfiguration.timeoutMilliseconds });
       } catch (err) {
         logger.error(`command err = ${formatError(err)}`);
         commandErr = err;
@@ -586,7 +591,9 @@ class AsyncServer {
       const htmlPath = `/commands/${command.id}.html`;
       setOrThrow(htmlPath, Handlers.buildCommandHTMLHandler(
         templates.commandTemplate, configuration, command, apiPath));
-      setOrThrow(apiPath, Handlers.buildCommandAPIHandler(command));
+      setOrThrow(apiPath, Handlers.buildCommandAPIHandler(
+        command,
+        this.configuration.commandConfiguration));
     });
 
     (this.configuration.proxyList || []).forEach((proxy) => {
