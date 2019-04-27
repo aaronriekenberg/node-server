@@ -187,7 +187,7 @@ class Handlers {
             let childProcess;
             let commandErr;
             try {
-                childProcess = await asyncExec(command.command, { 'timeout': commandConfiguration.timeoutMilliseconds });
+                childProcess = await asyncExec(command.command, { timeout: commandConfiguration.timeoutMilliseconds });
             }
             catch (err) {
                 logger.error(`command err = ${formatError(err)}`);
