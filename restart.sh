@@ -1,6 +1,5 @@
 #!/bin/sh -x
 
-KILL_CMD=pkill
 CONFIG_FILE=config/$(hostname -s)-config.json
 
 pkill -f 'node ./built/server.js'
