@@ -58,9 +58,9 @@
       "description": "node dns log"
     },
     {
-      "id": "ntpctl",
-      "command": "ntpctl -sa",
-      "description": "ntpctl"
+      "id": "ntpq",
+      "command": "ntpq -p",
+      "description": "ntpq"
     },
     {
       "id": "sensors",
