@@ -3,7 +3,7 @@
 KILL_CMD=pkill
 CONFIG_FILE=config/$(hostname -s)-config.json
 
-$KILL_CMD node
+pkill -f 'node ./built/server.js'
 
 sleep 2
 
