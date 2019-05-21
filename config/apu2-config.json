@@ -74,7 +74,7 @@
     },
     {
       "id": "top",
-      "command": "top -b",
+      "command": "top -b -n1",
       "description": "top"
     },
     {
