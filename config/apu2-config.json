@@ -23,13 +23,8 @@
       "description": "df"
     },
     {
-      "id": "dhcp-lease-list",
-      "command": "/home/aaron/dhcp-leases/show-leases.sh",
-      "description": "dhcp lease list"
-    },
-    {
       "id": "dmesg",
-      "command": "dmesg",
+      "command": "sudo dmesg",
       "description": "dmesg"
     },
     {
@@ -58,14 +53,24 @@
       "description": "netstat -s"
     },
     {
+      "id": "node_dns_log",
+      "command": "sudo tail -n30 /home/aaron/node-dns/logs/current",
+      "description": "node dns log"
+    },
+    {
       "id": "ntpctl",
       "command": "ntpctl -sa",
       "description": "ntpctl"
     },
     {
-      "id": "sysctl_hw",
-      "command": "sysctl hw",
-      "description": "sysctl hw"
+      "id": "sensors",
+      "command": "sensors",
+      "description": "sensors"
+    },
+    {
+      "id": "tc_qdisc",
+      "command": "/sbin/tc -s qdisc show",
+      "description": "tc qdisc show"
     },
     {
       "id": "top",
@@ -122,78 +127,6 @@
       "filePath": "static/node-favicon.ico",
       "headers": {
         "content-type": "image/x-icon",
-        "cache-control": "public, max-age=60"
-      },
-      "includeInMainPage": false
-    },
-    {
-      "httpPath": "/pfstat/index.html",
-      "filePath": "/var/www/htdocs/pfstat/index.html",
-      "headers": {
-        "content-type": "text/html",
-        "cache-control": "public, max-age=60"
-      },
-      "includeInMainPage": true
-    },
-    {
-      "httpPath": "/pfstat/pfstat-packets-v4-1day.png",
-      "filePath": "/var/www/htdocs/pfstat/pfstat-packets-v4-1day.png",
-      "headers": {
-        "content-type": "image/png",
-        "cache-control": "public, max-age=60"
-      },
-      "includeInMainPage": false
-    },
-    {
-      "httpPath": "/pfstat/pfstat-packets-v4-1hour.png",
-      "filePath": "/var/www/htdocs/pfstat/pfstat-packets-v4-1hour.png",
-      "headers": {
-        "content-type": "image/png",
-        "cache-control": "public, max-age=60"
-      },
-      "includeInMainPage": false
-    },
-    {
-      "httpPath": "/pfstat/pfstat-packets-v4-7days.png",
-      "filePath": "/var/www/htdocs/pfstat/pfstat-packets-v4-7days.png",
-      "headers": {
-        "content-type": "image/png",
-        "cache-control": "public, max-age=60"
-      },
-      "includeInMainPage": false
-    },
-    {
-      "httpPath": "/pfstat/pfstat-states-1day.png",
-      "filePath": "/var/www/htdocs/pfstat/pfstat-states-1day.png",
-      "headers": {
-        "content-type": "image/png",
-        "cache-control": "public, max-age=60"
-      },
-      "includeInMainPage": false
-    },
-    {
-      "httpPath": "/pfstat/pfstat-v4-1day.png",
-      "filePath": "/var/www/htdocs/pfstat/pfstat-v4-1day.png",
-      "headers": {
-        "content-type": "image/png",
-        "cache-control": "public, max-age=60"
-      },
-      "includeInMainPage": false
-    },
-    {
-      "httpPath": "/pfstat/pfstat-v4-1hour.png",
-      "filePath": "/var/www/htdocs/pfstat/pfstat-v4-1hour.png",
-      "headers": {
-        "content-type": "image/png",
-        "cache-control": "public, max-age=60"
-      },
-      "includeInMainPage": false
-    },
-    {
-      "httpPath": "/pfstat/pfstat-v4-7days.png",
-      "filePath": "/var/www/htdocs/pfstat/pfstat-v4-7days.png",
-      "headers": {
-        "content-type": "image/png",
         "cache-control": "public, max-age=60"
       },
       "includeInMainPage": false

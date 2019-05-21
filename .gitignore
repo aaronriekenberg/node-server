@@ -2,4 +2,8 @@ node_modules
 output*
 *.pem
 *.swp
-logs/
+logs/lock
+logs/state
+logs/*.s
+logs/*.u
+logs/current
