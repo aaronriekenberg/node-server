@@ -18,6 +18,11 @@
       "description": "arp"
     },
     {
+      "id": "cpu_vulnerabilities",
+      "command": "grep . /sys/devices/system/cpu/vulnerabilities/*",
+      "description": "cpu vulnerabilities"
+    },
+    {
       "id": "df",
       "command": "df -h",
       "description": "df"
@@ -41,6 +46,11 @@
       "id": "log_tail",
       "command": "tail -n30 ~/node-server/logs/current",
       "description": "log tail"
+    },
+    {
+      "id": "lscpu",
+      "command": "lscpu",
+      "description": "lscpu"
     },
     {
       "id": "netstat_an",
