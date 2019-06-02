@@ -140,6 +140,60 @@
         "cache-control": "public, max-age=60"
       },
       "includeInMainPage": false
+    },
+    {
+      "httpPath": "/vnstat/index.html",
+      "filePath": "/home/aaron/vnstat/index.html",
+      "headers": {
+        "content-type": "text/html",
+        "cache-control": "public, max-age=60"
+      },
+      "includeInMainPage": true
+    },
+    {
+      "httpPath": "/vnstat/vnstat_summary.png",
+      "filePath": "/home/aaron/vnstat/vnstat_summary.png",
+      "headers": {
+        "content-type": "image/png",
+        "cache-control": "public, max-age=60"
+      },
+      "includeInMainPage": false
+    },
+    {
+      "httpPath": "/vnstat/vnstat_hours.png",
+      "filePath": "/home/aaron/vnstat/vnstat_hours.png",
+      "headers": {
+        "content-type": "image/png",
+        "cache-control": "public, max-age=60"
+      },
+      "includeInMainPage": false
+    },
+    {
+      "httpPath": "/vnstat/vnstat_days.png",
+      "filePath": "/home/aaron/vnstat/vnstat_days.png",
+      "headers": {
+        "content-type": "image/png",
+        "cache-control": "public, max-age=60"
+      },
+      "includeInMainPage": false
+    },
+    {
+      "httpPath": "/vnstat/vnstat_months.png",
+      "filePath": "/home/aaron/vnstat/vnstat_months.png",
+      "headers": {
+        "content-type": "image/png",
+        "cache-control": "public, max-age=60"
+      },
+      "includeInMainPage": false
+    },
+    {
+      "httpPath": "/vnstat/vnstat_top10.png",
+      "filePath": "/home/aaron/vnstat/vnstat_top10.png",
+      "headers": {
+        "content-type": "image/png",
+        "cache-control": "public, max-age=60"
+      },
+      "includeInMainPage": false
     }
   ]
 }
