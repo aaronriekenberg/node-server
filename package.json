@@ -11,12 +11,12 @@
   "license": "ISC",
   "dependencies": {
     "@types/mustache": "^0.8.32",
-    "@types/node": "^10.14.7",
+    "@types/node": "^10.14.8",
     "agentkeepalive": "^3.5.2",
     "fecha": "^2.3.3",
     "mustache": "^2.3.2",
     "simple-git": "^1.113.0",
-    "typescript": "^3.4.5",
+    "typescript": "^3.5.1",
     "winston": "^3.2.1"
   }
 }
