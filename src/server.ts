@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 
-import Agent from 'agentkeepalive'
-import * as child_process from 'child_process'
-import * as fs from 'fs'
-import git from 'simple-git/promise'
+import Agent from 'agentkeepalive';
+import * as child_process from 'child_process';
+import * as fs from 'fs';
+import git from 'simple-git/promise';
 import * as gitResponseTypes from 'simple-git/typings/response';
-import * as http from 'http'
-import * as http2 from 'http2'
-import mustache from 'mustache'
-import * as net from 'net'
-import * as util from 'util'
-import * as v8 from 'v8'
-import * as winston from 'winston'
+import * as http from 'http';
+import * as http2 from 'http2';
+import mustache from 'mustache';
+import * as net from 'net';
+import * as util from 'util';
+import * as v8 from 'v8';
+import * as winston from 'winston';
 
 const asyncExec = util.promisify(child_process.exec);
 
