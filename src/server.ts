@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-import * as agentkeepalive from 'agentkeepalive'
+import Agent from 'agentkeepalive'
 import * as child_process from 'child_process'
 import * as fs from 'fs'
-import * as git from 'simple-git/promise'
+import git from 'simple-git/promise'
 import * as gitResponseTypes from 'simple-git/typings/response';
 import * as http from 'http'
 import * as http2 from 'http2'
-import * as mustache from 'mustache'
+import mustache from 'mustache'
 import * as net from 'net'
 import * as util from 'util'
 import * as v8 from 'v8'
@@ -70,7 +70,7 @@ const asyncReadFile = async (filePath: string, encoding?: string) => {
 };
 
 let httpAgentInstance = () => {
-  const instance = new agentkeepalive({
+  const instance = new Agent({
     keepAlive: true
   });
   httpAgentInstance = () => instance;

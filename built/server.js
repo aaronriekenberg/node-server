@@ -1,16 +1,26 @@
 #!/usr/bin/env node
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const agentkeepalive = require("agentkeepalive");
-const child_process = require("child_process");
-const fs = require("fs");
-const git = require("simple-git/promise");
-const http = require("http");
-const http2 = require("http2");
-const mustache = require("mustache");
-const util = require("util");
-const v8 = require("v8");
-const winston = require("winston");
+const agentkeepalive_1 = __importDefault(require("agentkeepalive"));
+const child_process = __importStar(require("child_process"));
+const fs = __importStar(require("fs"));
+const promise_1 = __importDefault(require("simple-git/promise"));
+const http = __importStar(require("http"));
+const http2 = __importStar(require("http2"));
+const mustache_1 = __importDefault(require("mustache"));
+const util = __importStar(require("util"));
+const v8 = __importStar(require("v8"));
+const winston = __importStar(require("winston"));
 const asyncExec = util.promisify(child_process.exec);
 const { HTTP2_HEADER_CONTENT_TYPE, HTTP2_HEADER_IF_MODIFIED_SINCE, HTTP2_HEADER_LAST_MODIFIED, HTTP2_HEADER_METHOD, HTTP2_HEADER_PATH, HTTP2_HEADER_STATUS, HTTP2_METHOD_GET, HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_NOT_MODIFIED, HTTP_STATUS_OK } = http2.constants;
 const CONTENT_TYPE_APPLICATION_JSON = 'application/json';
@@ -44,7 +54,7 @@ const asyncReadFile = async (filePath, encoding) => {
     }
 };
 let httpAgentInstance = () => {
-    const instance = new agentkeepalive({
+    const instance = new agentkeepalive_1.default({
         keepAlive: true
     });
     httpAgentInstance = () => instance;
@@ -159,7 +169,7 @@ class Handlers {
             configuration,
             environment
         };
-        const indexHtml = mustache.render(indexTemplate, indexData);
+        const indexHtml = mustache_1.default.render(indexTemplate, indexData);
         const headers = Object.assign({
             [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
             [HTTP2_HEADER_LAST_MODIFIED]: new Date().toUTCString()
@@ -173,7 +183,7 @@ class Handlers {
             apiPath,
             command
         };
-        const commandHtml = mustache.render(commandTemplate, commandData);
+        const commandHtml = mustache_1.default.render(commandTemplate, commandData);
         const headers = Object.assign({
             [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
             [HTTP2_HEADER_LAST_MODIFIED]: new Date().toUTCString()
@@ -220,7 +230,7 @@ class Handlers {
             apiPath,
             proxy
         };
-        const proxyHtml = mustache.render(proxyTemplate, proxyData);
+        const proxyHtml = mustache_1.default.render(proxyTemplate, proxyData);
         const headers = Object.assign({
             [HTTP2_HEADER_STATUS]: HTTP_STATUS_OK,
             [HTTP2_HEADER_LAST_MODIFIED]: new Date().toUTCString()
@@ -441,7 +451,7 @@ const readConfiguration = async (configFilePath) => {
 };
 const getGitCommit = async () => {
     logger.info('getGitCommit');
-    const gitLog = await git('.').log(['-1']);
+    const gitLog = await promise_1.default('.').log(['-1']);
     return gitLog.latest;
 };
 const getEnvironment = async () => {
@@ -469,7 +479,7 @@ const readTemplates = async () => {
         commandTemplate: commandTemplate.toString(),
         proxyTemplate: proxyTemplate.toString()
     };
-    Object.values(templates).forEach((t) => mustache.parse(t));
+    Object.values(templates).forEach((t) => mustache_1.default.parse(t));
     return templates;
 };
 const main = async () => {
