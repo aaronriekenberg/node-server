@@ -28,11 +28,6 @@
       "description": "df"
     },
     {
-      "id": "dmesg",
-      "command": "sudo dmesg",
-      "description": "dmesg"
-    },
-    {
       "id": "ifconfig",
       "command": "/sbin/ifconfig",
       "description": "ifconfig"
@@ -64,7 +59,7 @@
     },
     {
       "id": "node_dns_log",
-      "command": "sudo tail -n30 /home/aaron/node-dns/logs/current",
+      "command": "tail -n30 /home/aaron/node-dns/logs/current",
       "description": "node dns log"
     },
     {
