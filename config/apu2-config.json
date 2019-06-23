@@ -28,6 +28,11 @@
       "description": "df"
     },
     {
+      "id": "go_dns_log",
+      "command": "tail -n30 /home/aaron/go-dns/logs/current",
+      "description": "go dns log"
+    },
+    {
       "id": "ifconfig",
       "command": "/sbin/ifconfig",
       "description": "ifconfig"
@@ -56,11 +61,6 @@
       "id": "netstat_s",
       "command": "netstat -s",
       "description": "netstat -s"
-    },
-    {
-      "id": "node_dns_log",
-      "command": "tail -n30 /home/aaron/node-dns/logs/current",
-      "description": "node dns log"
     },
     {
       "id": "ntpq",
