@@ -39,7 +39,7 @@
     },
     {
       "id": "log_tail",
-      "command": "tail -n30 ~/node-server/logs/current",
+      "command": "tail -n30 ~/node-server/logs/output",
       "description": "log tail"
     },
     {
