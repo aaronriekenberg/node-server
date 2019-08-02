@@ -11,4 +11,4 @@ if [ ! -d logs ]; then
 fi
 
 export NODE_ENV=production
-nohup ./built/server.js $CONFIG_FILE 2>&1 | svlogd logs &
+nohup ./built/server.js $CONFIG_FILE >> logs/output 2>&1 &

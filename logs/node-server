@@ -1,0 +1,8 @@
+/home/aaron/node-server/logs/output {
+	daily
+        rotate 7
+        missingok
+        notifempty
+        compress
+        copytruncate
+}
