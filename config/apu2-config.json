@@ -59,7 +59,7 @@
     },
     {
       "id": "node_dns_log",
-      "command": "tail -n30 /home/aaron/node-dns/logs/current",
+      "command": "tail -n30 /home/aaron/node-dns/logs/output",
       "description": "node dns log"
     },
     {
