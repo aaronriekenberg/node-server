@@ -114,7 +114,8 @@ class RequestContext {
   static buildStreamIDString(stream: http2.ServerHttp2Stream): string {
     try {
       // XXX id is not part of ServerHttp2Stream
-      return `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}/${(stream as any).id}`;
+      const streamWithID = stream as { id: number }
+      return `${stream.session.socket.remoteAddress}:${stream.session.socket.remotePort}/${streamWithID.id}`;
     } catch (err) {
       return 'UNKNOWN';
     }
