@@ -4,7 +4,7 @@ import Agent from 'agentkeepalive';
 import * as child_process from 'child_process';
 import * as fs from 'fs';
 import git from 'simple-git/promise';
-import * as gitResponseTypes from 'simple-git/typings/response';
+import * as gitLogTypes from 'simple-git/src/lib/tasks/log';
 import * as http from 'http';
 import * as http2 from 'http2';
 import mustache from 'mustache';
@@ -55,7 +55,7 @@ const stringifyPretty = (object: any) => stringify(object, null, 2);
 
 const UTF8 = 'utf8';
 
-const asyncReadFile = async (filePath: string, encoding?: string) => {
+const asyncReadFile = async (filePath: string, encoding?: BufferEncoding) => {
   let fileHandle: fs.promises.FileHandle | undefined;
   try {
     fileHandle = await fs.promises.open(filePath, 'r');
@@ -184,7 +184,7 @@ class RequestContext {
 }
 
 interface Environment {
-  readonly gitCommit: gitResponseTypes.DefaultLogFields;
+  readonly gitCommit: gitLogTypes.DefaultLogFields | null;
   readonly argv: string[],
   readonly env: NodeJS.ProcessEnv;
   readonly arch: string;
@@ -484,9 +484,9 @@ class Handlers {
 
       requestContext.respondWithFile(staticFile.filePath,
         responseHeaders, {
-          statCheck,
-          onError
-        });
+        statCheck,
+        onError
+      });
     }
   }
 
